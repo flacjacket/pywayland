@@ -38,11 +38,10 @@ def _destroyed_dispatcher(res_ptr):
         return
 
     res = ffi.from_handle(res_py_ptr)
-    assert res
-    # TODO
-    # func = res.listener._destructor
-    # if func is not None:
-    #     func(res)
+
+    func = res.destructor
+    if func is not None:
+        func(res)
 
 
 class Listener(object):
@@ -53,7 +52,6 @@ class Listener(object):
         self.dispatcher = _dispatcher
         if destructor:
             self.destroyed_dispatcher = _destroyed_dispatcher
-            self._destructor = None
 
     def __getitem__(self, opcode_or_name):
         if opcode_or_name in self._names:
