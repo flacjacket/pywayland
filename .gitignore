@@ -10,5 +10,8 @@
 /build/
 /pywayland.egg-info
 
+# Scanner output
+/pywayland/protocol
+
 # Vim swap files
 *.swp
