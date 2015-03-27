@@ -15,3 +15,7 @@
 
 # Vim swap files
 *.swp
+
+# Doc output
+/doc/_build/
+/doc/module/protocol/

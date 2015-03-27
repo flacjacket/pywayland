@@ -5,6 +5,11 @@ PyWayland provides a wrapper to the ``libwayland`` library using the CFFI
 library to provide access to the Wayland library calls and written in pure
 Python.
 
+Below is outlined some of the basics of PyWayland and how to get up and
+running.  For more help, see the `full documentation`_.
+
+.. _full documentation: http://pywayland.readthedocs.org/
+
 Current Release
 ---------------
 

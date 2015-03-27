@@ -17,7 +17,7 @@ from __future__ import absolute_import
 from .ffi import ffi, C  # noqa
 
 __version__ = '0.0.1a.dev2'
-__wayland_version__ = '{:d}.{:d}.{:d}'.format(
+__wayland_version__ = '{}.{}.{}'.format(
     C.WAYLAND_VERSION_MAJOR,
     C.WAYLAND_VERSION_MINOR,
     C.WAYLAND_VERSION_MICRO
