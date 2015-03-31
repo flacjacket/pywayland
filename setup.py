@@ -14,7 +14,23 @@
 
 from __future__ import absolute_import
 
+import platform
+
 from setuptools import setup
+from distutils.command.build import build
+
+
+# Adapted from http://github.com/xattr/xattr
+class module_build(build):
+    """
+    This is a shameful hack to ensure that cffi is present when we specify
+    ext_modules. We can't do this eagerly because setup_require hasn't run yet.
+    """
+    def finalize_options(self):
+        from pywayland import ffi
+        self.distribution.ext_modules = [ffi.verifier.get_extension()]
+        build.finalize_options(self)
+
 
 description = 'Python bindings for the libwayland library written in pure Python'
 
@@ -45,6 +61,9 @@ classifiers = [
 
 dependencies = ['six>=1.4.1']
 
+if platform.python_implementation() != "PyPy":
+    dependencies.append('cffi>=0.9')
+
 setup(
     name='pywayland',
     version='0.0.1a.dev',
@@ -59,4 +78,7 @@ setup(
     packages=['pywayland'],
     zip_safe=False,
     ext_package='_pywayland',
+    cmdclass={
+        'build': module_build
+    }
 )
