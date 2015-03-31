@@ -21,6 +21,13 @@ ffi.cdef("""
  * wayland-util.h
  *****************************************************************************/
 // Structs for event and request dispactching
+typedef int32_t wl_fixed_t;
+
+struct wl_message {
+    const char *name;
+    const char *signature;
+    const struct wl_interface **types;
+};
 struct wl_interface {
     const char *name;
     int version;
@@ -29,6 +36,20 @@ struct wl_interface {
     int event_count;
     const struct wl_message *events;
 };
+union wl_argument {
+    int32_t i; /**< signed integer */
+    uint32_t u; /**< unsigned integer */
+    wl_fixed_t f; /**< fixed point */
+    const char *s; /**< string */
+    struct wl_object *o; /**< object */
+    uint32_t n; /**< new_id */
+    struct wl_array *a; /**< array */
+    int32_t h; /**< file descriptor */
+};
+
+typedef int (*wl_dispatcher_func_t)(const void *, void *, uint32_t,
+                                    const struct wl_message *,
+                                    union wl_argument *);
 """)
 
 C = ffi.verify("""
