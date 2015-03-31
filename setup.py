@@ -14,10 +14,28 @@
 
 from __future__ import absolute_import
 
+import os
 import platform
+import sys
 
 from setuptools import setup
 from distutils.command.build import build
+
+protocol_dir = './pywayland/protocol'
+
+
+def build_protocol(input_file):
+    """Build the ./pywayland/protocol/ directory from the given xml file"""
+    from pywayland.scanner.scanner import Scanner
+
+    # Ensure the protocol dir exists
+    if not os.path.isdir(protocol_dir):
+        os.makedirs(protocol_dir, 0o775)
+
+    # Run and scan the xml file
+    scanner = Scanner(input_file)
+    scanner.scan()
+    scanner.output(protocol_dir)
 
 
 # Adapted from http://github.com/xattr/xattr
@@ -25,11 +43,29 @@ class module_build(build):
     """
     This is a shameful hack to ensure that cffi is present when we specify
     ext_modules. We can't do this eagerly because setup_require hasn't run yet.
+
+    Furthermore, we also need to build the pywayland.protocol module and add it
+    to the packages.  This must also be held off until setup_require has run.
     """
+    user_options = build.user_options + [
+        ('xml-file=', None, 'Location of wayland.xml protocol file')
+    ]
+
+    def initialize_options(self):
+        build.initialize_options(self)
+        self.xml_file = '/usr/share/wayland/wayland.xml'
+
     def finalize_options(self):
         from pywayland import ffi
         self.distribution.ext_modules = [ffi.verifier.get_extension()]
         build.finalize_options(self)
+
+    def run(self):
+        build_protocol(self.xml_file)
+        # Now we can add the protocols to the packages
+        self.distribution.packages.append('pywayland.protocol')
+
+        build.run(self)
 
 
 description = 'Python bindings for the libwayland library written in pure Python'
@@ -62,8 +98,12 @@ classifiers = [
 dependencies = ['six>=1.4.1']
 
 modules = [
-    'pywayland.client'
+    'pywayland.client',
+    'pywayland.scanner'
 ]
+
+if sys.version_info < (3, 4):
+    dependencies.append('enum34')
 
 if platform.python_implementation() != "PyPy":
     dependencies.append('cffi>=0.9')
@@ -80,6 +120,11 @@ setup(
     install_requires=dependencies,
     setup_requires=dependencies,
     packages=['pywayland'] + modules,
+    entry_points={
+        'console_scripts': [
+            'pywayland-scanner = pywayland.pywayland_scanner:main'
+        ]
+    },
     zip_safe=False,
     ext_package='_pywayland',
     cmdclass={
