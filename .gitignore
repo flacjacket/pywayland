@@ -1,5 +1,10 @@
 # Python bytecode
 *.pyc
 
+# Build output
+/dist/
+/build/
+/pywayland.egg-info
+
 # Vim swap files
 *.swp
