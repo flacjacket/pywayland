@@ -61,6 +61,10 @@ classifiers = [
 
 dependencies = ['six>=1.4.1']
 
+modules = [
+    'pywayland.client'
+]
+
 if platform.python_implementation() != "PyPy":
     dependencies.append('cffi>=0.9')
 
@@ -75,7 +79,7 @@ setup(
     classifiers=classifiers,
     install_requires=dependencies,
     setup_requires=dependencies,
-    packages=['pywayland'],
+    packages=['pywayland'] + modules,
     zip_safe=False,
     ext_package='_pywayland',
     cmdclass={
