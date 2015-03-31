@@ -17,6 +17,18 @@ from cffi import FFI
 ffi = FFI()
 
 ffi.cdef("""
+/******************************************************************************
+ * wayland-util.h
+ *****************************************************************************/
+// Structs for event and request dispactching
+struct wl_interface {
+    const char *name;
+    int version;
+    int method_count;
+    const struct wl_message *methods;
+    int event_count;
+    const struct wl_message *events;
+};
 """)
 
 C = ffi.verify("""
