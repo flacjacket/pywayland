@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
+from cffi import FFI
 
-from .ffi import ffi, C  # noqa
+ffi = FFI()
 
-__version__ = '0.0.1a.dev'
+ffi.cdef("""
+""")
+
+C = ffi.verify("""
+#include <wayland-client.h>
+#include <wayland-server.h>
+""", libraries=['wayland-client', 'wayland-server'], modulename='_pywayland')
