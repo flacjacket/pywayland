@@ -1,0 +1,5 @@
+cffi
+flake8
+pytest-cov
+python-coveralls
+six
