@@ -56,36 +56,36 @@ class module_build(build):
         self.xml_file = '/usr/share/wayland/wayland.xml'
 
     def finalize_options(self):
-        from pywayland import ffi, __wayland_version__
+        from pywayland import ffi
         self.distribution.ext_modules = [ffi.verifier.get_extension()]
-        build.finalize_options(self)
 
-    def run(self):
         build_protocol(self.xml_file)
-        # Now we can add the protocols to the packages
         self.distribution.packages.append('pywayland.protocol')
 
-        build.run(self)
-
-        self.distribution.long_description = self.distribution.long_description.format(
-            __wayland_version__
-        )
-
+        build.finalize_options(self)
 
 
 description = 'Python bindings for the libwayland library written in pure Python'
 
+# Just pull the long description from the README
 try:
     rst_input = open('README.rst').read().split('\n')
 except:
     long_description = ""
 else:
-    rst_head = rst_input[:3]
-    rst_body = rst_input[3:]
+    # For the purposes of uploading, we'll pull the version of Wayland here
+    try:
+        from pywayland import __wayland_version__
+    except ImportError:
+        long_description = '\n' + '\n'.join(rst_input)
+    else:
+        rst_head = rst_input[:3]
+        rst_body = rst_input[3:]
+        version = 'Built against Wayland {}'.format(__wayland_version__)
 
-    long_description = '\n'.join(
-        rst_head + ['Built against Wayland {}', ''] + rst_body
-    )
+        long_description = '\n' + '\n'.join(
+            rst_head + [version, ''] + rst_body
+        )
 
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
@@ -120,11 +120,12 @@ if platform.python_implementation() != "PyPy":
 
 setup(
     name='pywayland',
-    version='0.0.1a.dev1',
+    version='0.0.1a.dev2',
     author='Sean Vig',
     author_email='sean.v.775@gmail.com',
     url='http://github.com/flacjacket/pywayland',
     description=description,
+    long_description=long_description,
     license='Apache License 2.0',
     classifiers=classifiers,
     install_requires=dependencies,
