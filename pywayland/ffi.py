@@ -18,6 +18,13 @@ ffi = FFI()
 
 ffi.cdef("""
 /******************************************************************************
+ * wayland-version.h
+ *****************************************************************************/
+#define WAYLAND_VERSION_MAJOR ...
+#define WAYLAND_VERSION_MINOR ...
+#define WAYLAND_VERSION_MICRO ...
+
+/******************************************************************************
  * wayland-util.h
  *****************************************************************************/
 // Structs for event and request dispactching
@@ -86,4 +93,5 @@ void wl_proxy_set_user_data(struct wl_proxy *proxy, void *user_data);
 C = ffi.verify("""
 #include <wayland-client.h>
 #include <wayland-server.h>
+#include <wayland-version.h>
 """, libraries=['wayland-client', 'wayland-server'], modulename='_pywayland')

@@ -56,7 +56,7 @@ class module_build(build):
         self.xml_file = '/usr/share/wayland/wayland.xml'
 
     def finalize_options(self):
-        from pywayland import ffi
+        from pywayland import ffi, __wayland_version__
         self.distribution.ext_modules = [ffi.verifier.get_extension()]
         build.finalize_options(self)
 
@@ -67,15 +67,25 @@ class module_build(build):
 
         build.run(self)
 
+        self.distribution.long_description = self.distribution.long_description.format(
+            __wayland_version__
+        )
+
+
 
 description = 'Python bindings for the libwayland library written in pure Python'
 
-long_description = """\
-PyWayland provides a wrapper to libwayland using the CFFI library to provide
-access to the Wayland library calls.
+try:
+    rst_input = open('README.rst').read().split('\n')
+except:
+    long_description = ""
+else:
+    rst_head = rst_input[:3]
+    rst_body = rst_input[3:]
 
-Built against Wayland 1.7.0.
-"""
+    long_description = '\n'.join(
+        rst_head + ['Built against Wayland {}', ''] + rst_body
+    )
 
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
@@ -110,7 +120,7 @@ if platform.python_implementation() != "PyPy":
 
 setup(
     name='pywayland',
-    version='0.0.1a.dev',
+    version='0.0.1a.dev1',
     author='Sean Vig',
     author_email='sean.v.775@gmail.com',
     url='http://github.com/flacjacket/pywayland',
