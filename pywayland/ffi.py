@@ -47,7 +47,6 @@ CDEF = """
  *****************************************************************************/
 // Structs for event and request dispactching
 typedef int32_t wl_fixed_t;
-
 struct wl_message {
     const char *name;
     const char *signature;
@@ -75,6 +74,11 @@ union wl_argument {
 typedef int (*wl_dispatcher_func_t)(const void *, void *, uint32_t,
                                     const struct wl_message *,
                                     union wl_argument *);
+
+// wl_fixed_t handling
+static inline double wl_fixed_to_double(wl_fixed_t f);
+static inline wl_fixed_t wl_fixed_from_double(double d);
+static inline wl_fixed_t wl_fixed_from_int(int i);
 
 /******************************************************************************
  * wayland-client.h
