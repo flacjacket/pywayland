@@ -74,7 +74,7 @@ class Display(Proxy):
         queued on the default queue. Those events should be dispatched with
         wl_display_dispatch_(queue_)pending() before flushing and blocking.
         """
-        super().__init__()
+        super(Display, self).__init__()
 
     def __del__(self):
         self.disconnect()
