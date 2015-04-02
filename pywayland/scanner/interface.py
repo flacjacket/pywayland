@@ -20,13 +20,13 @@ import itertools
 
 
 class Interface(object):
+    """Scanner for interface objects
+
+    Required attributes: `name` and `version`
+
+    Child elements: `description`, `request`, `event`, `enum`
+    """
     def __init__(self, iface):
-        """Scanner for interface objects
-
-        Required attributes: `name` and `version`
-
-        Child elements: `description`, `request`, `event`, `enum`
-        """
         self._iface = iface
         attrib = iface.attrib
         self.name = attrib['name']
@@ -36,7 +36,7 @@ class Interface(object):
     def file_name(self):
         """Returns the file name of the interface
 
-        Trim the 'wl_' from the specified interface name.
+        Trim the ``wl_`` from the specified interface name.
         """
         return ''.join(self.name.split('_')[1:]) + '.py'
 
@@ -44,7 +44,7 @@ class Interface(object):
     def class_name(self):
         """Returns the name of the class of the interface
 
-        Trim the 'wl_' from the specified interface, and capitalize the first
+        Trim the ``wl_`` from the specified interface, and capitalize the first
         letter of each word, dropping the underscores.
         """
         return ''.join(x.capitalize() for x in self.name.split('_')[1:])

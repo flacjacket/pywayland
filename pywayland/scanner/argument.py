@@ -16,15 +16,15 @@ NO_IFACE_NAME = 'interface'
 
 
 class Argument(object):
+    """Argument to a request or event method
+
+    Required attributes: `name` and `type`
+
+    Optional attributes: `summary`, `interface`, and `allow-null`
+
+    Child elements: `description`
+    """
     def __init__(self, arg):
-        """Argument to a request or event method
-
-        Required attributes: `name` and `type`
-
-        Optional attributes: `summary`, `interface`, and `allow-null`
-
-        Child elements: `description`
-        """
         self._arg = arg
         self.name = arg.attrib['name']
         self.type = arg.attrib['type']

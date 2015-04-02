@@ -34,14 +34,14 @@ def _dispatcher(data, target, opcode, message, c_args):
 
 
 class Proxy(object):
-    def __init__(self):
-        """Represents a protocol object on the client side.
+    """Represents a protocol object on the client side.
 
-        A `Proxy` acts as a client side proxy to an object existing in the
-        compositor. Events coming from the compositor are also handled by the
-        proxy, which will in turn call the handler set with
-        `Proxy.add_listener()`.
-        """
+    A :class:`Proxy` acts as a client side proxy to an object existing in the
+    compositor.  Events coming from the compositor are also handled by the
+    proxy, which will in turn call the handler set with
+    :func:`Proxy.add_listener`.
+    """
+    def __init__(self):
         self.listener = {}
         self.user_data = None
         self._user_data = None
@@ -59,9 +59,9 @@ class Proxy(object):
     def add_listener(self, callback, opcode=None, name=None):
         """Add listener for an event
 
-        Add listener for an event, either by opcode (passed as an int) or by
-        the name of the event, `name` (passed as a string).  Exactly one of
-        these parameters must be set.
+        Add listener for an event, either by ``opcode`` (passed as an int) or
+        by the name of the event, ``name`` (passed as a string).  Exactly one
+        of these parameters must be set.
         """
         if (opcode and name) or not (opcode or name):
             raise ValueError("Exactly one of `opcode` or `name` can be set")
@@ -118,11 +118,13 @@ class Proxy(object):
 class ProxyMeta(type):
     """Metaclass to initialize proxy classes from interfaces
 
-    The base class must define an `._interface` parameter corresponding to a
-    `Interface`, a `._ptr` parameter corresponding to the `wl_interface`
-    pointer, and a `.requests` parameter giving a list of `Message`'s.  This
-    casts the `_ptr` to the correct type and adds the functions of each method
-    to the class as methods.
+    The base class must define an ``._interface`` parameter corresponding to an
+    :class:`~pywayland.interface.Interface`, a ``._ptr`` parameter
+    corresponding to the ``wl_proxy`` cdata pointer, and a ``.requests``
+    parameter giving a list of :class:`~pywayland.message.Message`'s that will
+    be added to the new :class:`Proxy` class to be returned.  The `_ptr` is
+    cast to the correct type for the interface and the functions of each method
+    are added to the class as methods.
     """
     def __new__(cls, name, bases, dct):
         assert '_interface' in dct

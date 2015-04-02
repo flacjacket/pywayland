@@ -29,12 +29,12 @@ copyright = """\
 
 
 class Printer(object):
-    def __init__(self):
-        """Base level printer object
+    """Base level printer object
 
-        Allows for storing of lines to be output from the definition of a
-        protocol.  Lines are added by directly calling the printer object.
-        """
+    Allows for storing of lines to be output from the definition of a
+    protocol.  Lines are added by directly calling the printer object.
+    """
+    def __init__(self):
         self.level = 0
         self.lines = []
 

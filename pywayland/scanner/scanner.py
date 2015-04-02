@@ -20,16 +20,18 @@ import os
 
 
 class Scanner(object):
+    """Main scanner object
+
+    Main scanner object that acts on the input ``wayland.xml`` file to generate
+    protocol files.
+
+    Required attributes: `name`
+
+    Child elements: `copywright` and `interface`
+
+    :param input_file: Name of input XML file
+    """
     def __init__(self, input_file):
-        """Main scanner object
-
-        Main scanner object that acts on the input wayland.xml file to generate
-        protocol files.
-
-        Required attributes: `name`
-
-        Child elements: `copywright` and `interface`
-        """
         self._input_file = os.path.basename(input_file)
         if not os.path.exists(input_file):
             raise ValueError("Input xml file does not exist: {}".format(input_file))
@@ -55,12 +57,8 @@ class Scanner(object):
         """Output the scanned files to the given directory
 
 
-        Parameters
-        ----------
-
-        output_dir : string
-            Path of directory to output protocol files to
-
+        :param output_dir: Path of directory to output protocol files to
+        :type output_dir: string
         """
         printer = Printer()
         printer.initialize_file()

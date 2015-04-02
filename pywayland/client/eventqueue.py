@@ -16,10 +16,10 @@ from pywayland import C
 
 
 class EventQueue(object):
-    def __init__(self, display):
-        """A queue for wl_proxy object events.
+    """A queue for wl_proxy object events.
 
-        Event queues allows the events on a display to be handled in a
-        thread-safe manner. See wl_display for details.
-        """
+    Event queues allows the events on a display to be handled in a thread-safe
+    manner. See :class:`~pywayland.client.Display` for details.
+    """
+    def __init__(self, display):
         self._ptr = C.wl_display_create_queue(display._ptr)

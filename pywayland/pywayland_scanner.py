@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.scanner.scanner import Scanner
+from pywayland.scanner import Scanner
 
 import argparse
 import os

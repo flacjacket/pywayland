@@ -14,15 +14,15 @@
 
 
 class Entry(object):
+    """Scanner for enum entries
+
+    Required attributes: `name` and `value`
+
+    Optional attributes: `summary` and `since`
+
+    Child elements: `description`
+    """
     def __init__(self, entry):
-        """Scanner for enum entries
-
-        Required attributes: `name` and `value`
-
-        Optional attributes: `summary` and `since`
-
-        Child elements: `description`
-        """
         self._entry = entry
         self.name = entry.attrib['name']
         self.value = entry.attrib['value']

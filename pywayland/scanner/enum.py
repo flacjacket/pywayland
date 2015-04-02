@@ -16,13 +16,13 @@ from .entry import Entry
 
 
 class Enum(object):
+    """Scanner for enum objects
+
+    Required attributes: `name` and `since`
+
+    Child elements: `description` and `entry`
+    """
     def __init__(self, enum):
-        """Scanner for enum objects
-
-        Required attributes: `name` and `since`
-
-        Child elements: `description` and `entry`
-        """
         self._enum = enum
         self.name = enum.attrib['name']
 

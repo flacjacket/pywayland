@@ -16,11 +16,11 @@ from .argument import Argument
 
 
 class Method(object):
-    def __init__(self, method, opcode):
-        """Scanner for methods
+    """Scanner for methods
 
-        Corresponds to event and requests defined on an interface
-        """
+    Corresponds to event and requests defined on an interface
+    """
+    def __init__(self, method, opcode):
         self._method = method
         self.name = method.attrib['name']
 
