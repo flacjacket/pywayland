@@ -53,6 +53,6 @@ tests can be run through ``py.test``.  Be sure you build the protocol files
 .. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch=master
     :alt: Build Status
     :target: https://travis-ci.org/flacjacket/pywayland
-.. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.png?branch=master
+.. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch=master
     :alt: Build Coverage
     :target: https://coveralls.io/r/flacjacket/pywayland
