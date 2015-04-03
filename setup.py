@@ -120,7 +120,7 @@ if platform.python_implementation() != "PyPy":
 
 setup(
     name='pywayland',
-    version='0.0.1a.dev2',
+    version='0.0.1a.dev3',
     author='Sean Vig',
     author_email='sean.v.775@gmail.com',
     url='http://github.com/flacjacket/pywayland',
