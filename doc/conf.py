@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import importlib
 import os
 import shutil
 import sys
@@ -8,9 +9,7 @@ import six.moves.urllib as urllib
 
 from unittest.mock import MagicMock
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -49,8 +48,7 @@ protocol_rst = """\
 {mod_upper}
 {empty:=^{len}}
 
-.. automodule:: pywayland.protocol.{mod_lower}
-   :members:
+.. wl_protocol:: pywayland.protocol.{mod_lower} {mod_upper}
 """
 
 
@@ -80,10 +78,13 @@ def protocol_doc(input_dir, output_dir):
             f.write('   {}\n'.format(d))
 
     for mod_lower in doc_files:
-        doc_file = os.path.join(output_dir, '{}.rst'.format(mod_lower))
-        mod_upper = mod_lower.capitalize()
-        mod_len = len(mod_lower)
+        mod = importlib.import_module('pywayland.protocol.' + mod_lower)
+        for mod_upper in dir(mod):
+            if mod_upper.lower() == mod_lower:
+                break
 
+        mod_len = len(mod_lower)
+        doc_file = os.path.join(output_dir, '{}.rst'.format(mod_lower))
         with open(doc_file, 'w') as f:
             f.write(protocol_rst.format(
                 mod_lower=mod_lower,
@@ -111,6 +112,7 @@ protocol_doc(protocol_build_dir, protocol_doc_dir)
 # -- General configuration ------------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_wl_protocol'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
