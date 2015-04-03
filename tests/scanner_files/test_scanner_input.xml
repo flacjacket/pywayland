@@ -39,8 +39,18 @@
       <arg name="the_int" type="int" summary="the arg summary"/>
       <arg name="the_uint" type="uint"/>
       <arg name="the_fixed" type="fixed"/>
-      <arg name="id" type="new_id" interface="wl_core"/>
+      <arg name="id" type="new_id" interface="wl_core" summary="a wl_core object"/>
     </request>
+
+    <event name="send_event">
+      <description summary="a wl_core event">
+        Send an event, but also put in some docs for our interface wl_core,
+        some other interface wl_other, a local function call wl_core.func, and
+        another function call wl_other.func.
+      </description>
+      <arg name="id" type="new_id" interface="wl_core" summary="a wl_core object"/>
+      <arg name="object" type="object" interface="wl_object" summary="a wl_object object"/>
+    </event>
 
     <enum name="the_enum">
       <description summary="enum values">
@@ -185,7 +195,7 @@
 
     <request name="create_interface">
       <description summary="create another interface">
-        Create a wl_destructor_interface object
+        Create a wl_destructor interface object
       </description>
 
       <arg name="id" type="new_id" interface="wl_destructor"/>

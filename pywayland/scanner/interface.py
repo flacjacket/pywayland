@@ -64,9 +64,10 @@ class Interface(object):
 
     def output(self, printer):
         """Generate the output for the interface to the printer"""
-        printer.initialize_file()
+        printer.initialize_file(self.name)
         printer()
 
+        # Imports
         imports = set(_import for method in itertools.chain(self.requests, self.events)
                       for _import in method.get_imports(self.name))
         printer('from pywayland.interface import Interface, InterfaceMeta')
@@ -79,21 +80,28 @@ class Interface(object):
         printer()
         printer()
 
+        # Class definition
         printer('@six.add_metaclass(InterfaceMeta)')
         printer('class {}(Interface):'.format(self.class_name))
+        # Docstring
         printer.inc_level()
-        printer('"""{}'.format(self.summary))
+        printer.doc('"""{}'.format(self.summary.capitalize()))
         printer()
         for line in self.description.split('\n'):
-            printer(line.strip())
+            printer.doc(line.strip())
         printer('"""')
+
+        # Class attributes
         printer('name = "{}"'.format(self.name))
         printer('version = {:d}'.format(self.version))
+
+        # Enums
         for enum in self.enums:
             printer()
             enum.output(printer)
         printer.dec_level()
 
+        # Events and requests
         for method in itertools.chain(self.requests, self.events):
             printer()
             printer()

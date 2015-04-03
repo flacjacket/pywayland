@@ -19,7 +19,7 @@ import six
 
 @six.add_metaclass(InterfaceMeta)
 class Xfail(Interface):
-    """XFAILing interface
+    """Xfailing interface
 
     Items that do not really work yet are put in here, they should be moved
     once they shart working.

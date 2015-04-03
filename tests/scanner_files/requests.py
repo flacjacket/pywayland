@@ -21,7 +21,7 @@ import six
 
 @six.add_metaclass(InterfaceMeta)
 class Requests(Interface):
-    """request object
+    """Request object
 
     The interface object with the different types of requests.
     """
@@ -31,7 +31,7 @@ class Requests(Interface):
 
 @Requests.request("niuh", [Core, None, None, None])
 def make_request(self, the_int, the_uint, the_fd):
-    """a request
+    """A request
 
     The request asks the server for an event.
 
@@ -41,7 +41,7 @@ def make_request(self, the_int, the_uint, the_fd):
     :type the_uint: `uint`
     :param the_fd:
     :type the_fd: `fd`
-    :returns: :class:`Core`
+    :returns: :class:`~pywayland.protocol.core.Core`
     """
     id = self._marshal_constructor(0, Core, the_int, the_uint, the_fd)
     return id
@@ -49,7 +49,7 @@ def make_request(self, the_int, the_uint, the_fd):
 
 @Requests.request("", [])
 def no_args(self):
-    """request with no args
+    """Request with no args
 
     A request method that does not have any arguments.
     """
@@ -58,11 +58,11 @@ def no_args(self):
 
 @Requests.request("n", [Core])
 def create_id(self):
-    """create an id
+    """Create an id
 
     With a description
 
-    :returns: :class:`Core`
+    :returns: :class:`~pywayland.protocol.core.Core`
     """
     id = self._marshal_constructor(2, Core)
     return id
@@ -70,9 +70,9 @@ def create_id(self):
 
 @Requests.request("n", [Core])
 def create_id2(self):
-    """create an id without a description
+    """Create an id without a description
 
-    :returns: :class:`Core`
+    :returns: :class:`~pywayland.protocol.core.Core`
     """
     id = self._marshal_constructor(3, Core)
     return id
@@ -80,7 +80,7 @@ def create_id2(self):
 
 @Requests.request("u?s", [None, None])
 def allow_null(self, serial, mime_type):
-    """request that allows for null arguments
+    """Request that allows for null arguments
 
     A request where one of the arguments is allowed to be null.
 
@@ -94,14 +94,14 @@ def allow_null(self, serial, mime_type):
 
 @Requests.request("n?o", [Events, Core])
 def make_import(self, object):
-    """request that causes an import
+    """Request that causes an import
 
     A request method that causes an imoprt of other interfaces, both as a
     new_id and as an object.
 
     :param object:
-    :type object: :class:`Core` or `None`
-    :returns: :class:`Events`
+    :type object: :class:`~pywayland.protocol.core.Core` or `None`
+    :returns: :class:`~pywayland.protocol.events.Events`
     """
     id = self._marshal_constructor(5, Events, object)
     return id
@@ -109,7 +109,7 @@ def make_import(self, object):
 
 @Requests.request("2", [])
 def versioned(self):
-    """a versioned request
+    """A versioned request
 
     A request that is versioned.
     """
@@ -118,10 +118,10 @@ def versioned(self):
 
 @Requests.request("usun", [None, None, None, None])
 def new_id_no_interface(self, name, interface, version):
-    """create a new id, but with no interface
+    """Create a new id, but with no interface
 
     A method with an argument for a new_id, but with no corresponding
-    interface (c.f. wl_registry.bind).
+    interface (c.f. :func:`Registry.bind() <pywayland.protocol.registry.Registry.bind>`).
 
     :param name:
     :type name: `uint`
@@ -129,7 +129,7 @@ def new_id_no_interface(self, name, interface, version):
     :type interface: `string`
     :param version: Interface version
     :type version: `int`
-    :returns: :class:`Proxy` of specified Interface
+    :returns: :class:`pywayland.client.proxy.Proxy` of specified Interface
     """
     id = self._marshal_constructor(7, interface, name, interface.name, version)
     return id

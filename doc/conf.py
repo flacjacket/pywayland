@@ -45,6 +45,8 @@ Wayland protocols built against Wayland {}.
 """.format(protocol_version)
 
 protocol_rst = """\
+.. module:: pywayland.protocol.{mod_lower}
+
 {mod_upper}
 {empty:=^{len}}
 

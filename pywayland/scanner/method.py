@@ -89,16 +89,16 @@ class Method(object):
     def output_doc(self, printer):
         """Output the documentation for the interface"""
         if self.description or self.args:
-            printer('"""{}'.format(self.summary))
+            printer.doc('"""{}'.format(self.summary.capitalize()))
         else:
             # This is a one-line docstring
-            printer('"""{}"""'.format(self.summary))
+            printer.doc('"""{}"""'.format(self.summary.capitalize()))
             return
 
         if self.description:
             printer()
             for line in self.description.split('\n'):
-                printer(line.strip())
+                printer.doc(line.strip())
         # Parameter and returns documentation
         if self.args:
             printer()

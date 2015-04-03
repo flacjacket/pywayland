@@ -67,9 +67,9 @@ class Scanner(object):
             printer.write(f)
 
         for iface in self.interfaces:
-            printer = Printer()
             path = os.path.join(output_dir, iface.file_name)
 
+            printer = Printer()
             iface.output(printer)
 
             with open(path, 'w') as f:

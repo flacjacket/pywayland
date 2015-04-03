@@ -82,34 +82,36 @@ class Argument(object):
         """Document the argument as a parameter"""
         # Output the parameter and summary
         if self.summary:
-            printer(':param {}: {}'.format(self.name, self.summary))
+            printer.doc(':param {}: {}'.format(self.name, self.summary))
         else:
-            printer(':param {}:'.format(self.name))
+            printer.doc(':param {}:'.format(self.name))
 
         # Determine the type to be output
         if self.interface:
-            arg_type = ':class:`{}`'.format(self.get_interface())
+            _, iface, need_tilde = printer._get_iface(self.interface)
+            arg_type = ':class:`{}{}`'.format('~' if need_tilde else '', iface)
         else:
             arg_type = '`{}`'.format(self.type)
 
         # Output the parameter type
         if self.allow_null:
-            printer(':type {}: {} or `None`'.format(self.name, arg_type))
+            printer.doc(':type {}: {} or `None`'.format(self.name, arg_type))
         else:
-            printer(':type {}: {}'.format(self.name, arg_type))
+            printer.doc(':type {}: {}'.format(self.name, arg_type))
 
     def output_doc_ret(self, printer):
         """Document the argument as a return"""
         # Determine the type to be output
         if self.interface:
-            arg_type = ':class:`{}`'.format(self.get_interface())
+            _, iface, need_tilde = printer._get_iface(self.interface)
+            arg_type = ':class:`{}{}`'.format('~' if need_tilde else '', iface)
         else:
             # Only new_id's are returned, the only corner case here is for
             # wl_registry.bind, so no interface => Proxy
-            arg_type = ':class:`Proxy` of specified Interface'
+            arg_type = ':class:`pywayland.client.proxy.Proxy` of specified Interface'
 
         # Output the type and summary
         if self.summary:
-            printer(':returns: {} -- {}'.format(arg_type, self.summary))
+            printer.doc(':returns: {} -- {}'.format(arg_type, self.summary))
         else:
-            printer(':returns: {}'.format(arg_type))
+            printer.doc(':returns: {}'.format(arg_type))

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland.interface import Interface, InterfaceMeta
+from .object import Object
 
 import enum
 import six
@@ -20,7 +21,7 @@ import six
 
 @six.add_metaclass(InterfaceMeta)
 class Core(Interface):
-    """interface object
+    """Interface object
 
     The interface object with the most basic content.
     """
@@ -36,7 +37,7 @@ class Core(Interface):
 
 @Core.request("niuf", [Core, None, None, None])
 def make_request(self, the_int, the_uint, the_fixed):
-    """a request
+    """A request
 
     The request asks the server for an event.
 
@@ -54,7 +55,7 @@ def make_request(self, the_int, the_uint, the_fixed):
 
 @Core.request("iufn", [None, None, None, Core])
 def make_request2(self, the_int, the_uint, the_fixed):
-    """a request
+    """A request
 
     The request asks the server for an event but move the args around.
 
@@ -64,10 +65,26 @@ def make_request2(self, the_int, the_uint, the_fixed):
     :type the_uint: `uint`
     :param the_fixed:
     :type the_fixed: `fixed`
-    :returns: :class:`Core`
+    :returns: :class:`Core` -- a :class:`Core` object
     """
     id = self._marshal_constructor(1, Core, the_int, the_uint, the_fixed)
     return id
+
+
+@Core.event("no", [Core, Object])
+def send_event(self, id, object):
+    """A :class:`Core` event
+
+    Send an event, but also put in some docs for our interface :class:`Core`,
+    some other interface :class:`~pywayland.protocol.other.Other`, a local function call :func:`Core.func`, and
+    another function call :func:`Other.func() <pywayland.protocol.other.Other.func>`.
+
+    :param id: a :class:`Core` object
+    :type id: :class:`Core`
+    :param object: a :class:`~pywayland.protocol.object.Object` object
+    :type object: :class:`~pywayland.protocol.object.Object`
+    """
+    self._post_event(0, id, object)
 
 
 Core._gen_c()

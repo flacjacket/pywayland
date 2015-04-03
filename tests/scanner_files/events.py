@@ -21,7 +21,7 @@ import six
 
 @six.add_metaclass(InterfaceMeta)
 class Events(Interface):
-    """events object
+    """Events object
 
     The interface object with the different types of events.
     """
@@ -31,14 +31,14 @@ class Events(Interface):
 
 @Events.event("niuh", [Requests, None, None, None])
 def send_event(self, id, the_int, the_uint, the_fd):
-    """send the data
+    """Send the data
 
     Request for data from the client.  Send the data as the
     specified mime type over the passed file descriptor, then
     close it.
 
     :param id:
-    :type id: :class:`Requests`
+    :type id: :class:`~pywayland.protocol.requests.Requests`
     :param the_int:
     :type the_int: `int`
     :param the_uint: the arg summary
@@ -51,7 +51,7 @@ def send_event(self, id, the_int, the_uint, the_fd):
 
 @Events.event("", [])
 def no_args(self):
-    """event with no args
+    """Event with no args
 
     An event method that does not have any arguments.
     """
@@ -60,29 +60,29 @@ def no_args(self):
 
 @Events.event("n", [Core])
 def create_id(self, id):
-    """create an id
+    """Create an id
 
     With a description
 
     :param id:
-    :type id: :class:`Core`
+    :type id: :class:`~pywayland.protocol.core.Core`
     """
     self._post_event(2, id)
 
 
 @Events.event("n", [Core])
 def create_id2(self, id):
-    """create an id without a description
+    """Create an id without a description
 
     :param id:
-    :type id: :class:`Core`
+    :type id: :class:`~pywayland.protocol.core.Core`
     """
     self._post_event(3, id)
 
 
 @Events.event("?s", [None])
 def allow_null_event(self, null_string):
-    """a event with an allowed null argument
+    """A event with an allowed null argument
 
     An event where one of the arguments is allowed to be null.
 
@@ -94,21 +94,21 @@ def allow_null_event(self, null_string):
 
 @Events.event("n?o", [Requests, Core])
 def make_import(self, id, object):
-    """event that causes an import
+    """Event that causes an import
 
     An event method that causes an imoprt of other interfaces
 
     :param id:
-    :type id: :class:`Requests`
+    :type id: :class:`~pywayland.protocol.requests.Requests`
     :param object:
-    :type object: :class:`Core` or `None`
+    :type object: :class:`~pywayland.protocol.core.Core` or `None`
     """
     self._post_event(5, id, object)
 
 
 @Events.event("2", [])
 def versioned(self):
-    """a versioned event
+    """A versioned event
 
     An event that is versioned.
     """

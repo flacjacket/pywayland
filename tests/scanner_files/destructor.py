@@ -19,7 +19,7 @@ import six
 
 @six.add_metaclass(InterfaceMeta)
 class Destructor(Interface):
-    """destructor object
+    """Destructor object
 
     An interface object with a destructor request.
 
@@ -31,9 +31,9 @@ class Destructor(Interface):
 
 @Destructor.request("niiiiu", [Destructor, None, None, None, None, None])
 def create_interface(self, x, y, width, height, format):
-    """create another interface
+    """Create another interface
 
-    Create a wl_destructor_interface object
+    Create a :class:`Destructor` interface object
 
     :param x:
     :type x: `int`
@@ -53,7 +53,7 @@ def create_interface(self, x, y, width, height, format):
 
 @Destructor.request("", [])
 def destroy(self):
-    """destroy the interface
+    """Destroy the interface
 
     Destroy the created interface.
     """
