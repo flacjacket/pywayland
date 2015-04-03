@@ -1,5 +1,7 @@
-pywayland |travis| |coveralls|
-==============================
+pywayland
+=========
+
+|travis| |coveralls| |docs|
 
 PyWayland provides a wrapper to the ``libwayland`` library using the CFFI
 library to provide access to the Wayland library calls and written in pure
@@ -55,9 +57,12 @@ PyWayland implements a (currently limited) test-suite in ``./tests``.  The
 tests can be run through ``py.test``.  Be sure you build the protocol files
 (see `Building Wayland protocols`_) before running the tests.
 
-.. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch=master
-    :alt: Build Status
-    :target: https://travis-ci.org/flacjacket/pywayland
 .. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch=master
     :alt: Build Coverage
     :target: https://coveralls.io/r/flacjacket/pywayland
+.. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version=latest
+    :target: https://readthedocs.org/projects/pywayland/?badge=latest
+    :alt: Documentation Status
+.. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch=master
+    :alt: Build Status
+    :target: https://travis-ci.org/flacjacket/pywayland
