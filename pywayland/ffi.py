@@ -12,11 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import binascii
+import sys
+
 from cffi import FFI
 
-ffi = FFI()
 
-ffi.cdef("""
+# This is taken from https://caremad.io/2014/11/distributing-a-cffi-project/,
+# which gives examples from cryptography
+def _create_modulename(cdef_sources, source, sys_version):
+    """
+    This is the same as CFFI's create modulename except we don't include the
+    CFFI version.
+    """
+    key = '\x00'.join([sys_version[:3], source, cdef_sources])
+    key = key.encode('utf-8')
+    k1 = hex(binascii.crc32(key[0::2]) & 0xffffffff)
+    k1 = k1.lstrip('0x').rstrip('L')
+    k2 = hex(binascii.crc32(key[1::2]) & 0xffffffff)
+    k2 = k2.lstrip('0').rstrip('L')
+    return '_pywayland_cffi_{0}{1}'.format(k1, k2)
+
+
+CDEF = """
 /******************************************************************************
  * wayland-version.h
  *****************************************************************************/
@@ -88,10 +106,17 @@ struct wl_proxy * wl_proxy_marshal_array_constructor(struct wl_proxy *proxy,
                                                      uint32_t opcode, union wl_argument *args,
                                                      const struct wl_interface *interface);
 void wl_proxy_set_user_data(struct wl_proxy *proxy, void *user_data);
-""")
+"""
 
-C = ffi.verify("""
+SOURCE = """
 #include <wayland-client.h>
 #include <wayland-server.h>
 #include <wayland-version.h>
-""", libraries=['wayland-client', 'wayland-server'], modulename='_pywayland')
+"""
+
+ffi = FFI()
+ffi.cdef(CDEF)
+
+C = ffi.verify(SOURCE,
+               libraries=['wayland-client', 'wayland-server'],
+               modulename=_create_modulename(CDEF, SOURCE, sys.version))
