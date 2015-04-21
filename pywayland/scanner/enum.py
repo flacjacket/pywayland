@@ -31,7 +31,7 @@ class Enum(object):
     def scan(self):
         """Scan the enum"""
         description = self._enum.find('description')
-        if description:
+        if description is not None:
             self.summary = description.attrib['summary']
             if description.text:
                 self.description = description.text.strip()

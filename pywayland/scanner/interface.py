@@ -38,7 +38,15 @@ class Interface(object):
 
         Trim the ``wl_`` from the specified interface name.
         """
-        return ''.join(self.name.split('_')[1:]) + '.py'
+        return self.module + '.py'
+
+    @property
+    def module(self):
+        """Returns the name of the module the interface is printed to
+
+        Trims the ``wl_`` from the specified interface name.
+        """
+        return ''.join(self.name.split('_')[1:])
 
     @property
     def class_name(self):

@@ -65,6 +65,10 @@ class Scanner(object):
         path = os.path.join(output_dir, '__init__.py')
         with open(path, 'w') as f:
             printer.write(f)
+            f.write('\n')
+            for iface in self.interfaces:
+                f.write('from .{} import {}  # noqa'.format(iface.module, iface.class_name))
+                f.write('\n')
 
         for iface in self.interfaces:
             path = os.path.join(output_dir, iface.file_name)
