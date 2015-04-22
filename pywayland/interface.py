@@ -16,12 +16,46 @@ from pywayland import ffi
 
 from .message import Message
 
+import six
 import weakref
 
 weakkeydict = weakref.WeakKeyDictionary()
 
 
-class Interface(object):
+class InterfaceMeta(type):
+    """Metaclass for Interfaces
+
+    Initializes empty lists for events and requests for the given class.  Also
+    allocates a cdata struct for the :class:`Interface`.
+    """
+    def __init__(self, name, bases, dct):
+        self._ptr = ffi.new("struct wl_interface *")
+        self.events = []
+        self.requests = []
+
+    @property
+    def proxy_class(interface):
+        """Return a proxy class for the given interface
+
+        :returns: :class:`~pywayland.client.proxy.Proxy` class for the given
+                  interface
+        """
+        from pywayland.client.proxy import Proxy
+
+        # Use the name of the interface to construct the class name
+        class_name = 'Proxy{}'.format(interface.__name__)
+
+        # Extract the requests
+        dct = {msg.name: msg._func for msg in interface.requests}
+
+        # Add the interface as a class attribute
+        dct['_interface'] = interface
+
+        # Return the new class
+        return type(class_name, (Proxy,), dct)
+
+
+class Interface(six.with_metaclass(InterfaceMeta)):
     """Wrapper class for wl_wayland structs
 
     Base class for interfaces that are defined by the wayland.xml class and
@@ -71,22 +105,6 @@ class Interface(object):
         return wrapper
 
     @classmethod
-    def proxy_class(interface, proxy_ptr):
-        """Return a proxy class for the given interface and `wl_proxy` pointer
-
-        :param proxy_ptr: Pointer to `wl_proxy` to wrap in the new
-                          :class:`~pywayland.client.proxy.Proxy` object
-        :type proxy_ptr: cdata `wl_proxy *`
-        :returns: :class:`~pywayland.client.proxy.Proxy` class for the given
-                  interface
-        """
-        from pywayland.client.proxy import ProxyMeta
-        new_class = ProxyMeta(
-            interface.name, (), {'_interface': interface, '_ptr': proxy_ptr}
-        )
-        return new_class()
-
-    @classmethod
     def _gen_c(cls):
         """Creates the wl_interface C struct
 
@@ -119,15 +137,3 @@ class Interface(object):
             events_buf[:] = msg_buf
 
         weakkeydict[cls._ptr] = (name, methods_ptr, events_ptr)
-
-
-class InterfaceMeta(type):
-    """Metaclass for Interfaces
-
-    Initializes empty lists for events and requests for the given class.  Also
-    allocates a cdata struct for the :class:`Interface`.
-    """
-    def __init__(self, name, bases, dct):
-        self._ptr = ffi.new("struct wl_interface *")
-        self.events = []
-        self.requests = []

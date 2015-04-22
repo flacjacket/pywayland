@@ -78,18 +78,16 @@ class Interface(object):
         # Imports
         imports = set(_import for method in itertools.chain(self.requests, self.events)
                       for _import in method.get_imports(self.name))
-        printer('from pywayland.interface import Interface, InterfaceMeta')
+        printer('from pywayland.interface import Interface')
         for _import in sorted(imports):
             printer('from .{} import {}'.format(_import.lower(), _import))
-        printer()
         if self.enums:
+            printer()
             printer('import enum')
-        printer('import six')
         printer()
         printer()
 
         # Class definition
-        printer('@six.add_metaclass(InterfaceMeta)')
         printer('class {}(Interface):'.format(self.class_name))
         # Docstring
         printer.inc_level()

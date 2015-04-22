@@ -13,12 +13,11 @@
 # limitations under the License.
 
 from pywayland import ffi, C
-from pywayland.protocol.display import Display as _Display
 
-from .proxy import Proxy, _dispatcher
+from pywayland.protocol import Display as _Display
 
 
-class Display(Proxy):
+class Display(_Display.proxy_class):
     """Represents a connection to the compositor
 
     A :class:`Display` object represents a client connection to a Wayland
@@ -70,11 +69,9 @@ class Display(Proxy):
     is solved using another event queue, so that only he events handled by the
     EGL code are dispatched during the block.
     """
-    _interface = _Display
-    _ptr = None
-
     def __init__(self):
-        super(Display, self).__init__()
+        # Initially, we have no pointer
+        super(Display, self).__init__(None)
 
     def __del__(self):
         self.disconnect()
@@ -101,9 +98,6 @@ class Display(Proxy):
 
         if self._ptr == ffi.NULL:
             raise Exception
-
-        _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        C.wl_proxy_add_dispatcher(_ptr, _dispatcher, self._handle, ffi.NULL)
 
     def disconnect(self):
         """Close a connection to a Wayland display
@@ -163,6 +157,3 @@ class Display(Proxy):
         sends out pending events on the default event queue.
         """
         return C.wl_display_roundtrip(self._ptr)
-
-for msg in _Display.requests:
-    setattr(Display, msg.name, msg._func)

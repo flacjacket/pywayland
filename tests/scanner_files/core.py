@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Interface, InterfaceMeta
+from pywayland.interface import Interface
 from .object import Object
 
 import enum
-import six
 
 
-@six.add_metaclass(InterfaceMeta)
 class Core(Interface):
     """Interface object
 

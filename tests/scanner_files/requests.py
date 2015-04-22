@@ -12,14 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Interface, InterfaceMeta
+from pywayland.interface import Interface
 from .core import Core
 from .events import Events
 
-import six
 
-
-@six.add_metaclass(InterfaceMeta)
 class Requests(Interface):
     """Request object
 

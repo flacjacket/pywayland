@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Interface, InterfaceMeta
-
-import six
+from pywayland.interface import Interface
 
 
-@six.add_metaclass(InterfaceMeta)
 class Destructor(Interface):
     """Destructor object
 
