@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi
+from pywayland import ffi, C
 
 
 @ffi.callback("int(void *, void *, uint32_t, struct wl_message *, union wl_argument *)")
@@ -30,12 +30,30 @@ def _dispatcher(data, target, opcode, message, c_args):
     return func(self, *args)
 
 
+@ffi.callback("void(struct wl_resource *)")
+def _destroyed_dispatcher(res_ptr):
+    res_py_ptr = C.wl_resource_get_user_data(res_ptr)
+
+    if res_py_ptr == ffi.NULL:
+        return
+
+    res = ffi.from_handle(res_py_ptr)
+    assert res
+    # TODO
+    # func = res.listener._destructor
+    # if func is not None:
+    #     func(res)
+
+
 class Listener(object):
-    def __init__(self, messages):
+    def __init__(self, messages, destructor=False):
         self._names = {msg.name: opcode for opcode, msg in enumerate(messages)}
         self._func = [None for _ in messages]
         self.messages = messages
         self.dispatcher = _dispatcher
+        if destructor:
+            self.destroyed_dispatcher = _destroyed_dispatcher
+            self._destructor = None
 
     def __getitem__(self, opcode_or_name):
         if opcode_or_name in self._names:
@@ -46,12 +64,4 @@ class Listener(object):
     def __setitem__(self, opcode_or_name, function):
         if opcode_or_name in self._names:
             opcode_or_name = self._names[opcode_or_name]
-        if not isinstance(opcode_or_name, int):
-            raise KeyError("Unable to set function for opcode {}".format(
-                opcode_or_name)
-            )
-        if opcode_or_name >= len(self._func):
-            raise KeyError("opcode too large, max opcode is {}, got {}".format(
-                len(self._func) - 1, opcode_or_name
-            ))
         self._func[opcode_or_name] = function

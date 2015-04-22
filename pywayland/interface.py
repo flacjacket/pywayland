@@ -44,11 +44,11 @@ class InterfaceMeta(type):
         from pywayland.client.proxy import Proxy
 
         # Use the name of the interface to construct the class name
-        class_name = 'Proxy{}'.format(interface.__name__)
+        class_name = '{}Proxy'.format(interface.__name__)
         # Extract the requests
         dct = {msg.name: msg._func for msg in interface.requests}
         # Construct a listener
-        listener_name = 'Listener{}'.format(interface.__name__)
+        listener_name = '{}Listener'.format(interface.__name__)
         listener_class = type(listener_name, (Listener,), {})
         # Add the interface and listener as a class attribute
         dct['_interface'] = interface
@@ -56,6 +56,44 @@ class InterfaceMeta(type):
 
         # Return the new class
         return type(class_name, (Proxy,), dct)
+
+    @property
+    def resource_class(interface):
+        """Return a resource class for the given interface
+
+        :returns: :class:`~pywayland.server.resource.Resource` class for the
+                  given interface
+        """
+        from pywayland.server.resource import Resource
+
+        # Use the name of the interface to construct the class name
+        class_name = '{}Resource'.format(interface.__name__)
+        # Extract the events
+        dct = {msg.name: msg._func for msg in interface.events}
+        # Construct a listener
+        listener_name = '{}Listener'.format(interface.__name__)
+        listener_class = type(listener_name, (Listener,), {})
+        # Add the interface and listener as a class attribute
+        dct['_interface'] = interface
+        dct['listener'] = listener_class(interface.requests, destructor=True)
+
+        # Return the new class
+        return type(class_name, (Resource,), dct)
+
+    @property
+    def global_class(interface):
+        """Return a global object for the given interface
+
+        :returns: :class:`~pywayland.server.globals.Global` class for the given
+                  interface
+        """
+        from pywayland.server.globals import Global
+
+        # Use the name of the interface to construct the class name
+        class_name = '{}Global'.format(interface.__name__)
+
+        # Return the new class with the interface added as a class attribute
+        return type(class_name, (Global,), {'_interface': interface})
 
 
 class Interface(six.with_metaclass(InterfaceMeta)):
