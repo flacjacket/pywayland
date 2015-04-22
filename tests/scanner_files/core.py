@@ -74,8 +74,9 @@ def send_event(self, id, object):
     """A :class:`Core` event
 
     Send an event, but also put in some docs for our interface :class:`Core`,
-    some other interface :class:`~pywayland.protocol.other.Other`, a local function call :func:`Core.func`, and
-    another function call :func:`Other.func() <pywayland.protocol.other.Other.func>`.
+    some other interface :class:`~pywayland.protocol.other.Other`, a local
+    function call :func:`Core.func`, and another function call
+    :func:`Other.func() <pywayland.protocol.other.Other.func>`.
 
     :param id: a :class:`Core` object
     :type id: :class:`Core`

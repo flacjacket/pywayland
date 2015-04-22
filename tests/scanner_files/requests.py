@@ -117,8 +117,8 @@ def versioned(self):
 def new_id_no_interface(self, name, interface, version):
     """Create a new id, but with no interface
 
-    A method with an argument for a new_id, but with no corresponding
-    interface (c.f. :func:`Registry.bind() <pywayland.protocol.registry.Registry.bind>`).
+    A method with an argument for a new_id, but with no corresponding interface
+    (c.f. :func:`Registry.bind() <pywayland.protocol.registry.Registry.bind>`).
 
     :param name:
     :type name: `uint`

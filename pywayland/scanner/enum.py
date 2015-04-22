@@ -14,6 +14,8 @@
 
 from .entry import Entry
 
+import textwrap
+
 
 class Enum(object):
     """Scanner for enum objects
@@ -34,7 +36,7 @@ class Enum(object):
         if description is not None:
             self.summary = description.attrib['summary']
             if description.text:
-                self.description = description.text.strip()
+                self.description = textwrap.dedent(description.text).strip()
             else:
                 self.description = None
         else:

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import re
+import textwrap
 
 copyright = """\
 # Copyright 2015 Sean Vig
@@ -50,6 +51,20 @@ class Printer(object):
             self.lines.append(('    ' * self.level) + new_line)
         else:
             self.lines.append('')
+
+    def docstring(self, docstring):
+        """Add lines as docstrings
+
+        In addition to the operations performed by :meth:`Printer.doc()`, will
+        wrap text passed to it to the correct width.
+        """
+        docstring = re_doc.sub(self._doc_replace, docstring)
+        wrapped = '\n\n'.join(
+            textwrap.fill(doc, 79 - 4 * self.level) for doc in docstring.split('\n\n')
+        )
+
+        for line in wrapped.split('\n'):
+            self(line)
 
     def doc(self, new_line):
         """Add lines as docstrings

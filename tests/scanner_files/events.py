@@ -30,9 +30,8 @@ class Events(Interface):
 def send_event(self, id, the_int, the_uint, the_fd):
     """Send the data
 
-    Request for data from the client.  Send the data as the
-    specified mime type over the passed file descriptor, then
-    close it.
+    Request for data from the client.  Send the data as the specified mime type
+    over the passed file descriptor, then close it.
 
     :param id:
     :type id: :class:`~pywayland.protocol.requests.Requests`

@@ -14,6 +14,8 @@
 
 from .argument import Argument
 
+import textwrap
+
 
 class Method(object):
     """Scanner for methods
@@ -38,7 +40,7 @@ class Method(object):
         description = self._method.find('description')
         self.summary = description.attrib['summary']
         if description.text:
-            self.description = description.text.strip()
+            self.description = textwrap.dedent(description.text).strip()
         else:
             self.description = None
 
@@ -97,8 +99,7 @@ class Method(object):
 
         if self.description:
             printer()
-            for line in self.description.split('\n'):
-                printer.doc(line.strip())
+            printer.docstring(self.description)
         # Parameter and returns documentation
         if self.args:
             printer()
