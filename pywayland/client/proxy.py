@@ -71,14 +71,19 @@ class Proxy(object):
         of these parameters must be set.
         """
         if (opcode and name) or not (opcode or name):
-            raise ValueError("Exactly one of `opcode` or `name` can be set")
+            raise ValueError("Exactly one of `opcode` or `name` must be set")
 
         if name:
-            for opcode, event in self._interface.events.items():
+            for opcode, event in enumerate(self._interface.events):
                 if event.name == name:
                     break
             else:
                 raise ValueError("Could not find event with name {}".format(name))
+
+        if opcode >= len(self._interface.events):
+            raise ValueError("opcode too large, max opcode is {}, got {}".format(
+                len(self._interface.events) - 1, opcode
+            ))
 
         self.listener[opcode] = callback
 
