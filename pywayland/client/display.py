@@ -132,8 +132,88 @@ class Display(_Display.proxy_class):
             It is not possible to check if there are events on the queue or
             not. For dispatching default queue events without blocking, see
             :func:`Display.dispatch_pending`.
+
+        .. seealso::
+
+            :meth:`Display.dispatch_pending()`,
+            :meth:`Display.dispatch_queue()`
         """
         return C.wl_display_dispatch(self._ptr)
+
+    def dispatch_pending(self):
+        """Dispatch default queue events without reading from the display fd
+
+        This function dispatches events on the main event queue. It does not
+        attempt to read the display fd and simply returns zero if the main
+        queue is empty, i.e., it doesn't block.
+
+        This is necessary when a client's main loop wakes up on some fd other
+        than the display fd (network socket, timer fd, etc) and calls
+        :meth:`Display.dispatch_queue()` from that callback. This may queue up
+        events in other queues while reading all data from the display fd.
+        When the main loop returns from the handler, the display fd
+        no longer has data, causing a call to poll (or similar functions) to
+        block indefinitely, even though there are events ready to dispatch.
+
+        To proper integrate the wayland display fd into a main loop, the
+        client should always call :meth:`Display.dispatch_pending()` and then
+        :meth:`Display.flush()` prior to going back to sleep. At that point,
+        the fd typically doesn't have data so attempting I/O could block, but
+        events queued up on the default queue should be dispatched.
+
+        A real-world example is a main loop that wakes up on a timerfd (or a
+        sound card fd becoming writable, for example in a video player), which
+        then triggers GL rendering and eventually eglSwapBuffers().
+        eglSwapBuffers() may call :meth:`Display.dispatch_queue()` if it didn't
+        receive the frame event for the previous frame, and as such queue
+        events in the default queue.
+
+        :returns: The number of dispatched events or -1 on failure
+
+        .. seealso::
+
+            :meth:`Display.dispatch()`, :meth:`Display.dispatch_queue()`,
+            :meth:`Display.flush()`
+        """
+        return C.wl_display_dispatch_pending(self._ptr)
+
+    def dispatch_queue(self, queue):
+        """Dispatch events in an event queue
+
+        Dispatch all incoming events for objects assigned to the given event
+        queue. On failure -1 is returned and errno set appropriately.
+
+        The behaviour of this function is exactly the same as the behaviour of
+        :meth:`Display.dispatch()`, but it dispatches events on given queue,
+        not on the default queue.
+
+        This function blocks if there are no events to dispatch (if there are,
+        it only dispatches these events and returns immediately).  When this
+        function returns after blocking, it means that it read events from
+        display's fd and queued them to appropriate queues.  If among the
+        incoming events were some events assigned to the given queue, they are
+        dispatched by this moment.
+
+        .. note::
+
+            Since Wayland 1.5 the display has an extra queue for its own events
+            (i.e. delete_id). This queue is dispatched always, no matter what
+            queue we passed as an argument to this function.  That means that
+            this function can return non-0 value even when it haven't
+            dispatched any event for the given queue.
+
+        This function has the same constrains for using in multi-threaded apps
+        as :meth:`Display.dispatch()`.
+
+        :param queue: The event queue to dispatch
+        :type queue: :class:`~pywayland.client.EventQueue`
+        :returns: The number of dispatched events on success or -1 on failure
+
+        .. seealso::
+
+            :meth:`Display.dispatch()`, :meth:`Display.dispatch_pending()`
+        """
+        return C.wl_display_dispatch_queue(self._ptr, queue._ptr)
 
     def flush(self):
         """Send all buffered requests on the display to the server
