@@ -22,21 +22,6 @@ weakkeydict = weakref.WeakKeyDictionary()
 re_args = re.compile(r'(\??)([fsoanuih])')
 
 
-@ffi.callback("int(void *, void *, uint32_t, struct wl_message *, union wl_argument *)")
-def _dispatcher(data, target, opcode, message, c_args):
-    # `data` is the handle to self
-    # `target` is the wl_proxy for self
-    # `message` is the wl_message for self._interface.events[opcode]
-    # TODO: handle any user_data attached to the wl_proxy
-    self = ffi.from_handle(data)
-    args = self._interface.events[opcode].c_to_arguments(c_args)
-
-    if opcode in self.listener:
-        self.listener[opcode](self, *args)
-
-    return 0
-
-
 class Proxy(object):
     """Represents a protocol object on the client side.
 
@@ -48,9 +33,7 @@ class Proxy(object):
     def __init__(self, ptr):
         self._ptr = ptr
 
-        self.listener = {}
         self.user_data = None
-        self._user_data = None
 
         # This should only be true for wl_display proxies, as they will
         # initialize its pointer on a `.connect()` call
@@ -61,47 +44,9 @@ class Proxy(object):
         weakkeydict[self] = _handle
 
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        C.wl_proxy_add_dispatcher(_ptr, _dispatcher, _handle, ffi.NULL)
+        C.wl_proxy_add_dispatcher(_ptr, self.listener.dispatcher, _handle, ffi.NULL)
 
-    def add_listener(self, callback, opcode=None, name=None):
-        """Add listener for an event
-
-        Add listener for an event, either by ``opcode`` (passed as an int) or
-        by the name of the event, ``name`` (passed as a string).  Exactly one
-        of these parameters must be set.
-        """
-        if (opcode and name) or not (opcode or name):
-            raise ValueError("Exactly one of `opcode` or `name` must be set")
-
-        if name:
-            for opcode, event in enumerate(self._interface.events):
-                if event.name == name:
-                    break
-            else:
-                raise ValueError("Could not find event with name {}".format(name))
-
-        if opcode >= len(self._interface.events):
-            raise ValueError("opcode too large, max opcode is {}, got {}".format(
-                len(self._interface.events) - 1, opcode
-            ))
-
-        self.listener[opcode] = callback
-
-    def get_listener(self):
-        """Get the listeners for the interface events"""
-        return self.listener
-
-    def set_user_data(self, data):
-        """Set the user data for the proxy"""
-        self.user_data = data
-        _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        C.wl_proxy_set_user_data(_ptr, data)
-
-    def get_user_data(self):
-        """Get the user data for the proxy"""
-        return self.user_data
-
-    def _destroy(self):
+    def destroy(self):
         if self._ptr:
             _ptr = ffi.cast('struct wl_proxy *', self._ptr)
             C.wl_proxy_destroy(_ptr)

@@ -14,6 +14,7 @@
 
 from pywayland import ffi
 
+from .listener import Listener
 from .message import Message
 
 import six
@@ -44,12 +45,14 @@ class InterfaceMeta(type):
 
         # Use the name of the interface to construct the class name
         class_name = 'Proxy{}'.format(interface.__name__)
-
         # Extract the requests
         dct = {msg.name: msg._func for msg in interface.requests}
-
-        # Add the interface as a class attribute
+        # Construct a listener
+        listener_name = 'Listener{}'.format(interface.__name__)
+        listener_class = type(listener_name, (Listener,), {})
+        # Add the interface and listener as a class attribute
         dct['_interface'] = interface
+        dct['listener'] = listener_class(interface.events)
 
         # Return the new class
         return type(class_name, (Proxy,), dct)
