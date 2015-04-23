@@ -17,7 +17,6 @@ from .event import Event
 from .request import Request
 
 import itertools
-import textwrap
 
 
 class Interface(object):
@@ -62,7 +61,8 @@ class Interface(object):
         """Scan the interface"""
         description = self._iface.find('description')
         self.summary = description.attrib['summary']
-        self.description = textwrap.dedent(description.text).strip()
+        self.description = '\n\n'.join(' '.join(line.strip() for line in lines.split('\n'))
+                                       for lines in description.text.strip().split('\n\n'))
 
         self.enums = [Enum(enum) for enum in self._iface.findall('enum')]
         self.events = [Event(event, i) for i, event in enumerate(self._iface.findall('event'))]

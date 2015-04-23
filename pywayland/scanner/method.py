@@ -14,8 +14,6 @@
 
 from .argument import Argument
 
-import textwrap
-
 
 class Method(object):
     """Scanner for methods
@@ -40,9 +38,10 @@ class Method(object):
         description = self._method.find('description')
         self.summary = description.attrib['summary']
         if description.text:
-            self.description = textwrap.dedent(description.text).strip()
+            self.description = '\n\n'.join(' '.join(line.strip() for line in lines.split('\n'))
+                                           for lines in description.text.strip().split('\n\n'))
         else:
-            self.description = None
+            self.description = []
 
         self.args = [Argument(arg) for arg in self._method.findall('arg')]
 
