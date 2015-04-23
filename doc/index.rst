@@ -35,13 +35,20 @@ Core Modules
    module/interface
    module/message
 
-Client and Server Modules
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Client Modules
+^^^^^^^^^^^^^^
 
 .. toctree::
    :maxdepth: 2
 
    module/client/index
+
+Server Modules
+^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 2
+
    module/server/index
 
 Scanner and Protocol Modules
