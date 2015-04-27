@@ -46,7 +46,7 @@ class Proxy(object):
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
         C.wl_proxy_add_dispatcher(_ptr, self.listener.dispatcher, _handle, ffi.NULL)
 
-    def destroy(self):
+    def _destroy(self):
         if self._ptr:
             _ptr = ffi.cast('struct wl_proxy *', self._ptr)
             C.wl_proxy_destroy(_ptr)
