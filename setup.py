@@ -109,7 +109,8 @@ dependencies = ['six>=1.4.1']
 
 modules = [
     'pywayland.client',
-    'pywayland.scanner'
+    'pywayland.scanner',
+    'pywayland.server'
 ]
 
 if sys.version_info < (3, 4):
