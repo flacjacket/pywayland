@@ -9,6 +9,9 @@ python:
   - pypy3
 
 env:
+  matrix:
+    - WAYLAND_VERSION="1.7.0"
+    - WAYLAND_VERSION="1.7.92"
   global:
     - LD_LIBRARY_PATH=${HOME}/wayland/lib
     - LIBRARY_PATH=${HOME}/wayland/lib
@@ -16,23 +19,19 @@ env:
     - XDG_RUNTIME_DIR=/tmp
 
 before_install:
-  - wget http://wayland.freedesktop.org/releases/wayland-1.7.0.tar.xz
-  - tar xJf wayland-1.7.0.tar.xz
-  - pushd wayland-1.7.0
+  - wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz
+  - tar -xJf wayland-${WAYLAND_VERSION}.tar.xz
+  - pushd wayland-${WAYLAND_VERSION}
   - ./configure --disable-documentation --prefix=${HOME}/wayland
   - make
   - make install
   - popd
 
 install:
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* || $TRAVIS_PYTHON_VERSION == '3.2' || $TRAVIS_PYTHON_VERSION == '3.3' ]]; then
-      pip install -r requirements-2-3.3.txt;
-    elif [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then
       pip install -r requirements-3.4+.txt;
-    elif [[ $TRAVIS_PYTHON_VERSION == pypy* ]]; then
-      pip install -r requirements-pypy.txt;
     else
-      exit 1;
+      pip install -r requirements-2-3.3.txt;
     fi
   - python ./bin/pywayland-scanner.py -i ${HOME}/wayland/share/wayland/wayland.xml
 
@@ -44,4 +43,4 @@ after_success:
   - coveralls
 
 notifications:
-  - email: false
+  email: false

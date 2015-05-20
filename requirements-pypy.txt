@@ -1,5 +1,0 @@
-enum34
-flake8
-pytest-cov
-python-coveralls
-six
