@@ -15,54 +15,68 @@
 from __future__ import absolute_import
 
 import os
-import platform
 import sys
 
 from setuptools import setup
-from distutils.command.build import build
+from distutils.cmd import Command
+from distutils.command.build_py import build_py
 
+# See note in generate_protocol()
+sys.path.append('pywayland')
+
+# Default locations
+xml_file = '/usr/share/wayland/wayland.xml'
 protocol_dir = './pywayland/protocol'
 
 
-def build_protocol(input_file):
-    """Build the ./pywayland/protocol/ directory from the given xml file"""
-    from pywayland.scanner.scanner import Scanner
+def generate_protocol(input_xml, output_path):
+    # We'll directly import the scanner, so we can build the protocol before
+    # the cffi module has been compiled
+    from scanner.scanner import Scanner
 
     # Ensure the protocol dir exists
-    if not os.path.isdir(protocol_dir):
-        os.makedirs(protocol_dir, 0o775)
+    if not os.path.isdir(output_path):
+        os.makedirs(output_path, 0o775)
 
     # Run and scan the xml file
-    scanner = Scanner(input_file)
+    scanner = Scanner(input_xml)
     scanner.scan()
-    scanner.output(protocol_dir)
+    scanner.output(output_path)
 
 
-# Adapted from http://github.com/xattr/xattr
-class module_build(build):
-    """
-    This is a shameful hack to ensure that cffi is present when we specify
-    ext_modules. We can't do this eagerly because setup_require hasn't run yet.
+class GenerateProtocolCommand(Command):
+    """Generate the pywayland protocol files"""
 
-    Furthermore, we also need to build the pywayland.protocol module and add it
-    to the packages.  This must also be held off until setup_require has run.
-    """
-    user_options = build.user_options + [
-        ('xml-file=', None, 'Location of wayland.xml protocol file')
+    description = "Generate the pywayland protocol files"
+    user_options = [
+        ('xml-file=', None, 'Location of wayland.xml protocol file'),
+        ('protocol-dir=', None, 'Output location for protocol python files')
     ]
 
     def initialize_options(self):
-        build.initialize_options(self)
         self.xml_file = '/usr/share/wayland/wayland.xml'
+        self.protocol_dir = './pywayland/protocol'
 
     def finalize_options(self):
-        from pywayland import ffi
-        self.distribution.ext_modules = [ffi.verifier.get_extension()]
+        assert os.path.exists(self.xml_file), (
+            "Wayland protocol file {} does not exist".format(self.xml_file)
+        )
 
-        build_protocol(self.xml_file)
-        self.distribution.packages.append('pywayland.protocol')
+    def run(self):
+        generate_protocol(self.xml_file, self.protocol_dir)
 
-        build.finalize_options(self)
+
+class BuildPyCommand(build_py):
+    def run(self):
+        # Check that the protocol files exist, try to generate them if they don't
+        if not os.path.exists(protocol_dir):
+            assert os.path.exists(self.xml_file), (
+                "Wayland protocol file does not exist at default location, {}, "
+                "please generate protocol files manually".format(xml_file)
+            )
+            generate_protocol(xml_file, protocol_dir)
+
+        build_py.run(self)
 
 
 description = 'Python bindings for the libwayland library written in pure Python'
@@ -105,19 +119,18 @@ classifiers = [
     'Topic :: Software Development :: Libraries'
 ]
 
-dependencies = ['six>=1.4.1']
-
-modules = [
-    'pywayland.client',
-    'pywayland.scanner',
-    'pywayland.server'
-]
+dependencies = ['six>=1.4.1', 'cffi>=1.0.0']
 
 if sys.version_info < (3, 4):
     dependencies.append('enum34')
 
-if platform.python_implementation() != "PyPy":
-    dependencies.append('cffi>=0.9')
+modules = [
+    'pywayland',
+    'pywayland.client',
+    'pywayland.protocol',
+    'pywayland.scanner',
+    'pywayland.server'
+]
 
 setup(
     name='pywayland',
@@ -131,15 +144,16 @@ setup(
     classifiers=classifiers,
     install_requires=dependencies,
     setup_requires=dependencies,
-    packages=['pywayland'] + modules,
+    packages=modules,
+    cffi_modules=['pywayland/ffi_build.py:ffi'],
     entry_points={
         'console_scripts': [
             'pywayland-scanner = pywayland.pywayland_scanner:main'
         ]
     },
     zip_safe=False,
-    ext_package='_pywayland',
     cmdclass={
-        'build': module_build
+        'build_py': BuildPyCommand,
+        'generate_protocol': GenerateProtocolCommand
     }
 )

@@ -18,6 +18,11 @@ env:
     - CPATH=${HOME}/wayland/include
     - XDG_RUNTIME_DIR=/tmp
 
+matrix:
+  allow_failures:
+    - python: pypy
+    - python: pypy3
+
 before_install:
   - wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz
   - tar -xJf wayland-${WAYLAND_VERSION}.tar.xz
@@ -33,10 +38,11 @@ install:
     else
       pip install -r requirements-2-3.3.txt;
     fi
-  - python ./bin/pywayland-scanner.py -i ${HOME}/wayland/share/wayland/wayland.xml
+  - python setup.py generate_protocol --xml-file=${HOME}/wayland/share/wayland/wayland.xml
+  - python setup.py build_ext --inplace
 
 script:
-  - flake8 --config flake8.cfg pywayland/ tests/ bin/
+  - flake8 --config flake8.cfg pywayland/ tests/
   - py.test --cov pywayland --cov-report term-missing
 
 after_success:

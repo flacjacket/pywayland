@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 from .client import Client
 
@@ -61,13 +61,13 @@ class Global(object):
 
         self._handle = ffi.new_handle(self)
         self._bind_dispatcher = _global_bind_func
-        self._ptr = C.wl_global_create(display._ptr, self._interface._ptr,
-                                       version, self._handle, self._bind_dispatcher)
+        self._ptr = lib.wl_global_create(display._ptr, self._interface._ptr,
+                                         version, self._handle, self._bind_dispatcher)
 
         self.bind_handler = None
 
     def destroy(self):
         """Destroy the global object"""
         if self._ptr:
-            C.wl_global_destroy(self._ptr)
+            lib.wl_global_destroy(self._ptr)
             self._ptr = None

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 
 @ffi.callback("int(void *, void *, uint32_t, struct wl_message *, union wl_argument *)")
@@ -32,7 +32,7 @@ def _dispatcher(data, target, opcode, message, c_args):
 
 @ffi.callback("void(struct wl_resource *)")
 def _destroyed_dispatcher(res_ptr):
-    res_py_ptr = C.wl_resource_get_user_data(res_ptr)
+    res_py_ptr = lib.wl_resource_get_user_data(res_ptr)
 
     if res_py_ptr == ffi.NULL:
         return

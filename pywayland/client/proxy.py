@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 import re
 import weakref
@@ -44,12 +44,12 @@ class Proxy(object):
         weakkeydict[self] = _handle
 
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        C.wl_proxy_add_dispatcher(_ptr, self.listener.dispatcher, _handle, ffi.NULL)
+        lib.wl_proxy_add_dispatcher(_ptr, self.listener.dispatcher, _handle, ffi.NULL)
 
     def _destroy(self):
         if self._ptr:
             _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-            C.wl_proxy_destroy(_ptr)
+            lib.wl_proxy_destroy(_ptr)
             self._ptr = None
 
     def _marshal(self, opcode, *args):
@@ -58,7 +58,7 @@ class Proxy(object):
         # Make the cast to a wl_proxy
         proxy = ffi.cast('struct wl_proxy *', self._ptr)
 
-        C.wl_proxy_marshal_array(proxy, opcode, args_ptr)
+        lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
     def _marshal_constructor(self, opcode, interface, *args):
         # Create a wl_argument array
@@ -66,7 +66,7 @@ class Proxy(object):
         # Make the cast to a wl_proxy
         proxy = ffi.cast('struct wl_proxy *', self._ptr)
 
-        proxy_ptr = C.wl_proxy_marshal_array_constructor(
+        proxy_ptr = lib.wl_proxy_marshal_array_constructor(
             proxy, opcode, args_ptr, interface._ptr
         )
         return interface.proxy_class(proxy_ptr)

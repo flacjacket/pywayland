@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import C
+from pywayland import lib
 
 
 class EventQueue(object):
@@ -22,4 +22,4 @@ class EventQueue(object):
     manner. See :class:`~pywayland.client.Display` for details.
     """
     def __init__(self, display):
-        self._ptr = C.wl_display_create_queue(display._ptr)
+        self._ptr = lib.wl_display_create_queue(display._ptr)

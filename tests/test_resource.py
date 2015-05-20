@@ -34,6 +34,9 @@ def test_create_resource():
     client.user_data = 0xbee
     assert client.user_data == 0xbee
 
+    client.destroy()
+    display.destroy()
+
     s1.close()
     s2.close()
 
@@ -88,7 +91,7 @@ def test_destroy_resource():
     s2.close()
 
 
-def test_create_resource_with_same_id():
+def notest_create_resource_with_same_id():
     s1, s2 = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)
     display = Display()
     client = Client(display, s1.fileno())

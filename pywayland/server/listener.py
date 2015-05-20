@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 import functools
 import weakref
@@ -54,5 +54,5 @@ class DestroyListener(object):
     def remove(self):
         """Remove the listener"""
         if self.link:
-            C.wl_list_remove(ffi.addressof(self._ptr.link))
+            lib.wl_list_remove(ffi.addressof(self._ptr.link))
             self.link = None

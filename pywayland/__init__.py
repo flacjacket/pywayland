@@ -14,11 +14,11 @@
 
 from __future__ import absolute_import
 
-from .ffi import ffi, C  # noqa
+from pywayland._ffi import ffi, lib  # noqa
 
 __version__ = '0.0.1a.dev4'
 __wayland_version__ = '{}.{}.{}'.format(
-    C.WAYLAND_VERSION_MAJOR,
-    C.WAYLAND_VERSION_MINOR,
-    C.WAYLAND_VERSION_MICRO
+    lib.WAYLAND_VERSION_MAJOR,
+    lib.WAYLAND_VERSION_MINOR,
+    lib.WAYLAND_VERSION_MICRO
 )

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 from weakref import WeakKeyDictionary
 
@@ -43,16 +43,16 @@ class Resource(object):
         self.version = version
         self.destructor = None
 
-        self._ptr = C.wl_resource_create(client._ptr, self._interface._ptr, version, id)
-        self.id = C.wl_resource_get_id(self._ptr)
+        self._ptr = lib.wl_resource_create(client._ptr, self._interface._ptr, version, id)
+        self.id = lib.wl_resource_get_id(self._ptr)
 
-        C.wl_resource_set_dispatcher(self._ptr, self.listener.dispatcher, ffi.NULL,
-                                     self._handle, self.listener.destroyed_dispatcher)
+        lib.wl_resource_set_dispatcher(self._ptr, self.listener.dispatcher, ffi.NULL,
+                                       self._handle, self.listener.destroyed_dispatcher)
 
     def destroy(self):
         """Destroy the Resource"""
         if self._ptr:
-            C.wl_resource_destroy(self._ptr)
+            lib.wl_resource_destroy(self._ptr)
             self._ptr = None
 
     def add_destroy_listener(self, listener):
@@ -61,7 +61,7 @@ class Resource(object):
         :param listener: The listener object
         :type listener: :class:`~pywayland.server.DestroyListener`
         """
-        C.wl_resource_add_destroy_listener(self._ptr, listener._ptr)
+        lib.wl_resource_add_destroy_listener(self._ptr, listener._ptr)
 
     def _post_event(self, opcode, args):
         # Create wl_argument array
@@ -69,8 +69,8 @@ class Resource(object):
         # Make the cast to a wl_resource
         resource = ffi.cast('struct wl_resource *', self._ptr)
 
-        C.wl_resource_post_event_array(resource, opcode, args_ptr)
+        lib.wl_resource_post_event_array(resource, opcode, args_ptr)
 
     def _post_error(self, code, msg=""):
         msg_ptr = ffi.new('char []', msg)
-        C.wl_resouce_post_error(self._ptr, code, msg_ptr)
+        lib.wl_resouce_post_error(self._ptr, code, msg_ptr)

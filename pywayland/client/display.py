@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 from pywayland.protocol import Display as _Display
 
@@ -88,13 +88,13 @@ class Display(_Display.proxy_class):
         set, otherwise display ``"wayland-0"`` will be used.
         """
         if isinstance(name_or_fd, int):
-            self._ptr = C.wl_display_connect_to_fd(name_or_fd)
+            self._ptr = lib.wl_display_connect_to_fd(name_or_fd)
         else:
             if name_or_fd is None:
                 name = ffi.NULL
             else:
                 name = name_or_fd.encode()
-            self._ptr = C.wl_display_connect(name)
+            self._ptr = lib.wl_display_connect(name)
 
         if self._ptr == ffi.NULL:
             raise Exception
@@ -106,7 +106,7 @@ class Display(_Display.proxy_class):
         it.
         """
         if self._ptr:
-            C.wl_display_disconnect(self._ptr)
+            lib.wl_display_disconnect(self._ptr)
             self._ptr = None
 
     def get_fd(self):
@@ -115,7 +115,7 @@ class Display(_Display.proxy_class):
         Return the file descriptor associated with a display so it can be
         integrated into the client's main loop.
         """
-        return C.wl_display_get_fd(self._ptr)
+        return lib.wl_display_get_fd(self._ptr)
 
     def dispatch(self):
         """Process incoming events
@@ -138,7 +138,7 @@ class Display(_Display.proxy_class):
             :meth:`Display.dispatch_pending()`,
             :meth:`Display.dispatch_queue()`
         """
-        return C.wl_display_dispatch(self._ptr)
+        return lib.wl_display_dispatch(self._ptr)
 
     def dispatch_pending(self):
         """Dispatch default queue events without reading from the display fd
@@ -175,7 +175,7 @@ class Display(_Display.proxy_class):
             :meth:`Display.dispatch()`, :meth:`Display.dispatch_queue()`,
             :meth:`Display.flush()`
         """
-        return C.wl_display_dispatch_pending(self._ptr)
+        return lib.wl_display_dispatch_pending(self._ptr)
 
     def dispatch_queue(self, queue):
         """Dispatch events in an event queue
@@ -213,7 +213,7 @@ class Display(_Display.proxy_class):
 
             :meth:`Display.dispatch()`, :meth:`Display.dispatch_pending()`
         """
-        return C.wl_display_dispatch_queue(self._ptr, queue._ptr)
+        return lib.wl_display_dispatch_queue(self._ptr, queue._ptr)
 
     def flush(self):
         """Send all buffered requests on the display to the server
@@ -228,7 +228,7 @@ class Display(_Display.proxy_class):
         EAGAIN and -1 returned.  In that case, use poll on the display file
         descriptor to wait for it to become writable again.
         """
-        return C.wl_display_flush(self._ptr)
+        return lib.wl_display_flush(self._ptr)
 
     def roundtrip(self):
         """Block until all pending request are processed by the server
@@ -236,4 +236,4 @@ class Display(_Display.proxy_class):
         Blocks until the server process all currently issued requests and
         sends out pending events on the default event queue.
         """
-        return C.wl_display_roundtrip(self._ptr)
+        return lib.wl_display_roundtrip(self._ptr)

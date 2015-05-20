@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 import re
 import weakref
@@ -78,7 +78,7 @@ class Message(object):
             elif sig == 'u':
                 args.append(arg_ptr.u)
             elif sig == 'f':
-                f = C.wl_fixed_to_double(arg_ptr.f)
+                f = lib.wl_fixed_to_double(arg_ptr.f)
                 args.append(f)
             elif sig == 'h':
                 args.append(arg_ptr.h)
@@ -132,9 +132,9 @@ class Message(object):
                 args_ptr[i].u = arg
             elif sig == 'f':
                 if isinstance(arg, int):
-                    f = C.wl_fixed_from_int(arg)
+                    f = lib.wl_fixed_from_int(arg)
                 else:
-                    f = C.wl_fixed_from_double(arg)
+                    f = lib.wl_fixed_from_double(arg)
                 args_ptr[i].f = f
             elif sig == 'h':
                 args_ptr[i].h = arg

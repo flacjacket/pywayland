@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 
 from enum import Enum
 import functools
@@ -75,17 +75,17 @@ class EventLoop(object):
     """
 
     fd_mask = Enum('fd_mask', {
-        'WL_EVENT_READABLE': C.WL_EVENT_READABLE,
-        'WL_EVENT_WRITABLE': C.WL_EVENT_WRITABLE,
-        'WL_EVENT_HANGUP': C.WL_EVENT_HANGUP,
-        'WL_EVENT_ERROR': C.WL_EVENT_ERROR
+        'WL_EVENT_READABLE': lib.WL_EVENT_READABLE,
+        'WL_EVENT_WRITABLE': lib.WL_EVENT_WRITABLE,
+        'WL_EVENT_HANGUP': lib.WL_EVENT_HANGUP,
+        'WL_EVENT_ERROR': lib.WL_EVENT_ERROR
     })
 
     def __init__(self, display=None):
         if display:
-            self._ptr = C.wl_display_get_event_loop(display._ptr)
+            self._ptr = lib.wl_display_get_event_loop(display._ptr)
         else:
-            self._ptr = C.wl_event_loop_create()
+            self._ptr = lib.wl_event_loop_create()
 
         self._sources = []
         weakkeydict[self] = []
@@ -94,7 +94,7 @@ class EventLoop(object):
         """Destroy the event loop"""
         # TODO: figure out when this should be run, definitely not always...
         if self._ptr:
-            C.wl_event_loop_destroy(self._ptr)
+            lib.wl_event_loop_destroy(self._ptr)
             self._ptr = None
 
     def add_fd(self, fd, callback, mask=[fd_mask.WL_EVENT_READABLE], data=None):
@@ -129,7 +129,7 @@ class EventLoop(object):
         mask = [m.value for m in mask]
         mask = functools.reduce(lambda x, y: x | y, mask)
 
-        event_source_cdata = C.wl_event_loop_add_fd(self._ptr, fd, mask, callback_ffi, data_ptr)
+        event_source_cdata = lib.wl_event_loop_add_fd(self._ptr, fd, mask, callback_ffi, data_ptr)
         event_source = EventSource(event_source_cdata)
         self._sources.append(event_source)
 
@@ -157,7 +157,7 @@ class EventLoop(object):
         callback_ffi = _wrap_signal_callback(callback)
         weakkeydict[self].append(callback_ffi)
 
-        event_source_cdata = C.wl_event_loop_add_signal(self._ptr, signal_number, callback_ffi, data_ptr)
+        event_source_cdata = lib.wl_event_loop_add_signal(self._ptr, signal_number, callback_ffi, data_ptr)
         event_source = EventSource(event_source_cdata)
         self._sources.append(event_source)
 
@@ -185,7 +185,7 @@ class EventLoop(object):
         callback_ffi = _wrap_timer_callback(callback)
         weakkeydict[self].append(callback_ffi)
 
-        event_source_cdata = C.wl_event_loop_add_timer(self._ptr, callback_ffi, data_ptr)
+        event_source_cdata = lib.wl_event_loop_add_timer(self._ptr, callback_ffi, data_ptr)
         event_source = EventSource(event_source_cdata)
         self._sources.append(event_source)
 
@@ -197,16 +197,16 @@ class EventLoop(object):
         :params listener: The listener object
         :type listener: :class:`~pywayland.server.DestroyListener`
         """
-        C.wl_event_loop_add_destroy_listener(self._ptr, listener._ptr)
+        lib.wl_event_loop_add_destroy_listener(self._ptr, listener._ptr)
         listener.link = self
 
     def dispatch(self, timeout):
         """Dispatch callbacks on the event loop"""
-        C.wl_event_loop_dispatch(self._ptr, timeout)
+        lib.wl_event_loop_dispatch(self._ptr, timeout)
 
     def dispatch_idle(self):
         """Dispatch idle callback on the event loop"""
-        C.wl_event_loop_dispatch_idle(self._ptr)
+        lib.wl_event_loop_dispatch_idle(self._ptr)
 
 
 class EventSource(object):
@@ -221,12 +221,12 @@ class EventSource(object):
     def remove(self):
         """Remove the callback from the event loop"""
         if self._ptr:
-            C.wl_event_source_remove(self._ptr)
+            lib.wl_event_source_remove(self._ptr)
         self._ptr = None
 
     def check(self):
         """Insert the EventSource into the check list"""
-        C.wl_event_source_check(self._ptr)
+        lib.wl_event_source_check(self._ptr)
 
     def timer_update(self, timeout):
         """Set the timeout of the times callback
@@ -234,4 +234,4 @@ class EventSource(object):
         :params timeout: Delay for timeout in ms
         :type timeout: `int`
         """
-        C.wl_event_source_timer_update(self._ptr, timeout)
+        lib.wl_event_source_timer_update(self._ptr, timeout)

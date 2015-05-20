@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, C
+from pywayland import ffi, lib
 from .eventloop import EventLoop
 
 
@@ -22,7 +22,7 @@ class Display(object):
         if ptr:
             self._ptr = ptr
         else:
-            self._ptr = C.wl_display_create()
+            self._ptr = lib.wl_display_create()
 
     def __del__(self):
         self.destroy()
@@ -41,7 +41,7 @@ class Display(object):
         """
 
         if self._ptr:
-            C.wl_display_destroy(self._ptr)
+            lib.wl_display_destroy(self._ptr)
             self._ptr = None
 
     def add_socket(self, name=None):
@@ -71,7 +71,7 @@ class Display(object):
         else:
             name_ptr = ffi.new('char []', name.encode())
 
-        ret = C.wl_display_add_socket(self._ptr, name_ptr)
+        ret = lib.wl_display_add_socket(self._ptr, name_ptr)
 
         if ret == -1:
             # TODO: raise better
@@ -83,7 +83,7 @@ class Display(object):
         This function returns the most recent serial number, but does not
         increment it.
         """
-        return C.wl_display_get_serial(self._ptr)
+        return lib.wl_display_get_serial(self._ptr)
 
     def next_serial(self):
         """Get the next serial
@@ -91,7 +91,7 @@ class Display(object):
         This function increments the display serial number and returns the new
         value.
         """
-        return C.wl_display_next_serial(self._ptr)
+        return lib.wl_display_next_serial(self._ptr)
 
     def get_event_loop(self):
         """Get the event loop for the display
@@ -103,8 +103,8 @@ class Display(object):
     def terminate(self):
         """Stop the display from running"""
         if self._ptr:
-            C.wl_display_terminate(self._ptr)
+            lib.wl_display_terminate(self._ptr)
 
     def run(self):
         """Run the display"""
-        C.wl_display_run(self._ptr)
+        lib.wl_display_run(self._ptr)

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import C, ffi
+from pywayland import ffi, lib
 
 
 class Client(object):
@@ -35,7 +35,7 @@ class Client(object):
     def __init__(self, display, fd):
         if display._ptr == ffi.NULL:
             raise ValueError("Display pointer cannot be null")
-        self._ptr = C.wl_client_create(display._ptr, fd)
+        self._ptr = lib.wl_client_create(display._ptr, fd)
 
         self.display = display
 
@@ -45,7 +45,7 @@ class Client(object):
     def destroy(self):
         """Destroy the client"""
         if self._ptr:
-            C.wl_client_destroy(self._ptr)
+            lib.wl_client_destroy(self._ptr)
         self._ptr = None
 
     def flush(self):
@@ -56,7 +56,7 @@ class Client(object):
         back to block in the event loop.  This function flushes all queued up
         events for a client immediately.
         """
-        C.wl_client_flush(self._ptr)
+        lib.wl_client_flush(self._ptr)
 
     def add_destroy_listener(self, listener):
         """Add a listener for the destroy signal
@@ -64,7 +64,7 @@ class Client(object):
         :params listener: The listener object
         :type listener: :class:`~pywayland.server.DestroyListener`
         """
-        C.wl_client_add_destroy_listener(self._ptr, listener._ptr)
+        lib.wl_client_add_destroy_listener(self._ptr, listener._ptr)
         listener.link = self
 
     def get_object(self, id):
@@ -79,10 +79,10 @@ class Client(object):
                   ID
         """
 
-        res_ptr = C.wl_client_get_object(self._ptr, id)
+        res_ptr = lib.wl_client_get_object(self._ptr, id)
         # If the object doesn't exist, this returns NULL, and asking for
         # forgiveness doesn't work, becuase it will seg fault
         if res_ptr == ffi.NULL:
             return
-        res_py_ptr = C.wl_resource_get_user_data(res_ptr)
+        res_py_ptr = lib.wl_resource_get_user_data(res_ptr)
         return ffi.from_handle(res_py_ptr)
