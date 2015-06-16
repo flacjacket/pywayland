@@ -17,11 +17,6 @@ env:
     - CPATH=${HOME}/wayland/include
     - XDG_RUNTIME_DIR=/tmp
 
-matrix:
-  allow_failures:
-    - python: pypy
-    - python: pypy3
-
 before_install:
   - wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz
   - tar -xJf wayland-${WAYLAND_VERSION}.tar.xz
@@ -32,13 +27,10 @@ before_install:
   - popd
 
 install:
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then
-      pip install -r requirements-3.4+.txt;
-    else
-      pip install -r requirements-2-3.3.txt;
-    fi
+  - pip install -r requirements.txt
+  - python -c 'import sys; sys.exit(int(sys.version_info[:2] < (3, 4)))' || pip install enum34
   - python setup.py generate_protocol --xml-file=${HOME}/wayland/share/wayland/wayland.xml
-  - python setup.py build_ext --inplace
+  - python -c 'import cffi, sys; sys.exit(cffi.__version_info__[0])' || python pywayland/ffi_build.py
 
 script:
   - flake8 --config flake8.cfg pywayland/ tests/

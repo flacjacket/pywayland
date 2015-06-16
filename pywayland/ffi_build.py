@@ -262,8 +262,9 @@ SOURCE = """
 """
 
 ffi = FFI()
-ffi.set_source('pywayland._ffi', SOURCE,
-               libraries=['wayland-client', 'wayland-server'])
+if hasattr(ffi, 'set_source'):
+    ffi.set_source('pywayland._ffi', SOURCE,
+                   libraries=['wayland-client', 'wayland-server'])
 ffi.cdef(CDEF)
 
 
