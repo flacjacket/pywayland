@@ -19,7 +19,8 @@ import sys
 
 from setuptools import setup
 from distutils.cmd import Command
-from distutils.command.build_py import build_py
+from distutils.command.build import build
+from setuptools.command.install import install
 
 # See note in generate_protocol()
 sys.path.append('pywayland')
@@ -66,7 +67,18 @@ class GenerateProtocolCommand(Command):
         generate_protocol(self.xml_file, self.protocol_dir)
 
 
-class BuildPyCommand(build_py):
+class BuildCommand(build):
+    user_options = build.user_options + [
+        ('xml-file=', None, 'Location of wayland.xml protocol file'),
+        ('protocol-dir=', None, 'Output location for protocol python files')
+    ]
+
+    def initialize_options(self):
+        self.xml_file = '/usr/share/wayland/wayland.xml'
+        self.protocol_dir = './pywayland/protocol'
+
+        build.initialize_options(self)
+
     def run(self):
         # Check that the protocol files exist, try to generate them if they don't
         if not os.path.exists(protocol_dir):
@@ -76,7 +88,31 @@ class BuildPyCommand(build_py):
             )
             generate_protocol(xml_file, protocol_dir)
 
-        build_py.run(self)
+        build.run(self)
+
+
+class InstallCommand(install):
+    user_options = install.user_options + [
+        ('xml-file=', None, 'Location of wayland.xml protocol file'),
+        ('protocol-dir=', None, 'Output location for protocol python files')
+    ]
+
+    def initialize_options(self):
+        self.xml_file = '/usr/share/wayland/wayland.xml'
+        self.protocol_dir = './pywayland/protocol'
+
+        install.initialize_options(self)
+
+    def run(self):
+        # Check that the protocol files exist, try to generate them if they don't
+        if not os.path.exists(protocol_dir):
+            assert os.path.exists(self.xml_file), (
+                "Wayland protocol file does not exist at default location, {}, "
+                "please generate protocol files manually".format(xml_file)
+            )
+            generate_protocol(xml_file, protocol_dir)
+
+        install.run(self)
 
 
 description = 'Python bindings for the libwayland library written in pure Python'
@@ -169,7 +205,8 @@ setup(
     },
     zip_safe=False,
     cmdclass={
-        'build_py': BuildPyCommand,
+        'build': BuildCommand,
+        'install': InstallCommand,
         'generate_protocol': GenerateProtocolCommand
     },
     **cffi_args
