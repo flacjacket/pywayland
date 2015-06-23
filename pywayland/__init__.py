@@ -15,10 +15,10 @@
 from __future__ import absolute_import
 
 try:
-    from pywayland._ffi import ffi, lib  # noqa
+    from ._ffi import ffi, lib  # noqa
 except ImportError:
     # PyPy < 2.6 compatibility
-    from pywayland.ffi_build import ffi, SOURCE
+    from .ffi_build import ffi, SOURCE
     lib = ffi.verify(SOURCE, libraries=['wayland-client', 'wayland-server'])
 
 __version__ = '0.0.1a.dev4'

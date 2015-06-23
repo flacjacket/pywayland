@@ -20,7 +20,7 @@ class Mock(MagicMock):
         return Mock()
 
 
-MOCK_MODULES = ['pywayland.ffi']
+MOCK_MODULES = ['pywayland._ffi']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # -- Build pywayland.protocol w/docs --------------------------------------
