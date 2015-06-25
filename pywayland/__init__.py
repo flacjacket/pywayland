@@ -21,7 +21,7 @@ except ImportError:
     from .ffi_build import ffi, SOURCE
     lib = ffi.verify(SOURCE, libraries=['wayland-client', 'wayland-server'])
 
-__version__ = '0.0.1a.dev4'
+__version__ = '0.0.1a.dev5'
 __wayland_version__ = '{}.{}.{}'.format(
     lib.WAYLAND_VERSION_MAJOR,
     lib.WAYLAND_VERSION_MINOR,

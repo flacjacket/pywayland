@@ -133,7 +133,7 @@ copyright = '2015, Sean Vig'
 # The short X.Y version.
 version = '0.0.1'
 # The full version, including alpha/beta/rc tags.
-release = '0.0.1a.dev4'
+release = '0.0.1a.dev5'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
