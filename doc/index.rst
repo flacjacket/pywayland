@@ -60,3 +60,11 @@ Scanner and Protocol Modules
    scanner
    module/protocol/index
    module/scanner/index
+
+Utilities
+^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 2
+
+   module/utils
