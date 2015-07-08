@@ -256,8 +256,8 @@ wl_resource_add_destroy_listener(struct wl_resource *resource,
 """
 
 SOURCE = """
-#include <wayland-client.h>
-#include <wayland-server.h>
+#include <wayland-client-core.h>
+#include <wayland-server-core.h>
 #include <wayland-version.h>
 """
 
