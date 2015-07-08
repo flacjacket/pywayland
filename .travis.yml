@@ -33,7 +33,7 @@ install:
   - python -c 'import cffi, sys; sys.exit(cffi.__version_info__[0])' || python pywayland/ffi_build.py
 
 script:
-  - flake8 --config flake8.cfg pywayland/ tests/
+  - flake8 --config flake8.cfg pywayland/ tests/ example/
   - py.test --cov pywayland --cov-report term-missing
 
 after_success:

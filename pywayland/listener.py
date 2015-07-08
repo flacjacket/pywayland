@@ -25,9 +25,9 @@ def _dispatcher(data, target, opcode, message, c_args):
     args = self.listener.messages[opcode].c_to_arguments(c_args)
 
     func = self.listener[opcode]
-    if func is None:
-        return 0
-    return func(self, *args)
+    if func is not None:
+        func(self, *args)
+    return 0
 
 
 @ffi.callback("void(struct wl_resource *)")
