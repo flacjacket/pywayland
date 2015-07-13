@@ -67,15 +67,21 @@ class Display(object):
         :type name: string or None
         """
         if name is None:
-            name_ptr = ffi.NULL
+            name_ptr = lib.wl_display_add_socket_auto(self._ptr)
+            name = ffi.string(name_ptr)
+
+            if not name:
+                # TODO: raise better
+                raise Exception()
+
+            return name
         else:
             name_ptr = ffi.new('char []', name.encode())
+            ret = lib.wl_display_add_socket(self._ptr, name_ptr)
 
-        ret = lib.wl_display_add_socket(self._ptr, name_ptr)
-
-        if ret == -1:
-            # TODO: raise better
-            raise Exception()
+            if ret == -1:
+                # TODO: raise better
+                raise Exception()
 
     def get_serial(self):
         """Get the current serial number

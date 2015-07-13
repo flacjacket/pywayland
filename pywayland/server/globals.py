@@ -19,23 +19,11 @@ from .client import Client
 
 @ffi.callback("void(struct wl_client *, void *, uint32_t, uint32_t)")
 def _global_bind_func(client_ptr, data, version, id):
-    # `client_ptr` is the client that initiated the call
-    # TODO: can we get the Client? this is a major hack
-    def init_from_ptr(self, ptr):
-        self._ptr = ptr
-
-    def dummy_del(self):
-        pass
-
-    client_class = type("Client", (Client,), {
-        '__init__': init_from_ptr,
-        '__del__': dummy_del
-    })
-    client = client_class(client_ptr)
     # `data` is the handle to Global
     _global = ffi.from_handle(data)
-    version = max(_global._interface.version, version)
-    resource = _global._interface.resource_class(client, version, id)
+
+    version = min(_global._interface.version, version)
+    resource = _global._interface.resource_class(client_ptr, version, id)
 
     # Call a user defined handler
     if _global.bind_handler:

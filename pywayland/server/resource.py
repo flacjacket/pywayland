@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from .client import Client
 
 from weakref import WeakKeyDictionary
 
@@ -39,11 +40,15 @@ class Resource(object):
             version = self._interface.version
 
         self._handle = ffi.new_handle(self)
-        self.client = client
         self.version = version
         self.destructor = None
 
-        self._ptr = lib.wl_resource_create(client._ptr, self._interface._ptr, version, id)
+        if isinstance(client, Client):
+            ptr = client._ptr
+        else:
+            ptr = client
+
+        self._ptr = lib.wl_resource_create(ptr, self._interface._ptr, version, id)
         self.id = lib.wl_resource_get_id(self._ptr)
 
         lib.wl_resource_set_dispatcher(self._ptr, self.dispatcher._ptr, ffi.NULL,

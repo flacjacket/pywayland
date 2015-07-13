@@ -21,6 +21,12 @@ def _dispatcher(data, target, opcode, message, c_args):
     # `target` is the wl_proxy/wl_resource for self
     # `message` is the wl_message for self._interface.events/requests[opcode]
     # TODO: handle any user_data attached to the wl_proxy/wl_resource
+
+    # So this is _massively_ broken, but somehow resources give NULL data, but
+    # the user data is not null
+    if data == ffi.NULL:
+        data = lib.wl_resource_get_user_data(target)
+
     self = ffi.from_handle(data)
     args = self.dispatcher.messages[opcode].c_to_arguments(c_args)
 
