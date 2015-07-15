@@ -60,12 +60,13 @@ class Dispatcher(object):
     """
     def __init__(self, messages, destructor=False):
         self.messages = messages
+        self._ptr = _dispatcher
+        if destructor:
+            self._destroyed_ptr = _destroyed_dispatcher
+
         # Create a map of message names to message opcodes
         self._names = {msg.name: opcode for opcode, msg in enumerate(messages)}
         self._callback = [None for _ in messages]
-        self.dispatcher = _dispatcher
-        if destructor:
-            self.destroyed_dispatcher = _destroyed_dispatcher
 
     def __getitem__(self, opcode_or_name):
         if opcode_or_name in self._names:

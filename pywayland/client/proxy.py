@@ -44,7 +44,7 @@ class Proxy(object):
         weakkeydict[self] = _handle
 
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        lib.wl_proxy_add_dispatcher(_ptr, self.listener.dispatcher, _handle, ffi.NULL)
+        lib.wl_proxy_add_dispatcher(_ptr, self.dispatcher._ptr, _handle, ffi.NULL)
 
     def _destroy(self):
         if self._ptr:

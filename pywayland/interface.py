@@ -52,7 +52,7 @@ class InterfaceMeta(type):
         dispacter_class = type(dispacter_name, (Dispatcher,), {})
         # Add the interface and dispacter as a class attribute
         dct['_interface'] = interface
-        dct['dispacter'] = dispacter_class(interface.events)
+        dct['dispatcher'] = dispacter_class(interface.events)
 
         # Return the new class
         return type(class_name, (Proxy,), dct)
@@ -75,7 +75,7 @@ class InterfaceMeta(type):
         dispacter_class = type(dispacter_name, (Dispatcher,), {})
         # Add the interface and dispacter as a class attribute
         dct['_interface'] = interface
-        dct['dispacter'] = dispacter_class(interface.requests, destructor=True)
+        dct['dispatcher'] = dispacter_class(interface.requests, destructor=True)
 
         # Return the new class
         return type(class_name, (Resource,), dct)

@@ -46,8 +46,8 @@ class Resource(object):
         self._ptr = lib.wl_resource_create(client._ptr, self._interface._ptr, version, id)
         self.id = lib.wl_resource_get_id(self._ptr)
 
-        lib.wl_resource_set_dispatcher(self._ptr, self.listener.dispatcher, ffi.NULL,
-                                       self._handle, self.listener.destroyed_dispatcher)
+        lib.wl_resource_set_dispatcher(self._ptr, self.dispatcher._ptr, ffi.NULL,
+                                       self._handle, self.dispatcher._destroyed_ptr)
 
     def destroy(self):
         """Destroy the Resource"""

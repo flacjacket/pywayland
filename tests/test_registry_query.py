@@ -32,7 +32,7 @@ def _run_client():
     c.connect()
 
     reg = c.get_registry()
-    reg.listener['global'] = _get_registry_callback
+    reg.dispatcher['global'] = _get_registry_callback
 
     c.roundtrip()
 
