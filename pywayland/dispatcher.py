@@ -22,9 +22,9 @@ def _dispatcher(data, target, opcode, message, c_args):
     # `message` is the wl_message for self._interface.events/requests[opcode]
     # TODO: handle any user_data attached to the wl_proxy/wl_resource
     self = ffi.from_handle(data)
-    args = self.listener.messages[opcode].c_to_arguments(c_args)
+    args = self.dispatcher.messages[opcode].c_to_arguments(c_args)
 
-    func = self.listener[opcode]
+    func = self.dispatcher[opcode]
     if func is not None:
         func(self, *args)
     return 0
@@ -44,11 +44,25 @@ def _destroyed_dispatcher(res_ptr):
         func(res)
 
 
-class Listener(object):
+class Dispatcher(object):
+    """Dispatches events or requests from an interface
+
+    Handles the dispatching of callbacks from events (for
+    :class:`~pywayland.sever.resource.Resource` objects) and requests (for
+    :class:`~pywayland.client.proxy.Proxy` objects).  The callbacks for a given
+    message can be set and retrieved by indexing the dispatcher with either the
+    opcode or the name of the message.
+
+    :param messages: List of messages (events or requests)
+    :type messages: `list`
+    :param destructor: Create destructor dispatcher (for Resources)
+    :type destructor: `bool`
+    """
     def __init__(self, messages, destructor=False):
-        self._names = {msg.name: opcode for opcode, msg in enumerate(messages)}
-        self._func = [None for _ in messages]
         self.messages = messages
+        # Create a map of message names to message opcodes
+        self._names = {msg.name: opcode for opcode, msg in enumerate(messages)}
+        self._callback = [None for _ in messages]
         self.dispatcher = _dispatcher
         if destructor:
             self.destroyed_dispatcher = _destroyed_dispatcher
@@ -57,9 +71,9 @@ class Listener(object):
         if opcode_or_name in self._names:
             opcode_or_name = self._names[opcode_or_name]
 
-        return self._func[opcode_or_name]
+        return self._callback[opcode_or_name]
 
     def __setitem__(self, opcode_or_name, function):
         if opcode_or_name in self._names:
             opcode_or_name = self._names[opcode_or_name]
-        self._func[opcode_or_name] = function
+        self._callback[opcode_or_name] = function

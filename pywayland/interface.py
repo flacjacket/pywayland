@@ -14,7 +14,7 @@
 
 from pywayland import ffi
 
-from .listener import Listener
+from .dispatcher import Dispatcher
 from .message import Message
 
 import six
@@ -47,12 +47,12 @@ class InterfaceMeta(type):
         class_name = '{}Proxy'.format(interface.__name__)
         # Extract the requests
         dct = {msg.name: msg._func for msg in interface.requests}
-        # Construct a listener
-        listener_name = '{}Listener'.format(interface.__name__)
-        listener_class = type(listener_name, (Listener,), {})
-        # Add the interface and listener as a class attribute
+        # Construct a dispatcher
+        dispacter_name = '{}Dispatcher'.format(interface.__name__)
+        dispacter_class = type(dispacter_name, (Dispatcher,), {})
+        # Add the interface and dispacter as a class attribute
         dct['_interface'] = interface
-        dct['listener'] = listener_class(interface.events)
+        dct['dispacter'] = dispacter_class(interface.events)
 
         # Return the new class
         return type(class_name, (Proxy,), dct)
@@ -70,12 +70,12 @@ class InterfaceMeta(type):
         class_name = '{}Resource'.format(interface.__name__)
         # Extract the events
         dct = {msg.name: msg._func for msg in interface.events}
-        # Construct a listener
-        listener_name = '{}Listener'.format(interface.__name__)
-        listener_class = type(listener_name, (Listener,), {})
-        # Add the interface and listener as a class attribute
+        # Construct a dispacter
+        dispacter_name = '{}Dispatcher'.format(interface.__name__)
+        dispacter_class = type(dispacter_name, (Dispatcher,), {})
+        # Add the interface and dispacter as a class attribute
         dct['_interface'] = interface
-        dct['listener'] = listener_class(interface.requests, destructor=True)
+        dct['dispacter'] = dispacter_class(interface.requests, destructor=True)
 
         # Return the new class
         return type(class_name, (Resource,), dct)
