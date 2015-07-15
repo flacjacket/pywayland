@@ -43,9 +43,9 @@ class AnonymousFile(object):
         return self.fd
 
     def __exit__(self, exc_type, exc_value, traceback):
-        os.close(self.fd)
+        self.close()
 
-    def open(self, size):
+    def open(self):
         """Open an anonymous file
 
         Opens the anonymous file and sets the ``fd`` property to the file

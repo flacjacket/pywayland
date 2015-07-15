@@ -71,7 +71,7 @@ def registry_global_handler(registry, id_, interface, version):
     elif interface == 'wl_shm':
         print('got shm')
         window.shm = registry.bind(id_, Shm, version)
-        window.shm.listener['format'] = shm_format_handler
+        window.shm.dispatcher['format'] = shm_format_handler
 
 
 def registry_global_remover(registry, id_):
@@ -107,7 +107,7 @@ def redraw(callback, time, destroy_callback=True):
     callback = window.surface.frame()
     window.surface.attach(window.buffer, 0, 0)
     callback.user_data = window
-    callback.listener['done'] = redraw
+    callback.dispatcher['done'] = redraw
     window.surface.commit()
 
 
@@ -125,8 +125,8 @@ def main():
     print("connected to display")
 
     registry = display.get_registry()
-    registry.listener['global'] = registry_global_handler
-    registry.listener['global_remove'] = registry_global_remover
+    registry.dispatcher['global'] = registry_global_handler
+    registry.dispatcher['global_remove'] = registry_global_remover
     registry.user_data = window
 
     display.dispatch()
@@ -143,10 +143,10 @@ def main():
 
     shell_surface = window.shell.get_shell_surface(window.surface)
     shell_surface.set_toplevel()
-    shell_surface.listener['ping'] = shell_surface_ping_handler
+    shell_surface.dispatcher['ping'] = shell_surface_ping_handler
 
     frame_callback = window.surface.frame()
-    frame_callback.listener['done'] = redraw
+    frame_callback.dispatcher['done'] = redraw
     frame_callback.user_data = window
 
     create_window(window)
