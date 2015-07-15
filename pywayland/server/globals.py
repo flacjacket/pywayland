@@ -14,8 +14,6 @@
 
 from pywayland import ffi, lib
 
-from .client import Client
-
 
 @ffi.callback("void(struct wl_client *, void *, uint32_t, uint32_t)")
 def _global_bind_func(client_ptr, data, version, id):
