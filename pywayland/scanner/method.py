@@ -36,12 +36,16 @@ class Method(object):
     def scan(self):
         """Scan the method"""
         description = self._method.find('description')
-        self.summary = description.attrib['summary']
-        if description.text:
-            self.description = '\n\n'.join(' '.join(line.strip() for line in lines.split('\n'))
-                                           for lines in description.text.strip().split('\n\n'))
+        if description:
+            self.summary = description.attrib['summary']
+            if description.text:
+                self.description = '\n\n'.join(' '.join(line.strip() for line in lines.split('\n'))
+                                               for lines in description.text.strip().split('\n\n'))
+            else:
+                self.description = ""
         else:
-            self.description = []
+            self.summary = ""
+            self.description = ""
 
         self.args = [Argument(arg) for arg in self._method.findall('arg')]
 

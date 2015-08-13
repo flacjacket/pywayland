@@ -39,9 +39,9 @@ class Scanner(object):
         if self._protocol.tag != 'protocol':
             raise ValueError("Input file not a valid Wayland protocol file: {}".format(input_file))
 
-        attrib = self._protocol.attrib
-        if 'name' not in attrib or attrib['name'] != 'wayland':
-            raise ValueError("Input file not a valid Wayland protocol file: {}".format(input_file))
+        # attrib = self._protocol.attrib
+        # if 'name' not in attrib or attrib['name'] != 'wayland':
+        #     raise ValueError("Input file not a valid Wayland protocol file: {}".format(input_file))
 
     def __repr__(self):
         return "Scanner({})".format(self._input_file)
