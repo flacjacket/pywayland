@@ -10,7 +10,7 @@ python:
 
 env:
   matrix:
-    - WAYLAND_VERSION="1.8.1"
+    - WAYLAND_VERSION="1.9.0"
   global:
     - LD_LIBRARY_PATH=${HOME}/wayland/lib
     - LIBRARY_PATH=${HOME}/wayland/lib
