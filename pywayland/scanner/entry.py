@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .element import Element, Attribute, Child
+from .description import Description
 
-class Entry(object):
+
+class Entry(Element):
     """Scanner for enum entries
 
     Required attributes: `name` and `value`
@@ -22,19 +25,15 @@ class Entry(object):
 
     Child elements: `description`
     """
-    def __init__(self, entry):
-        self._entry = entry
-        self.name = entry.attrib['name']
-        self.value = entry.attrib['value']
-
-        self.summary = entry.attrib['since'] if 'since' in entry.attrib else None
-        self.since = entry.attrib['since'] if 'since' in entry.attrib else None
-
-    def scan(self):
-        """Scan the enum entry"""
-        # Currently no entries implement a description, instead, they have a
-        # summary element
-        pass
+    attributes = [
+        Attribute('name', True),
+        Attribute('value', True),
+        Attribute('summary', False),
+        Attribute('since', False)
+    ]
+    children = [
+        Child('description', Description, False, False)
+    ]
 
     def output(self, printer):
         """Generate the output for the entry in the enum"""

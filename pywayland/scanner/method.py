@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .argument import Argument
+# For 'new_id' types with no 'interface'
+NO_IFACE = 'interface'
+NO_IFACE_VERSION = 'version'
 
 
 class Method(object):
@@ -20,69 +22,38 @@ class Method(object):
 
     Corresponds to event and requests defined on an interface
     """
-    def __init__(self, method, opcode):
-        self._method = method
-        self.name = method.attrib['name']
 
-        self.type = method.attrib['type'] if 'type' in method.attrib else None
-        self.since = method.attrib['since'] if 'since' in method.attrib else None
+    def __init__(self, method, iface_name, opcode):
+        super(Method, self).__init__(method)
 
         self.opcode = opcode
+        self.interface = iface_name
 
         # 'global' is a protected name, so append '_'
         if self.name == 'global':
             self.name += '_'
 
-    def scan(self):
-        """Scan the method"""
-        description = self._method.find('description')
-        if description:
-            self.summary = description.attrib['summary']
-            if description.text:
-                self.description = '\n\n'.join(' '.join(line.strip() for line in lines.split('\n'))
-                                               for lines in description.text.strip().split('\n\n'))
-            else:
-                self.description = ""
-        else:
-            self.summary = ""
-            self.description = ""
-
-        self.args = [Argument(arg) for arg in self._method.findall('arg')]
-
-        for arg in self.args:
-            arg.scan()
-
-    def get_imports(self, this_interface):
+    @property
+    def imports(self):
         """Get the imports required for each of the interfaces"""
-        return [arg.get_interface() for arg in self.args
-                if arg.interface and arg.interface != this_interface]
-
-    def interface_types(self):
-        """Generator of the types (for the wl_interface)"""
-        for arg in self.args:
-            if arg.interface:
-                yield arg.get_interface()
-            else:
-                if arg.type == 'new_id':
-                    yield 'None'
-                    yield 'None'
-                yield 'None'
+        return [arg.interface_class for arg in self.arg
+                if arg.interface and arg.interface != self.interface]
 
     def output(self, printer, in_class):
         """Generate the output for the given method to the printer"""
-        signature = ''.join(arg.signature for arg in self.args)
+        # Generate the decorator for the method
+        signature = ''.join(arg.signature for arg in self.arg)
         if self.since and int(self.since) > 1:
             signature = self.since + signature
-        args = ', '.join(self.method_args())
-        types = ', '.join(self.interface_types())
+        types = ', '.join(self.interface_types)
 
         printer('@{}.{}("{}", [{}])'.format(
             in_class, self.method_type, signature, types)
         )
-        if args:
-            printer('def {}(self, {}):'.format(self.name, args))
-        else:
-            printer('def {}(self):'.format(self.name))
+
+        # Generate the definition of the method and args
+        args = ', '.join(['self'] + list(self.method_args))
+        printer('def {}({}):'.format(self.name, args))
         printer.inc_level()
 
         # Write the documentation
@@ -93,19 +64,14 @@ class Method(object):
 
     def output_doc(self, printer):
         """Output the documentation for the interface"""
-        if self.description or self.args:
-            printer.doc('"""{}'.format(self.summary.capitalize()))
-        else:
-            # This is a one-line docstring
-            printer.doc('"""{}"""'.format(self.summary.capitalize()))
-            return
-
         if self.description:
-            printer()
-            printer.docstring(self.description)
+            self.description.output(printer)
         # Parameter and returns documentation
-        if self.args:
+        if self.arg:
             printer()
-            self.output_doc_param(printer)
-            self.output_doc_ret(printer)
+            self.output_doc_params(printer)
         printer('"""')
+
+    def output_doc_param(self, printer):
+        # Subclasses must define this to output the parameters
+        raise NotImplementedError()

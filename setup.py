@@ -41,7 +41,6 @@ def generate_protocol(input_xml, output_path):
 
     # Run and scan the xml file
     scanner = Scanner(input_xml)
-    scanner.scan()
     scanner.output(output_path)
 
 

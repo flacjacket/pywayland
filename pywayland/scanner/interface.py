@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .element import Element, Attribute, Child
+
+from .description import Description
 from .enum import Enum
 from .event import Event
 from .request import Request
@@ -19,32 +22,34 @@ from .request import Request
 import itertools
 
 
-class Interface(object):
+class Interface(Element):
     """Scanner for interface objects
 
     Required attributes: `name` and `version`
 
     Child elements: `description`, `request`, `event`, `enum`
     """
+    attributes = [Attribute('name', True), Attribute('version', True)]
+    children = [
+        Child('description', Description, True, False),
+        Child('enum', Enum, False, True),
+        # Child('request', Request, False, True),
+        # Child('event', Event, False, True)
+    ]
+
     def __init__(self, iface):
-        self._iface = iface
-        attrib = iface.attrib
-        self.name = attrib['name']
-        self.version = int(attrib['version'])
+        super(Interface, self).__init__(iface)
 
-    @property
-    def file_name(self):
-        """Returns the file name of the interface
-
-        Trim the ``wl_`` from the specified interface name.
-        """
-        return self.module + '.py'
+        # Requests and events need special handling to get the opcode and interface name
+        self.event = [Event(event, self.name, i) for i, event in enumerate(iface.findall('event'))]
+        self.request = [Request(request, self.name, i) for i, request in enumerate(iface.findall('request'))]
 
     @property
     def module(self):
         """Returns the name of the module the interface is printed to
 
-        Trims the ``wl_`` from the specified interface name.
+        Trims the ``wl_`` from the specified interface name and drops
+        underscores, for example `wl_data_device` becomes `datadevice`.
         """
         return ''.join(self.name.split('_')[1:])
 
@@ -57,32 +62,15 @@ class Interface(object):
         """
         return ''.join(x.capitalize() for x in self.name.split('_')[1:])
 
-    def scan(self):
-        """Scan the interface"""
-        description = self._iface.find('description')
-        self.summary = description.attrib['summary']
-        self.description = '\n\n'.join(' '.join(line.strip() for line in lines.split('\n'))
-                                       for lines in description.text.strip().split('\n\n'))
-
-        self.enums = [Enum(enum) for enum in self._iface.findall('enum')]
-        self.events = [Event(event, i) for i, event in enumerate(self._iface.findall('event'))]
-        self.requests = [Request(request, i) for i, request in enumerate(self._iface.findall('request'))]
-
-        for item in itertools.chain(self.enums, self.events, self.requests):
-            item.scan()
-
     def output(self, printer):
         """Generate the output for the interface to the printer"""
-        printer.initialize_file(self.name)
-        printer()
-
         # Imports
-        imports = set(_import for method in itertools.chain(self.requests, self.events)
-                      for _import in method.get_imports(self.name))
+        imports = set(_import for method in itertools.chain(self.request, self.event)
+                      for _import in method.imports)
         printer('from pywayland.interface import Interface')
         for _import in sorted(imports):
             printer('from .{} import {}'.format(_import.lower(), _import))
-        if self.enums:
+        if self.enum:
             printer()
             printer('import enum')
         printer()
@@ -92,23 +80,22 @@ class Interface(object):
         printer('class {}(Interface):'.format(self.class_name))
         # Docstring
         printer.inc_level()
-        printer.doc('"""{}'.format(self.summary.capitalize()))
-        printer()
-        printer.docstring(self.description)
-        printer('"""')
+        if self.description:
+            self.description.output(printer)
+            printer('"""')
 
         # Class attributes
         printer('name = "{}"'.format(self.name))
-        printer('version = {:d}'.format(self.version))
+        printer('version = {}'.format(self.version))
 
         # Enums
-        for enum in self.enums:
+        for enum in self.enum:
             printer()
             enum.output(printer)
         printer.dec_level()
 
         # Events and requests
-        for method in itertools.chain(self.requests, self.events):
+        for method in itertools.chain(self.request, self.event):
             printer()
             printer()
             method.output(printer, self.class_name)

@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .argument import Argument
+from .description import Description
+from .element import Element, Attribute, Child
 from .method import Method
 
 # For 'new_id' types with no 'interface'
@@ -19,7 +22,7 @@ NO_IFACE = 'interface'
 NO_IFACE_VERSION = 'version'
 
 
-class Request(Method):
+class Request(Method, Element):
     """Scanner for request objects (client-side method)
 
     Required attributes: `name`
@@ -30,30 +33,33 @@ class Request(Method):
     """
     method_type = 'request'
 
-    def scan(self):
-        """Scan the request object
+    attributes = [
+        Attribute('name', True),
+        Attribute('type', False),
+        Attribute('since', False)
+    ]
 
-        In addition to `Method.scan()`, requests need to know if any arguments
-        are of type `new_id`.
-        """
-        # Call the Method.scan() function
-        super(Request, self).scan()
+    children = [
+        Child('description', Description, False, False),
+        Child('arg', Argument, False, True)
+    ]
 
-        for arg in self.args:
+    @property
+    def new_id(self):
+        for arg in self.arg:
             if arg.type == 'new_id':
-                self.new_id = arg
-                break
-        else:
-            self.new_id = None
+                return arg
 
+    @property
     def method_args(self):
         """Generator of the arguments to the method
 
         The `new_id` args are generated in marshaling the args, they do not
         appear in the args of the method.
         """
-        for arg in self.args:
+        for arg in self.arg:
             if arg.type == 'new_id':
+                # An interface of known type is created for us
                 if arg.interface:
                     continue
                 # A `new_id` with no interface, c.f. wl_registry_bind
@@ -63,9 +69,22 @@ class Request(Method):
             else:
                 yield arg.name
 
+    @property
+    def interface_types(self):
+        """Generator of the types (for the wl_interface)"""
+        for arg in self.arg:
+            if arg.interface:
+                yield arg.interface_class
+            else:
+                if arg.type == 'new_id':
+                    yield 'None'
+                    yield 'None'
+                yield 'None'
+
+    @property
     def marshal_args(self):
         """Arguments sent to `._marshal`"""
-        for arg in self.args:
+        for arg in self.arg:
             if arg.type == 'new_id':
                 if not arg.interface:
                     yield '{}.name'.format(NO_IFACE)
@@ -73,13 +92,15 @@ class Request(Method):
             else:
                 yield arg.name
 
-    def output_doc_param(self, printer):
+    def output_doc_params(self, printer):
         """Aguments documented as parameters
 
         Anything that is not a `new_id` is
         """
-        for arg in self.args:
+        ret = None
+        for arg in self.arg:
             if arg.type == 'new_id':
+                ret = arg
                 if arg.interface:
                     continue
                 printer(':param {}: Interface name'.format(NO_IFACE))
@@ -88,38 +109,32 @@ class Request(Method):
                 printer(':type {}: `int`'.format(NO_IFACE_VERSION))
             else:
                 arg.output_doc_param(printer)
+        if ret is not None:
+            ret.output_doc_ret(printer)
 
     def output_doc_ret(self, printer):
         """Aguments documented as return values
 
         Arguments of type `new_id` are returned from requests.
         """
-        for arg in self.args:
+        for arg in self.arg:
             if arg.type == 'new_id':
                 arg.output_doc_ret(printer)
 
     def output_body(self, printer):
         """Output the body of the request to the printer"""
-        args = ', '.join(self.marshal_args())
         if self.new_id:
             if self.new_id.interface:
-                id_class = self.new_id.get_interface()
+                id_class = self.new_id.interface_class
             else:
                 id_class = NO_IFACE
-            id_name = self.new_id.name
-            if args:
-                printer('{} = self._marshal_constructor({:d}, {}, {})'.format(
-                    id_name, self.opcode, id_class, args)
-                )
-            else:
-                printer('{} = self._marshal_constructor({:d}, {})'.format(
-                    id_name, self.opcode, id_class)
-                )
-            printer('return {}'.format(id_name))
+            args = ', '.join([str(self.opcode), id_class] + list(self.marshal_args))
+            printer('{} = self._marshal_constructor({})'.format(
+                self.new_id.name, args)
+            )
+            printer('return {}'.format(self.new_id.name))
         else:
-            if args:
-                printer('self._marshal({:d}, {})'.format(self.opcode, args))
-            else:
-                printer('self._marshal({:d})'.format(self.opcode))
+            args = ', '.join([str(self.opcode)] + list(self.marshal_args))
+            printer('self._marshal({})'.format(args))
             if self.type == 'destructor':
                 printer('self._destroy()')

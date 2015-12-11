@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .element import Element, Attribute
+
 NO_IFACE_NAME = 'interface'
 
 
-class Argument(object):
+class Argument(Element):
     """Argument to a request or event method
 
     Required attributes: `name` and `type`
@@ -24,21 +26,17 @@ class Argument(object):
 
     Child elements: `description`
     """
-    def __init__(self, arg):
-        self._arg = arg
-        self.name = arg.attrib['name']
-        self.type = arg.attrib['type']
-        self.summary = arg.attrib['summary'] if 'summary' in arg.attrib else None
-        self.interface = arg.attrib['interface'] if 'interface' in arg.attrib else None
-        self.allow_null = arg.attrib['allow-null'] == 'true' if 'allow-null' in arg.attrib else False
+    attributes = [
+        Attribute('name', True),
+        Attribute('type', True),
+        Attribute('summary', False),
+        Attribute('interface', False),
+        Attribute('allow-null', False),
+        Attribute('enum', False)
+    ]
 
-    def scan(self):
-        """Scan the argument"""
-        # Currently, no arguments have description elements, but the dtd says
-        # they may, they should be parsed here
-        pass
-
-    def get_interface(self):
+    @property
+    def interface_class(self):
         """Returns the Interface class name
 
         Gives the class name for the Interface coresponding to the type of the
@@ -53,8 +51,10 @@ class Argument(object):
         Return the string corresponding to the signature of the argument as it
         appears in the signature of the wl_message struct.
         """
-        null_string = '?' if self.allow_null else ''
-        return null_string + self.type_to_string()
+        if self.allow_null:
+            return '?' + self.type_to_string()
+        else:
+            return self.type_to_string()
 
     def type_to_string(self):
         """Translate type to signature string"""
