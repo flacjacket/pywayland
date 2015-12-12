@@ -10,39 +10,51 @@ python:
   - nightly
 
 matrix:
+  include:
+    - python: 2.7
+      env: TEST_SUITE="pep8"
+    - python: 3.5
+      env: TEST_SUITE="pep8"
   allow_failures:
-   - python: nightly
+    - python: nightly
 
 env:
   matrix:
     - WAYLAND_VERSION="1.9.0"
   global:
-    - LD_LIBRARY_PATH=${HOME}/wayland/lib
-    - LIBRARY_PATH=${HOME}/wayland/lib
-    - CPATH=${HOME}/wayland/include
-    - XDG_RUNTIME_DIR=/tmp
+    - LD_LIBRARY_PATH="${HOME}/wayland/lib"
+    - LIBRARY_PATH="${HOME}/wayland/lib"
+    - CPATH="${HOME}/wayland/include"
+    - XDG_RUNTIME_DIR="/tmp"
 
 before_install:
-  - wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz
-  - tar -xJf wayland-${WAYLAND_VERSION}.tar.xz
-  - pushd wayland-${WAYLAND_VERSION}
-  - ./configure --disable-documentation --prefix=${HOME}/wayland
-  - make
-  - make install
-  - popd
+  - if [[ -n "${WAYLAND_VERSION}" ]]; then
+      wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz;
+      tar -xJf wayland-${WAYLAND_VERSION}.tar.xz;
+      pushd wayland-${WAYLAND_VERSION};
+      ./configure --disable-documentation --prefix=${HOME}/wayland;
+      make;
+      make install;
+      popd;
+    fi
 
 install:
   - pip install -r requirements.txt
   - python -c 'import sys; sys.exit(int(sys.version_info[:2] < (3, 4)))' || pip install enum34
-  - python setup.py generate_protocol --xml-file=${HOME}/wayland/share/wayland/wayland.xml
-  - python -c 'import cffi, sys; sys.exit(cffi.__version_info__[0])' || python pywayland/ffi_build.py
+  - if [[ -n "${WAYLAND_VERSION}" ]]; then
+      python setup.py generate_protocol --xml-file=${HOME}/wayland/share/wayland/wayland.xml;
+      python -c 'import cffi, sys; sys.exit(cffi.__version_info__[0])' || python pywayland/ffi_build.py;
+    fi
 
 script:
-  - flake8 --config flake8.cfg pywayland/ tests/ example/
-  - py.test --cov pywayland --cov-report term-missing
+  - if [[ "${TEST_SUITE}" == "pep8" ]]; then
+      flake8 --config flake8.cfg pywayland/ tests/ example/;
+    else
+      py.test --cov pywayland --cov-report term-missing;
+    fi
 
 after_success:
-  - coveralls
+  - if [[ -n "${WAYLAND_VERSION}" ]]; then coveralls; fi
 
 notifications:
   email: false
