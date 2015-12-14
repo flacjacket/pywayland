@@ -61,7 +61,6 @@ def protocol_build(output_dir):
 
     urllib.request.urlretrieve(protocol_source, protocol_dest)
     scanner = Scanner(protocol_dest)
-    scanner.scan()
     scanner.output(output_dir)
 
 
