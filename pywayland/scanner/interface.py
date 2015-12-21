@@ -31,7 +31,7 @@ class Interface(Element):
     """
     attributes = [Attribute('name', True), Attribute('version', True)]
     children = [
-        Child('description', Description, True, False),
+        Child('description', Description, False, False),  # should be true, but not, c.f. fullscreen-shell and input-method
         Child('enum', Enum, False, True),
         # Child('request', Request, False, True),
         # Child('event', Event, False, True)
