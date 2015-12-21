@@ -48,7 +48,7 @@ install:
 
 script:
   - if [[ "${TEST_SUITE}" == "pep8" ]]; then
-      flake8 --config flake8.cfg pywayland/ tests/ example/;
+      flake8 pywayland/ test/ example/;
     else
       py.test --cov pywayland --cov-report term-missing;
     fi
