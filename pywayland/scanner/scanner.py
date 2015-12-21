@@ -62,7 +62,8 @@ class Scanner(Element):
         :param output_dir: Path of directory to output protocol files to
         :type output_dir: string
         """
-        output_dir = os.path.join(output_dir, self.name)
+        output_dir = os.path.join(output_dir, self.name.replace('-', '_'))
+
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
 
