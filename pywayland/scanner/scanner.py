@@ -62,13 +62,19 @@ class Scanner(Element):
         :param output_dir: Path of directory to output protocol files to
         :type output_dir: string
         """
+        output_dir = os.path.join(output_dir, self.name)
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+
         # First, we'll create the __init__.py file
         printer = Printer()
         printer.initialize_file()
+
         if self.copyright:
             self.copyright.output(printer)
         else:
             printer(copyright_default)
+
         printer()
         for iface in self.interface:
             printer('from .{} import {}  # noqa'.format(iface.module, iface.class_name))
@@ -85,7 +91,9 @@ class Scanner(Element):
             printer.initialize_file(iface.name)
             if self.copyright:
                 self.copyright.output(printer)
-                printer()
+            else:
+                printer(copyright_default)
+            printer()
 
             iface.output(printer)
 

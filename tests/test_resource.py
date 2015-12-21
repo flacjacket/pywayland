@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pywayland.server import Client, DestroyListener, Display
-from pywayland.protocol.display import Display as DisplayProto
+from pywayland.protocol.wayland.display import Display as DisplayProto
 
 import socket
 

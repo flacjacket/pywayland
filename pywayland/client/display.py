@@ -14,7 +14,7 @@
 
 from pywayland import ffi, lib
 
-from pywayland.protocol import Display as _Display
+from pywayland.protocol.wayland import Display as _Display
 
 
 class Display(_Display.proxy_class):

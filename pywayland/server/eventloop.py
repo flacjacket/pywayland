@@ -53,6 +53,7 @@ def _wrap_timer_callback(f):
     @ffi.callback("int(void *data)")
     @functools.wraps(f)
     def _timer_callback(data_ptr):
+        print("callback:", data_ptr)
         if data_ptr == ffi.NULL:
             data = None
         else:
@@ -181,6 +182,7 @@ class EventLoop(object):
             data_ptr = ffi.NULL
         else:
             data_ptr = ffi.new_handle(data)
+            weakkeydict[self].append(data_ptr)
 
         callback_ffi = _wrap_timer_callback(callback)
         weakkeydict[self].append(callback_ffi)

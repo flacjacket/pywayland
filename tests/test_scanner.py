@@ -49,18 +49,20 @@ def test_scanner():
     output_dir = tempfile.mkdtemp()
     try:
         scanner.output(output_dir)
-        assert set(os.listdir(output_dir)) == set(generated_files)
+        test_dir = os.path.join(output_dir, "scanner_test")
+        assert os.path.exists(test_dir)
+        assert set(os.listdir(test_dir)) == set(generated_files)
 
         for interface in pass_iface:
             # Read in the generated file
-            gen = os.path.join(output_dir, interface)
+            gen = os.path.join(test_dir, interface)
             with open(gen, 'r') as f:
                 gen_lines = [line.strip('\n') for line in f.readlines()]
             # Pass it to the yielded test
             yield check_interface, interface, gen_lines
 
         for interface in xfail_iface:
-            gen = os.path.join(output_dir, interface)
+            gen = os.path.join(test_dir, interface)
             with open(gen, 'r') as f:
                 gen_lines = [line.strip('\n') for line in f.readlines()]
             yield pytest.mark.xfail(check_interface), interface, gen_lines

@@ -15,28 +15,28 @@
 from cffi import FFI
 import re
 
-from pywayland.protocol.buffer import Buffer
-from pywayland.protocol.callback import Callback
-from pywayland.protocol.compositor import Compositor
-from pywayland.protocol.datadevicemanager import DataDeviceManager
-from pywayland.protocol.datadevice import DataDevice
-from pywayland.protocol.dataoffer import DataOffer
-from pywayland.protocol.datasource import DataSource
-from pywayland.protocol.display import Display
-from pywayland.protocol.keyboard import Keyboard
-from pywayland.protocol.output import Output
-from pywayland.protocol.pointer import Pointer
-from pywayland.protocol.region import Region
-from pywayland.protocol.registry import Registry
-from pywayland.protocol.seat import Seat
-from pywayland.protocol.shell import Shell
-from pywayland.protocol.shellsurface import ShellSurface
-from pywayland.protocol.shmpool import ShmPool
-from pywayland.protocol.shm import Shm
-from pywayland.protocol.subcompositor import Subcompositor
-from pywayland.protocol.subsurface import Subsurface
-from pywayland.protocol.surface import Surface
-from pywayland.protocol.touch import Touch
+from pywayland.protocol.wayland.buffer import Buffer
+from pywayland.protocol.wayland.callback import Callback
+from pywayland.protocol.wayland.compositor import Compositor
+from pywayland.protocol.wayland.datadevicemanager import DataDeviceManager
+from pywayland.protocol.wayland.datadevice import DataDevice
+from pywayland.protocol.wayland.dataoffer import DataOffer
+from pywayland.protocol.wayland.datasource import DataSource
+from pywayland.protocol.wayland.display import Display
+from pywayland.protocol.wayland.keyboard import Keyboard
+from pywayland.protocol.wayland.output import Output
+from pywayland.protocol.wayland.pointer import Pointer
+from pywayland.protocol.wayland.region import Region
+from pywayland.protocol.wayland.registry import Registry
+from pywayland.protocol.wayland.seat import Seat
+from pywayland.protocol.wayland.shell import Shell
+from pywayland.protocol.wayland.shellsurface import ShellSurface
+from pywayland.protocol.wayland.shmpool import ShmPool
+from pywayland.protocol.wayland.shm import Shm
+from pywayland.protocol.wayland.subcompositor import Subcompositor
+from pywayland.protocol.wayland.subsurface import Subsurface
+from pywayland.protocol.wayland.surface import Surface
+from pywayland.protocol.wayland.touch import Touch
 
 ffi = FFI()
 

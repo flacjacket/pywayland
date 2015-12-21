@@ -15,7 +15,7 @@
 from pywayland.client import Display as ClientDisplay
 from pywayland.server import Display as ServerDisplay
 
-from pywayland.protocol import Compositor
+from pywayland.protocol.wayland import Compositor
 
 import threading
 
