@@ -5,7 +5,6 @@ import importlib
 import os
 import shutil
 import sys
-import six.moves.urllib as urllib
 
 from unittest.mock import MagicMock
 
@@ -13,23 +12,15 @@ sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
 
-# We have to mock the ffi module
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock()
-
-
 MOCK_MODULES = ['pywayland._ffi']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)
 
 # -- Build pywayland.protocol w/docs --------------------------------------
 
+from protocol_build import wayland_version, wayland_build, protocols_version, protocols_build
+
 protocol_build_dir = '../pywayland/protocol/'
 protocol_doc_dir = 'module/protocol'
-
-protocol_version = '1.7.0'
-protocol_source = 'http://cgit.freedesktop.org/wayland/wayland/plain/protocol/wayland.xml?id={}'.format(protocol_version)
 
 index_header = """\
 .. _protocol:
@@ -37,70 +28,89 @@ index_header = """\
 Protocol Modules
 ================
 
-Wayland protocols built against Wayland {}.
+Wayland protocols built against Wayland {} and Wayland Protocols {}.
 
 .. toctree::
    :maxdepth: 2
 
-""".format(protocol_version)
+""".format(wayland_version, protocols_version)
 
-protocol_rst = """\
-.. module:: pywayland.protocol.{mod_lower}
+protocol_header = """\
+.. module:: pywayland.protocol.{module}
 
-{mod_upper}
-{empty:=^{len}}
+{module} Module
+{empty:=^{len}}=======
 
-.. wl_protocol:: pywayland.protocol.{mod_lower} {mod_upper}
+.. toctree::
+   :maxdepth: 2
+
 """
 
+protocol_rst = """\
+.. module:: pywayland.protocol.{module}.{protocol}
 
-def protocol_build(output_dir):
-    from pywayland.scanner import Scanner
+{protocol_upper}
+{empty:=^{len}}
 
-    protocol_dest = 'wayland.xml'
-
-    urllib.request.urlretrieve(protocol_source, protocol_dest)
-    scanner = Scanner(protocol_dest)
-    scanner.output(output_dir)
+.. wl_protocol:: pywayland.protocol.{module}.{protocol} {protocol_upper}
+"""
 
 
 # There is probably a better way to do this in Sphinx, templating or something
 # ... but this works
 def protocol_doc(input_dir, output_dir):
-    py_files = os.listdir(input_dir)
-    doc_files = [os.path.splitext(f)[0] for f in py_files
-                 if f[0] != '_']
+    _, modules, _ = next(os.walk(input_dir))
+    modules = [x for x in modules if not x.startswith('__')]
 
     # Write out the index file
     index_file = os.path.join(output_dir, 'index.rst')
     with open(index_file, 'w') as f:
         f.write(index_header)
-        for d in doc_files:
-            f.write('   {}\n'.format(d))
+        for m in modules:
+            f.write('   {}/index\n'.format(m))
 
-    for mod_lower in doc_files:
-        mod = importlib.import_module('pywayland.protocol.' + mod_lower)
-        for mod_upper in dir(mod):
-            if mod_upper.lower() == mod_lower:
-                break
+    for module in modules:
+        module_dir = os.path.join(output_dir, module)
+        os.makedirs(module_dir)
 
-        mod_len = len(mod_lower)
-        doc_file = os.path.join(output_dir, '{}.rst'.format(mod_lower))
-        with open(doc_file, 'w') as f:
-            f.write(protocol_rst.format(
-                mod_lower=mod_lower,
-                mod_upper=mod_upper,
-                len=mod_len,
+        # get all the python files that we want to document
+        _, _, doc_files = next(os.walk(os.path.join(input_dir, module)))
+        doc_files = [os.path.splitext(f)[0] for f in doc_files if f != '__init__.py']
+
+        # build the index.rst for the module
+        index_file = os.path.join(module_dir, 'index.rst')
+        with open(index_file, 'w') as f:
+            f.write(protocol_header.format(
+                module=module,
+                len=len(module),
                 empty=''
             ))
+            for d in doc_files:
+                f.write('   {}\n'.format(d))
+
+        # build the .rst files for each protocol
+        for doc_file in doc_files:
+            mod = importlib.import_module('pywayland.protocol.{}.{}'.format(module, doc_file))
+            for mod_upper in dir(mod):
+                if mod_upper.lower() == doc_file:
+                    break
+
+            protocol_len = len(doc_file)
+            doc = os.path.join(module_dir, '{}.rst'.format(doc_file))
+            with open(doc, 'w') as f:
+                f.write(protocol_rst.format(
+                    module=module,
+                    protocol=doc_file,
+                    protocol_upper=mod_upper,
+                    len=protocol_len,
+                    empty=''
+                ))
 
 
-# Build the protocol directoryon RTD, or if it does not exist
-if os.environ.get('READTHEDOCS', None) or not os.path.exists(protocol_build_dir):
-    if not os.path.exists(protocol_build_dir):
-        os.makedirs(protocol_build_dir)
-
-    protocol_build(protocol_build_dir)
+# Build the protocol directory on RTD
+if os.environ.get('READTHEDOCS', None):
+    wayland_build(protocol_build_dir)
+    protocols_build(protocol_build_dir)
 
 # Re-build the protocol documentation directory
 if os.path.exists(protocol_doc_dir):
@@ -108,7 +118,6 @@ if os.path.exists(protocol_doc_dir):
 os.makedirs(protocol_doc_dir)
 
 protocol_doc(protocol_build_dir, protocol_doc_dir)
-
 
 # -- General configuration ------------------------------------------------
 extensions = [
