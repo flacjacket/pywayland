@@ -64,13 +64,16 @@ class Method(object):
 
     def output_doc(self, printer):
         """Output the documentation for the interface"""
-        if self.description:
-            self.description.output(printer)
-        # Parameter and returns documentation
-        if self.arg:
-            printer()
-            self.output_doc_params(printer)
-        printer('"""')
+        if self.description or self.arg:
+            if self.description:
+                self.description.output(printer)
+            else:
+                printer('"""')
+            # Parameter and returns documentation
+            if self.arg:
+                printer()
+                self.output_doc_params(printer)
+            printer('"""')
 
     def output_doc_param(self, printer):
         # Subclasses must define this to output the parameters
