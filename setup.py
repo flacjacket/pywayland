@@ -24,7 +24,7 @@ from distutils.cmd import Command
 from distutils.command.build import build
 from setuptools.command.install import install
 
-sys.path.insert(0, os.path.join('.', 'pywayland'))
+sys.path.insert(0, 'pywayland')
 
 # Default locations
 xml_file = '/usr/share/wayland/wayland.xml'
