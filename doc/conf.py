@@ -66,7 +66,7 @@ def protocol_doc(input_dir, output_dir):
     index_file = os.path.join(output_dir, 'index.rst')
     with open(index_file, 'w') as f:
         f.write(index_header)
-        for m in modules:
+        for m in sorted(modules):
             f.write('   {}/index\n'.format(m))
 
     for module in modules:
@@ -75,7 +75,8 @@ def protocol_doc(input_dir, output_dir):
 
         # get all the python files that we want to document
         _, _, doc_files = next(os.walk(os.path.join(input_dir, module)))
-        doc_files = [os.path.splitext(f)[0] for f in doc_files if f != '__init__.py']
+        doc_files = [os.path.splitext(f)[0] for f in doc_files
+                     if f != '__init__.py' and os.path.splitext(f)[1] == '.py']
 
         # build the index.rst for the module
         index_file = os.path.join(module_dir, 'index.rst')
@@ -85,12 +86,13 @@ def protocol_doc(input_dir, output_dir):
                 len=len(module),
                 empty=''
             ))
-            for d in doc_files:
+            for d in sorted(doc_files):
                 f.write('   {}\n'.format(d))
 
         # build the .rst files for each protocol
         for doc_file in doc_files:
             mod = importlib.import_module('pywayland.protocol.{}.{}'.format(module, doc_file))
+            # Get out the name of the class in the module
             for mod_upper in dir(mod):
                 if mod_upper.lower() == doc_file:
                     break

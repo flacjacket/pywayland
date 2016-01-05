@@ -53,6 +53,6 @@ class Element(object):
             text = element.text
             # We need to strip each line while keeping paragraph breaks
             if text:
-                self.text = textwrap.dedent(text.rstrip().lstrip('\n'))
+                self.text = textwrap.dedent(text.expandtabs(8).rstrip().lstrip('\n'))
             else:
                 self.text = None
