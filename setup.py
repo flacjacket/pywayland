@@ -193,7 +193,7 @@ modules = [
 
 setup(
     name='pywayland',
-    version='0.0.1a.dev5',
+    version='0.0.1a.dev6',
     author='Sean Vig',
     author_email='sean.v.775@gmail.com',
     url='http://github.com/flacjacket/pywayland',
