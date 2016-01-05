@@ -37,7 +37,7 @@ def send_event(self, id, the_int, the_uint, the_fd):
     over the passed file descriptor, then close it.
 
     :param id:
-    :type id: :class:`~pywayland.protocol.requests.Requests`
+    :type id: :class:`~pywayland.protocol.scanner_test.requests.Requests`
     :param the_int:
     :type the_int: `int`
     :param the_uint: the arg summary
@@ -64,7 +64,7 @@ def create_id(self, id):
     With a description
 
     :param id:
-    :type id: :class:`~pywayland.protocol.core.Core`
+    :type id: :class:`~pywayland.protocol.scanner_test.core.Core`
     """
     self._post_event(2, id)
 
@@ -74,7 +74,7 @@ def create_id2(self, id):
     """Create an id without a description
 
     :param id:
-    :type id: :class:`~pywayland.protocol.core.Core`
+    :type id: :class:`~pywayland.protocol.scanner_test.core.Core`
     """
     self._post_event(3, id)
 
@@ -98,9 +98,9 @@ def make_import(self, id, object):
     An event method that causes an imoprt of other interfaces
 
     :param id:
-    :type id: :class:`~pywayland.protocol.requests.Requests`
+    :type id: :class:`~pywayland.protocol.scanner_test.requests.Requests`
     :param object:
-    :type object: :class:`~pywayland.protocol.core.Core` or `None`
+    :type object: :class:`~pywayland.protocol.scanner_test.core.Core` or `None`
     """
     self._post_event(5, id, object)
 

@@ -68,7 +68,7 @@ class Scanner(Element):
             os.mkdir(output_dir)
 
         # First, we'll create the __init__.py file
-        printer = Printer()
+        printer = Printer(self.name.replace('-', '_'))
         printer.initialize_file()
 
         if self.copyright:
@@ -88,7 +88,7 @@ class Scanner(Element):
         for iface in self.interface:
             module_path = os.path.join(output_dir, iface.module + ".py")
 
-            printer = Printer()
+            printer = Printer(self.name.replace('-', '_'))
             printer.initialize_file(iface.name)
             if self.copyright:
                 self.copyright.output(printer)

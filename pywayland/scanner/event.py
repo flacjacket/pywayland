@@ -53,7 +53,11 @@ class Event(Method, Element):
         """Generator of the types (for the wl_interface)"""
         for arg in self.arg:
             if arg.interface:
-                yield arg.interface_class
+                if arg.interface.split('_')[0] != self.interface.split('_')[0]:
+                    prefix = arg.interface.split('_')[0]
+                    yield '{}_{}'.format(prefix, arg.interface_class)
+                else:
+                    yield arg.interface_class
             else:
                 yield 'None'
 

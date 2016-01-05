@@ -30,9 +30,10 @@ class Printer(object):
     Allows for storing of lines to be output from the definition of a
     protocol.  Lines are added by directly calling the printer object.
     """
-    def __init__(self):
+    def __init__(self, protocol):
         self.level = 0
         self.lines = []
+        self.proto_name = protocol
         self.iface_name = None
 
     def __call__(self, new_line=''):
@@ -49,10 +50,23 @@ class Printer(object):
         wrap text passed to it to the correct width.
         """
         docstring = re_doc.sub(self._doc_replace, docstring)
-        wrapped = '\n\n'.join(
-            textwrap.fill(doc, 79 - tab_stop * self.level) for doc in docstring.split('\n\n')
-        )
 
+        paragraphs = []
+        for paragraph in docstring.split('\n\n'):
+            # try to detect and properly output lists
+            if paragraph.lstrip().startswith('- '):
+                paragraph = paragraph.replace('\n  ', '\n')
+                lines = textwrap.fill(paragraph[2:], 79 - tab_stop * self.level - 2).split('\n')
+                lines = ['- ' + lines[0]] + ['  ' + line for line in lines[1:]]
+                paragraphs.append(
+                    '\n'.join(lines)
+                )
+            else:
+                paragraphs.append(
+                    textwrap.fill(paragraph, 79 - tab_stop * self.level)
+                )
+
+        wrapped = '\n\n'.join(paragraphs)
         for line in wrapped.split('\n'):
             self(line)
 
@@ -70,10 +84,16 @@ class Printer(object):
         iface_file = ''.join(iface_name.split('_')[1:])
         iface_class = ''.join(x.capitalize() for x in iface_name.split('_')[1:])
 
-        if iface_name == self.iface_name:
-            iface_path = iface_class
+        if self.iface_name.split('_')[0] == iface_name.split('_')[0]:
+            # the interface is from _this_ protocol:
+            if iface_name == self.iface_name:
+                iface_path = iface_class
+            else:
+                iface_path = 'pywayland.protocol.{}.{}.{}'.format(self.proto_name, iface_file, iface_class)
         else:
-            iface_path = 'pywayland.protocol.{}.{}'.format(iface_file, iface_class)
+            # we only know how to import Wayland external interfaces
+            assert iface_name.split('_')[0] == 'wl'
+            iface_path = 'pywayland.protocol.wayland.{}.{}'.format(iface_file, iface_class)
 
         return iface_class, iface_path, iface_name != self.iface_name
 
@@ -86,7 +106,9 @@ class Printer(object):
             if iface_name == self.iface_name:
                 return ':func:`{}{}`'.format(iface, func)
             else:
-                return ':func:`{class_name}{func}() <{path}{func}>`'.format(class_name=iface, func=func, path=iface_path)
+                return ':func:`{class_name}{func}() <{path}{func}>`'.format(
+                    class_name=iface, func=func, path=iface_path
+                )
         else:
             if iface_name == self.iface_name:
                 return ':class:`{}`'.format(iface)

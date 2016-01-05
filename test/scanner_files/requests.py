@@ -41,7 +41,7 @@ def make_request(self, the_int, the_uint, the_fd):
     :type the_uint: `uint`
     :param the_fd:
     :type the_fd: `fd`
-    :returns: :class:`~pywayland.protocol.core.Core`
+    :returns: :class:`~pywayland.protocol.scanner_test.core.Core`
     """
     id = self._marshal_constructor(0, Core, the_int, the_uint, the_fd)
     return id
@@ -62,7 +62,7 @@ def create_id(self):
 
     With a description
 
-    :returns: :class:`~pywayland.protocol.core.Core`
+    :returns: :class:`~pywayland.protocol.scanner_test.core.Core`
     """
     id = self._marshal_constructor(2, Core)
     return id
@@ -72,7 +72,7 @@ def create_id(self):
 def create_id2(self):
     """Create an id without a description
 
-    :returns: :class:`~pywayland.protocol.core.Core`
+    :returns: :class:`~pywayland.protocol.scanner_test.core.Core`
     """
     id = self._marshal_constructor(3, Core)
     return id
@@ -100,8 +100,8 @@ def make_import(self, object):
     new_id and as an object.
 
     :param object:
-    :type object: :class:`~pywayland.protocol.core.Core` or `None`
-    :returns: :class:`~pywayland.protocol.events.Events`
+    :type object: :class:`~pywayland.protocol.scanner_test.core.Core` or `None`
+    :returns: :class:`~pywayland.protocol.scanner_test.events.Events`
     """
     id = self._marshal_constructor(5, Events, object)
     return id
@@ -121,7 +121,8 @@ def new_id_no_interface(self, name, interface, version):
     """Create a new id, but with no interface
 
     A method with an argument for a new_id, but with no corresponding interface
-    (c.f. :func:`Registry.bind() <pywayland.protocol.registry.Registry.bind>`).
+    (c.f. :func:`Registry.bind()
+    <pywayland.protocol.scanner_test.registry.Registry.bind>`).
 
     :param name:
     :type name: `uint`

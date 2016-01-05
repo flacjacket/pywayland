@@ -68,8 +68,8 @@ class Interface(Element):
         imports = set(_import for method in itertools.chain(self.request, self.event)
                       for _import in method.imports)
         printer('from pywayland.interface import Interface')
-        for _import in sorted(imports):
-            printer('from .{} import {}'.format(_import.lower(), _import))
+        for module, import_ in sorted(imports):
+            printer('from {} import {}'.format(module, import_))
         if self.enum:
             printer()
             printer('import enum')

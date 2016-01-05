@@ -88,8 +88,11 @@ class Argument(Element):
 
         # Determine the type to be output
         if self.interface:
-            _, iface, need_tilde = printer._get_iface(self.interface)
-            arg_type = ':class:`{}{}`'.format('~' if need_tilde else '', iface)
+            iface, iface_path, need_tilde = printer._get_iface(self.interface)
+            if need_tilde:
+                arg_type = ':class:`~{}`'.format(iface_path)
+            else:
+                arg_type = ':class:`{}`'.format(iface)
         else:
             arg_type = '`{}`'.format(self.type)
 
@@ -103,8 +106,11 @@ class Argument(Element):
         """Document the argument as a return"""
         # Determine the type to be output
         if self.interface:
-            _, iface, need_tilde = printer._get_iface(self.interface)
-            arg_type = ':class:`{}{}`'.format('~' if need_tilde else '', iface)
+            iface, iface_path, need_tilde = printer._get_iface(self.interface)
+            if need_tilde:
+                arg_type = ':class:`~{}`'.format(iface_path)
+            else:
+                arg_type = ':class:`{}`'.format(iface)
         else:
             # Only new_id's are returned, the only corner case here is for
             # wl_registry.bind, so no interface => Proxy

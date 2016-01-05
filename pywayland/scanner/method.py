@@ -36,8 +36,21 @@ class Method(object):
     @property
     def imports(self):
         """Get the imports required for each of the interfaces"""
-        return [arg.interface_class for arg in self.arg
-                if arg.interface and arg.interface != self.interface]
+        imports = []
+        for arg in self.arg:
+            if arg.interface and arg.interface != self.interface:
+                # External protocols can import from main Wayland protocols
+                if arg.interface.split('_')[0] != self.interface.split('_')[0]:
+                    assert arg.interface.split('_')[0] == 'wl', "Don't know how to import interface"
+                    prefix = arg.interface.split('_')[0]
+                    import_path = '..wayland.{}'.format(arg.interface_class.lower())
+                    import_class = '{0} as {1}_{0}'.format(arg.interface_class, prefix)
+                else:
+                    import_path = '.{}'.format(arg.interface_class.lower())
+                    import_class = arg.interface_class
+                imports.append((import_path, import_class))
+
+        return imports
 
     def output(self, printer, in_class):
         """Generate the output for the given method to the printer"""
@@ -64,16 +77,15 @@ class Method(object):
 
     def output_doc(self, printer):
         """Output the documentation for the interface"""
-        if self.description or self.arg:
-            if self.description:
-                self.description.output(printer)
-            else:
-                printer('"""')
-            # Parameter and returns documentation
-            if self.arg:
-                printer()
-                self.output_doc_params(printer)
-            printer('"""')
+        if self.description:
+            self.description.output(printer)
+        else:
+            printer('"""' + self.name)
+        # Parameter and returns documentation
+        if self.arg:
+            printer()
+            self.output_doc_params(printer)
+        printer('"""')
 
     def output_doc_param(self, printer):
         # Subclasses must define this to output the parameters
