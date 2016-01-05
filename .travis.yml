@@ -12,9 +12,9 @@ python:
 matrix:
   include:
     - python: 2.7
-      env: TEST_SUITE="pep8"
+      env: TEST_SUITE="pep8" WAYLAND_VERSION="1.9.0"
     - python: 3.5
-      env: TEST_SUITE="pep8"
+      env: TEST_SUITE="pep8" WAYLAND_VERSION="1.9.0"
   allow_failures:
     - python: nightly
 
@@ -22,6 +22,7 @@ env:
   matrix:
     - WAYLAND_VERSION="1.9.0"
   global:
+    - WAYLAND_PROTOCOLS="1.0"
     - LD_LIBRARY_PATH="${HOME}/wayland/lib"
     - LIBRARY_PATH="${HOME}/wayland/lib"
     - CPATH="${HOME}/wayland/include"
@@ -54,7 +55,7 @@ script:
     fi
 
 after_success:
-  - if [[ -n "${WAYLAND_VERSION}" ]]; then coveralls; fi
+  - if [[ -z "${TEST_SUITE}" ]]; then coveralls; fi
 
 notifications:
   email: false
