@@ -85,7 +85,8 @@ def get_protocol_command(klass):
             self.wayland_protocols = False
             self.no_wayland_protocols = False
 
-            klass.initialize_options(self)
+            if klass is not Command:
+                klass.initialize_options(self)
 
         def finalize_options(self):
             assert os.path.exists(self.xml_file), (
@@ -93,7 +94,8 @@ def get_protocol_command(klass):
                 "please specify protocol file".format(self.xml_file)
             )
 
-            klass.finalize_options(self)
+            if klass is not Command:
+                klass.finalize_options(self)
 
         def run(self):
             # Generate the wayland interface
@@ -113,7 +115,8 @@ def get_protocol_command(klass):
                 for module in modules:
                     self.distribution.packages.append('pywayland.protocol.{}'.format(module))
 
-            klass.run(self)
+            if klass is not Command:
+                klass.run(self)
 
     if hasattr(klass, "user_options"):
         ProtocolCommand.user_options += klass.user_options
@@ -137,7 +140,7 @@ try:
 except:
     long_description = ""
 else:
-    version = 'Built against Wayland {}'.format(__wayland_version__)
+    version = 'Built against Wayland {}\n'.format(__wayland_version__)
     rst_input.insert(3, version)
 
     long_description = '\n' + '\n'.join(rst_input)
