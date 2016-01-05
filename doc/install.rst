@@ -23,6 +23,10 @@ to use the most `recent version of Wayland available
 <http://wayland.freedesktop.org/releases.html>`_, and the pip package will try
 to track the most recent version.
 
+You will also need to have the Python headers installed and a version of GCC to
+build the cffi library.  The headers are typically available through the
+``python-dev`` package.
+
 Installing with pip
 -------------------
 
