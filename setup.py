@@ -23,6 +23,7 @@ from setuptools import setup
 from distutils.cmd import Command
 from distutils.command.build import build
 from setuptools.command.install import install
+from setuptools.command.sdist import sdist
 
 sys.path.insert(0, 'pywayland')
 
@@ -45,187 +46,101 @@ def run_scanner(input_xml, output_path):
     scanner.output(output_path)
 
 
-def generate_protocol(wayland_xml, output_path):
-    """Generate all Wayland XML protocol files"""
-    # We're given the wayland.xml file, lets run that
-    run_scanner(wayland_xml, output_path)
-
-
 def generate_external_protocol(output_path):
     modules = []
 
     # try to generate the wayland-protocol interfaces
     try:
-        protocols_dir = pkgconfig('wayland-protocols', 'pkgdatadir')
+        cmd = 'pkg-config --variable=pkgdatadir wayland-protocols'
+        protocols_dir = subprocess.check_output(shlex.split(cmd)).decode().strip()
     except subprocess.CalledProcessError:
         raise OSError("Unable to find wayland protocls using pkgconfig")
     else:
         # walk through all files in the directory
         for dirpath, _, filenames in os.walk(protocols_dir):
             for filename in filenames:
-                full_filename = os.path.join(dirpath, filename)
-                base, ext = os.path.splitext(filename)
+                file_path = os.path.join(dirpath, filename)
+                file_base, file_ext = os.path.splitext(filename)
                 # if the file is an xml, generate the protocol
-                if ext == '.xml':
-                    run_scanner(full_filename, output_path)
-                    module = base.replace('-', '_')
-                    modules.append(module)
+                if file_ext == '.xml':
+                    run_scanner(file_path, output_path)
+                    modules.append(file_base.replace('-', '_'))
     return modules
 
 
-def pkgconfig(package, variable):
-    cmd = 'pkg-config --variable={} {}'.format(variable, package)
-    output = subprocess.check_output(shlex.split(cmd)).decode().strip()
-    return output
+def get_protocol_command(klass):
+    class ProtocolCommand(klass):
+        description = "Generate the pywayland protocol files"
+        user_options = [
+            ('xml-file=', None, 'Location of wayland.xml protocol file'),
+            ('output-dir=', None, 'Output location for protocol python files'),
+            ('wayland-protocols', None, 'Force generation of external protocols from wayland-protocols'),
+            ('no-wayland-protocols', None, 'Disable generation of external protocols from wayland-protocols')
+        ]
+        boolean_options = ['wayland-protocols', 'no-wayland-protocols']
 
+        def initialize_options(self):
+            self.xml_file = xml_file
+            self.output_dir = './pywayland/protocol'
+            self.wayland_protocols = False
+            self.no_wayland_protocols = False
 
-class GenerateProtocolCommand(Command):
-    """Generate the pywayland protocol files"""
+            klass.initialize_options(self)
 
-    description = "Generate the pywayland protocol files"
-    user_options = [
-        ('xml-file=', None, 'Location of wayland.xml protocol file'),
-        ('output-dir=', None, 'Output location for protocol python files'),
-        ('wayland-protocols', None, 'Force generation of external protocols from wayland-protocols'),
-        ('no-wayland-protocols', None, 'Disable generation of external protocols from wayland-protocols')
-    ]
-    boolean_options = ['wayland-protocols', 'no-wayland-protocols']
+        def finalize_options(self):
+            assert os.path.exists(self.xml_file), (
+                "Specified Wayland protocol file, {}, does not exist "
+                "please specify protocol file".format(self.xml_file)
+            )
 
-    def initialize_options(self):
-        self.xml_file = xml_file
-        self.output_dir = './pywayland/protocol'
-        self.wayland_protocols = False
-        self.no_wayland_protocols = False
+            klass.finalize_options(self)
 
-    def finalize_options(self):
-        assert os.path.exists(self.xml_file), (
-            "Wayland protocol file {} does not exist".format(self.xml_file)
-        )
-
-    def run(self):
-        # Generate the wayland interface
-        generate_protocol(self.xml_file, self.output_dir)
-
-        # Unless users says don't build protocols, try to build them
-        if not self.no_wayland_protocols:
-            try:
-                generate_external_protocol(self.output_dir)
-            except:
-                # but only complain if we ask specifically to build them
-                if self.wayland_protocols:
-                    raise
-
-
-class BuildCommand(build):
-    user_options = build.user_options + [
-        ('xml-file=', None, 'Location of wayland.xml protocol file'),
-        ('wayland-protocols', None, 'Force generation of external protocols from wayland-protocols'),
-        ('no-wayland-protocols', None, 'Disable generation of external protocols from wayland-protocols')
-    ]
-    boolean_options = build.boolean_options + ['wayland-protocols', 'no-wayland-protocols']
-
-    def initialize_options(self):
-        self.xml_file = xml_file
-        self.wayland_protocols = False
-        self.no_wayland_protocols = False
-        build.initialize_options(self)
-
-    def finalize_options(self):
-        assert os.path.exists(self.xml_file), (
-            "Wayland protocol file does not exist at default location, {}, "
-            "please specify protocol file".format(xml_file)
-        )
-        build.finalize_options(self)
-
-    def run(self):
-        # Generate the wayland interface
-        protocol_dir = './pywayland/protcool'
-        generate_protocol(self.xml_file, protocol_dir)
-        self.distribution.packages.append('pywayland.protocol.wayland')
-
-        # Run the external protocol generation
-        if not self.no_wayland_protocols:
-            # as above, we'll try generating them unless explicitly told not
-            # to, but only raise the error if specifically told to
-            try:
-                modules = generate_external_protocol(protocol_dir)
-            except:
-                if self.wayland_protocols:
-                    raise
-            else:
-                # Add the protocol modules to be copied
+        def run(self):
+            # Generate the wayland interface
+            run_scanner(self.xml_file, self.output_dir)
+            # Unless users says don't build protocols, try to build them
+            if not self.no_wayland_protocols:
+                try:
+                    modules = generate_external_protocol(self.output_dir)
+                except:
+                    # but only complain if we ask specifically to build them
+                    if self.wayland_protocols:
+                        raise
+                    modules = []
+            # if we're building or installing, add the modules we generated
+            if hasattr(self, 'distribution'):
+                self.distribution.packages.append('pywayland.protocol.wayland')
                 for module in modules:
                     self.distribution.packages.append('pywayland.protocol.{}'.format(module))
 
-        build.run(self)
+            klass.run(self)
+
+    if hasattr(klass, "user_options"):
+        ProtocolCommand.user_options += klass.user_options
+    if hasattr(klass, "boolean_options"):
+        ProtocolCommand.boolean_options += klass.boolean_options
+
+    return ProtocolCommand
 
 
-class InstallCommand(install):
-    user_options = install.user_options + [
-        ('xml-file=', None, 'Location of wayland.xml protocol file'),
-        ('wayland-protocols', None, 'Force generation of external protocols from wayland-protocols'),
-        ('no-wayland-protocols', None, 'Disable generation of external protocols from wayland-protocols')
-    ]
-    boolean_options = install.boolean_options + ['wayland-protocols', 'no-wayland-protocols']
-
-    def initialize_options(self):
-        self.xml_file = '/usr/share/wayland/wayland.xml'
-        self.wayland_protocols = False
-        self.no_wayland_protocols = False
-
-        install.initialize_options(self)
-
-    def finalize_options(self):
-        assert os.path.exists(self.xml_file), (
-            "Wayland protocol file does not exist at default location, {}, "
-            "please specify protocol file".format(xml_file)
-        )
-        install.finalize_options(self)
-
-    def run(self):
-        protocol_dir = './pywayland/protocol'
-
-        # Run the wayland protocol generation
-        generate_protocol(xml_file, protocol_dir)
-
-        # Run the external protocol generation
-        if not self.no_wayland_protocols:
-            # as above, we'll try generating them unless explicitly told not
-            # to, but only raise the error if specifically told to
-            try:
-                modules = generate_external_protocol(protocol_dir)
-            except:
-                if self.wayland_protocols:
-                    raise
-            else:
-                # Add the protocol modules to be copied
-                for module in modules:
-                    self.distribution.packages.append('pywayland.protocol.{}'.format(module))
-
-        install.run(self)
-
+GenerateProtocolCommand = get_protocol_command(Command)
+BuildCommand = get_protocol_command(build)
+InstallCommand = get_protocol_command(install)
+SdistCommand = get_protocol_command(sdist)
 
 description = 'Python bindings for the libwayland library written in pure Python'
 
-# Just pull the long description from the README
+# For the purposes of uploading to PyPI, we'll get the version of Wayland here
 try:
+    from pywayland import __wayland_version__
     rst_input = open('README.rst').read().split('\n')
 except:
     long_description = ""
 else:
-    # For the purposes of uploading, we'll pull the version of Wayland here
-    try:
-        from pywayland import __wayland_version__
-    except ImportError:
-        long_description = '\n' + '\n'.join(rst_input)
-    else:
-        rst_head = rst_input[:3]
-        rst_body = rst_input[3:]
-        version = 'Built against Wayland {}'.format(__wayland_version__)
+    version = 'Built against Wayland {}'.format(__wayland_version__)
+    rst_input.insert(3, version)
 
-        long_description = '\n' + '\n'.join(
-            rst_head + [version, ''] + rst_body
-        )
+    long_description = '\n' + '\n'.join(rst_input)
 
 # Check if we're running PyPy, cffi can't be updated
 if '_cffi_backend' in sys.builtin_module_names:
@@ -263,7 +178,6 @@ classifiers = [
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: Implementation :: CPython',
-    'Programming Language :: Python :: Implementation :: CPython',
     'Programming Language :: Python :: Implementation :: PyPy',
     'Topic :: Desktop Environment :: Window Managers',
     'Topic :: Software Development :: Libraries'
@@ -297,9 +211,10 @@ setup(
     },
     zip_safe=False,
     cmdclass={
+        'generate_protocol': GenerateProtocolCommand,
         'build': BuildCommand,
         'install': InstallCommand,
-        'generate_protocol': GenerateProtocolCommand
+        'sdist': SdistCommand
     },
     **cffi_args
 )
