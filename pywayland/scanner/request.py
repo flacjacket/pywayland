@@ -129,7 +129,11 @@ class Request(Method, Element):
         """Output the body of the request to the printer"""
         if self.new_id:
             if self.new_id.interface:
-                id_class = self.new_id.interface_class
+                if self.new_id.interface.split('_')[0] != self.interface.split('_')[0]:
+                    prefix = self.new_id.interface.split('_')[0]
+                    id_class = '{}_{}'.format(prefix, self.new_id.interface_class)
+                else:
+                    id_class = self.new_id.interface_class
             else:
                 id_class = NO_IFACE
             args = ', '.join([str(self.opcode), id_class] + list(self.marshal_args))

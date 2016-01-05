@@ -12,40 +12,45 @@ python:
 matrix:
   include:
     - python: 2.7
-      env: TEST_SUITE="pep8" WAYLAND_VERSION="1.9.0"
+      env: TEST_SUITE="pep8" WAYLAND_VERSION="1.9.0" WAYLAND_PROTOCOLS="1.0"
     - python: 3.5
-      env: TEST_SUITE="pep8" WAYLAND_VERSION="1.9.0"
+      env: TEST_SUITE="pep8" WAYLAND_VERSION="1.9.0" WAYLAND_PROTOCOLS="1.0"
   allow_failures:
     - python: nightly
 
 env:
   matrix:
-    - WAYLAND_VERSION="1.9.0"
+    - WAYLAND_VERSION="1.9.0" WAYLAND_PROTOCOLS="1.0"
   global:
-    - WAYLAND_PROTOCOLS="1.0"
     - LD_LIBRARY_PATH="${HOME}/wayland/lib"
     - LIBRARY_PATH="${HOME}/wayland/lib"
     - CPATH="${HOME}/wayland/include"
+    - PKG_CONFIG_PATH="${HOME}/wayland/share/pkgconfig"
     - XDG_RUNTIME_DIR="/tmp"
 
 before_install:
-  - if [[ -n "${WAYLAND_VERSION}" ]]; then
-      wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz;
-      tar -xJf wayland-${WAYLAND_VERSION}.tar.xz;
-      pushd wayland-${WAYLAND_VERSION};
-      ./configure --disable-documentation --prefix=${HOME}/wayland;
-      make;
-      make install;
-      popd;
-    fi
+# build Wayland
+  - wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz
+  - tar -xJf wayland-${WAYLAND_VERSION}.tar.xz
+  - pushd wayland-${WAYLAND_VERSION}
+  - ./configure --disable-documentation --prefix=${HOME}/wayland
+  - make
+  - make install
+  - popd
+# build Wayland-protocols
+  - wget http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz
+  - tar -xJf wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz
+  - pushd wayland-protocols-${WAYLAND_PROTOCOLS}
+  - ./configure --prefix=${HOME}/wayland
+  - make
+  - make install
+  - popd
 
 install:
   - pip install -r requirements.txt
   - python -c 'import sys; sys.exit(int(sys.version_info[:2] < (3, 4)))' || pip install enum34
-  - if [[ -n "${WAYLAND_VERSION}" ]]; then
-      python setup.py generate_protocol --xml-file=${HOME}/wayland/share/wayland/wayland.xml;
-      python -c 'import cffi, sys; sys.exit(cffi.__version_info__[0])' || python pywayland/ffi_build.py;
-    fi
+  - python setup.py generate_protocol --with-protocols --xml-file=${HOME}/wayland/share/wayland/wayland.xml
+  - python -c 'import cffi, sys; sys.exit(cffi.__version_info__[0])' || python pywayland/ffi_build.py
 
 script:
   - if [[ "${TEST_SUITE}" == "pep8" ]]; then
