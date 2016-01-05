@@ -5,6 +5,8 @@
 *.o
 *.c
 
+# Test output
+.coverage
 # Build output
 /dist/
 /build/
