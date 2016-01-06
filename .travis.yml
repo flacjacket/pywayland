@@ -61,6 +61,3 @@ script:
 
 after_success:
   - if [[ -z "${TEST_SUITE}" ]]; then coveralls; fi
-
-notifications:
-  email: false
