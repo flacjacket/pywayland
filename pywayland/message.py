@@ -104,8 +104,6 @@ class Message(object):
                         raise NotImplementedError()
                     else:
                         args.append(iface.proxy_class(args_ptr.o))
-
-                type_ = self.types[i]
             elif sig == 'n':
                 # TODO
                 raise NotImplementedError
