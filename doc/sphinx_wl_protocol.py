@@ -69,8 +69,10 @@ class WlProtocol(Directive):
     def make_rst(self):
         module_name, class_name = self.arguments[:2]
         obj = import_object(module_name, class_name)
-        events = [(event._func.__name__, opcode, format_args(event._func), prepare_docstring(event._func.__doc__)) for opcode, event in enumerate(obj.events)]
-        reqs = [(req._func.__name__, opcode, format_args(req._func), prepare_docstring(req._func.__doc__)) for opcode, req in enumerate(obj.requests)]
+        events = [(event.py_func.__name__, opcode, format_args(event.py_func),
+                   prepare_docstring(event.py_func.__doc__)) for opcode, event in enumerate(obj.events)]
+        reqs = [(req.py_func.__name__, opcode, format_args(req.py_func),
+                 prepare_docstring(req.py_func.__doc__)) for opcode, req in enumerate(obj.requests)]
         context = {
             'module': module_name,
             'class_name': class_name,
