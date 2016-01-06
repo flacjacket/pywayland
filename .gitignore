@@ -7,6 +7,7 @@
 
 # Test output
 .coverage
+.cache
 # Build output
 /dist/
 /build/
