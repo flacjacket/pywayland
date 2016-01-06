@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-import collections
+# import collections
 import mmap
 import os
 import sys
@@ -46,15 +46,13 @@ def create_shm_buffer(touch, width, height):
 
 
 def handle_touch_down(wl_touch, serial, time, surface, id, x, y):
-    touch = wl_touch.user_data
-
+    # touch = wl_touch.user_data
     # touch_paint(touch, x, y, id)
     return 0
 
 
 def handle_touch_motion(wl_touch, time, id, x, y):
-    touch = wl_touch.user_data
-
+    # touch = wl_touch.user_data
     # touch_paint(touch, x, y, id)
     return 0
 
@@ -70,7 +68,7 @@ def handle_seat_capabilities(wl_seat, capabilities):
         seat['wl_touch'] = wl_seat.get_touch()
         seat['wl_touch'].user_data = touch
         seat['wl_touch'].dispatcher['down'] = handle_touch_down
-        seat['wl_touch'].dispatcher['up'] = handle_touch_up
+        # seat['wl_touch'].dispatcher['up'] = handle_touch_up
         seat['wl_touch'].dispatcher['motion'] = handle_touch_motion
     elif not (capabilities & Seat.capability.touch.value) and seat['wl_touch']:
         seat['wl_touch'].destroy()
@@ -167,10 +165,10 @@ def touch_create(width, height):
 def main():
     touch = touch_create(600, 500)
 
-    while touch['display'].dispatch != -1:
+    while touch['display'].dispatch() != -1:
         pass
 
-    display.disconnect()
+    touch['display'].disconnect()
 
 
 if __name__ == '__main__':
