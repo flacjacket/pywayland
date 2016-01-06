@@ -93,7 +93,7 @@ class Message(object):
                     args.append(ffi.string(arg_ptr.s).decode())
             # Object or new id
             elif sig in ('o', 'n'):
-                if arg_ptr = ffi.NULL
+                if arg_ptr == ffi.NULL:
                     if not null:
                         raise Exception
                     args.append(None)
@@ -103,7 +103,7 @@ class Message(object):
                         # TODO: for new_id passed as name/version/id (e.g. registry.bind)
                         raise NotImplementedError()
                     else:
-                        args.append(iface.proxy_class(args_ptr.o)
+                        args.append(iface.proxy_class(args_ptr.o))
 
                 type_ = self.types[i]
             elif sig == 'n':
