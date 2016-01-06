@@ -1,0 +1,177 @@
+# Copyright 2015 Sean Vig
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from __future__ import absolute_import
+
+import collections
+import mmap
+import os
+import sys
+import tempfile
+
+this_file = os.path.abspath(__file__)
+this_dir = os.path.split(this_file)[0]
+root_dir = os.path.split(this_dir)[0]
+pywayland_dir = os.path.join(root_dir, 'pywayland')
+if os.path.exists(pywayland_dir):
+    sys.path.append(root_dir)
+
+
+def create_shm_buffer(touch, width, height):
+    from pywayland.protocol.wayland import Shm
+
+    stride = width * 4
+    size = stride * height
+
+    with tempfile.TemporaryFile() as f:
+        f.write(b'\x64' * size)
+        f.flush()
+
+        fd = f.fileno()
+        touch['data'] = mmap.mmap(fd, size, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE)
+        pool = touch['shm'].create_pool(fd, size)
+        touch['buffer'] = pool.create_buffer(0, width, height, stride, Shm.format.argb8888.value)
+        pool.destroy()
+
+
+def handle_touch_down(wl_touch, serial, time, surface, id, x, y):
+    touch = wl_touch.user_data
+
+    # touch_paint(touch, x, y, id)
+    return 0
+
+
+def handle_touch_motion(wl_touch, time, id, x, y):
+    touch = wl_touch.user_data
+
+    # touch_paint(touch, x, y, id)
+    return 0
+
+
+def handle_seat_capabilities(wl_seat, capabilities):
+    print('capabilities')
+    from pywayland.protocol.wayland import Seat
+
+    seat = wl_seat.user_data
+    touch = seat['touch']
+
+    if (capabilities & Seat.capability.touch.value) and seat['wl_touch'] is None:
+        seat['wl_touch'] = wl_seat.get_touch()
+        seat['wl_touch'].user_data = touch
+        seat['wl_touch'].dispatcher['down'] = handle_touch_down
+        seat['wl_touch'].dispatcher['up'] = handle_touch_up
+        seat['wl_touch'].dispatcher['motion'] = handle_touch_motion
+    elif not (capabilities & Seat.capability.touch.value) and seat['wl_touch']:
+        seat['wl_touch'].destroy()
+        seat['wl_touch'] = None
+    return 1
+
+
+def handle_shm_format(wl_shm, format):
+    print('format')
+    from pywayland.protocol.wayland import Shm
+    touch = wl_shm.user_data
+
+    if format == Shm.format.argb8888.value:
+        touch['has_argb'] = True
+    return 1
+
+
+def handle_shell_surface_ping(wl_shell_surface, serial):
+    print('ping')
+    wl_shell_surface.pong(serial)
+    return 1
+
+
+def handle_registry_global(wl_registry, id, iface_name, version):
+    print('global')
+    from pywayland.protocol.wayland import Compositor, Seat, Shell, Shm
+
+    touch = wl_registry.user_data
+    if iface_name == 'wl_compositor':
+        touch['compositor'] = wl_registry.bind(id, Compositor, version)
+    elif iface_name == 'wl_seat':
+        seat = {}
+        seat['touch'] = touch
+        seat['wl_touch'] = None
+
+        wl_seat = wl_registry.bind(id, Seat, version)
+        wl_seat.dispatcher['capabilities'] = handle_seat_capabilities
+        wl_seat.user_data = seat
+        seat['seat'] = wl_seat
+    elif iface_name == 'wl_shell':
+        touch['shell'] = wl_registry.bind(id, Shell, version)
+    elif iface_name == 'wl_shm':
+        touch['has_argb'] = False
+
+        shm = wl_registry.bind(id, Shm, version)
+        shm.user_data = touch
+        shm.dispatcher['format'] = handle_shm_format
+        touch['shm'] = shm
+    return 1
+
+
+def touch_create(width, height):
+    from pywayland.client import Display
+
+    touch = {}
+
+    # Make the display and get the registry
+    touch['display'] = Display()
+    touch['display'].connect()
+
+    touch['registry'] = touch['display'].get_registry()
+    touch['registry'].user_data = touch
+    touch['registry'].dispatcher['global'] = handle_registry_global
+
+    touch['display'].dispatch()
+    touch['display'].roundtrip()
+
+    if not touch['has_argb']:
+        print("WL_SHM_FORMAT_ARGB32 not available", file=sys.stderr)
+        touch['display'].disconnect()
+        return
+
+    touch['width'] = width
+    touch['height'] = height
+    touch['surface'] = touch['compositor'].create_surface()
+    touch['shell_surface'] = touch['shell'].get_shell_surface(touch['surface'])
+    create_shm_buffer(touch, width, height)
+
+    if touch['shell_surface']:
+        print('shell')
+        touch['shell_surface'].dispatcher['ping'] = handle_shell_surface_ping
+        touch['shell_surface'].set_toplevel()
+
+    touch['surface'].user_data = touch
+    touch['shell_surface'].set_title("simple-touch")
+
+    touch['surface'].attach(touch['buffer'], 0, 0)
+    touch['surface'].damage(0, 0, width, height)
+    touch['surface'].commit()
+
+    return touch
+
+
+def main():
+    touch = touch_create(600, 500)
+
+    while touch['display'].dispatch != -1:
+        pass
+
+    display.disconnect()
+
+
+if __name__ == '__main__':
+    main()

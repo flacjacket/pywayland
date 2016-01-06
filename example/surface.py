@@ -26,7 +26,7 @@ if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
 
 from pywayland.client import Display
-from pywayland.protocol import Compositor, Shell, Shm
+from pywayland.protocol.wayland import Compositor, Shell, Shm
 from pywayland.utils import AnonymousFile
 
 WIDTH = 480
