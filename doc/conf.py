@@ -6,6 +6,21 @@ import os
 import shutil
 import sys
 
+# -- Monkey patch to remove external image warning ------------------------
+
+import sphinx.environment
+from docutils.utils import get_source_line
+
+
+def _warn_node(self, msg, node):
+    if not msg.startswith('nonlocal image URI found:'):
+        self._warnfunc(msg, '%s:%s' % get_source_line(node))
+
+sphinx.environment.BuildEnvironment.warn_node = _warn_node
+
+
+# -- Mock necessary classes -----------------------------------------------
+
 from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('.'))
@@ -75,8 +90,8 @@ def protocol_doc(input_dir, output_dir):
 
         # get all the python files that we want to document
         _, _, doc_files = next(os.walk(os.path.join(input_dir, module)))
-        doc_files = [os.path.splitext(f)[0] for f in doc_files
-                     if f != '__init__.py' and os.path.splitext(f)[1] == '.py']
+        doc_files = [os.path.splitext(doc_file)[0] for doc_file in doc_files
+                     if doc_file != '__init__.py' and os.path.splitext(doc_file)[1] == '.py']
 
         # build the index.rst for the module
         index_file = os.path.join(module_dir, 'index.rst')

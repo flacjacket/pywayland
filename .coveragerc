@@ -1,3 +1,8 @@
 [run]
 source = pywayland
 omit = pywayland/protocol/*
+
+[paths]
+source =
+    src/pywayland
+    .tox/*/lib/python*/site-packages/pywayland

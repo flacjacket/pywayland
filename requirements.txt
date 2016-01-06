@@ -1,5 +1,2 @@
-cffi
-flake8
-pytest-cov
-python-coveralls
+cffi>=1.1.0
 six

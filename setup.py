@@ -27,8 +27,13 @@ from setuptools.command.sdist import sdist
 
 sys.path.insert(0, 'pywayland')
 
-# Default locations
-xml_file = '/usr/share/wayland/wayland.xml'
+default_xml_file = '/usr/share/wayland/wayland.xml'
+
+
+def pkgconfig(package, variable):
+    cmd = 'pkg-config --variable={} {}'.format(variable, package)
+    output = subprocess.check_output(shlex.split(cmd)).decode().strip()
+    return output
 
 
 def run_scanner(input_xml, output_path):
@@ -51,8 +56,7 @@ def generate_external_protocol(output_path):
 
     # try to generate the wayland-protocol interfaces
     try:
-        cmd = 'pkg-config --variable=pkgdatadir wayland-protocols'
-        protocols_dir = subprocess.check_output(shlex.split(cmd)).decode().strip()
+        protocols_dir = pkgconfig('wayland-protocols', 'pkgdatadir')
     except subprocess.CalledProcessError:
         raise OSError("Unable to find wayland protocls using pkgconfig")
     else:
@@ -80,7 +84,12 @@ def get_protocol_command(klass):
         boolean_options = ['wayland-protocols', 'no-wayland-protocols']
 
         def initialize_options(self):
-            self.xml_file = xml_file
+            try:
+                data_dir = pkgconfig('wayland-scanner', 'pkgdatadir')
+            except subprocess.CalledProcessError:
+                self.xml_file = default_xml_file
+            else:
+                self.xml_file = os.path.join(data_dir, 'wayland.xml')
             self.output_dir = './pywayland/protocol'
             self.wayland_protocols = False
             self.no_wayland_protocols = False
@@ -91,7 +100,7 @@ def get_protocol_command(klass):
         def finalize_options(self):
             assert os.path.exists(self.xml_file), (
                 "Specified Wayland protocol file, {}, does not exist "
-                "please specify protocol file".format(self.xml_file)
+                "please specify valid protocol file".format(self.xml_file)
             )
 
             if klass is not Command:
