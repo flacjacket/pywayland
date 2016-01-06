@@ -46,7 +46,7 @@ class InterfaceMeta(type):
         # Use the name of the interface to construct the class name
         class_name = '{}Proxy'.format(interface.__name__)
         # Extract the requests
-        dct = {msg.name: msg._func for msg in interface.requests}
+        dct = {msg.name: msg.py_func for msg in interface.requests}
         # Construct a dispatcher
         dispacter_name = '{}Dispatcher'.format(interface.__name__)
         dispacter_class = type(dispacter_name, (Dispatcher,), {})
@@ -69,7 +69,7 @@ class InterfaceMeta(type):
         # Use the name of the interface to construct the class name
         class_name = '{}Resource'.format(interface.__name__)
         # Extract the events
-        dct = {msg.name: msg._func for msg in interface.events}
+        dct = {msg.name: msg.py_func for msg in interface.events}
         # Construct a dispacter
         dispacter_name = '{}Dispatcher'.format(interface.__name__)
         dispacter_class = type(dispacter_name, (Dispatcher,), {})

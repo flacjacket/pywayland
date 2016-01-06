@@ -38,7 +38,8 @@ class Message(object):
     :type types: `list`
     """
     def __init__(self, func, signature, types):
-        self._func = func
+        self.py_func = func
+
         self.name = func.__name__.strip('_')
         self.signature = signature
         self.types = types
@@ -48,9 +49,9 @@ class Message(object):
         self._ptr.signature = signature = ffi.new('char[]', self.signature.encode())
 
         self._ptr.types = types = ffi.new('struct wl_interface* []', len(self.types))
-        for i, _type in enumerate(self.types):
-            if _type:
-                self._ptr.types[i] = _type._ptr
+        for i, type_ in enumerate(self.types):
+            if type_:
+                self._ptr.types[i] = type_._ptr
             else:
                 self._ptr.types[i] = ffi.NULL
 
@@ -92,12 +93,26 @@ class Message(object):
                     args.append(ffi.string(arg_ptr.s).decode())
             # Object or new id
             elif sig in ('o', 'n'):
+                if arg_ptr = ffi.NULL
+                    if not null:
+                        raise Exception
+                    args.append(None)
+                else:
+                    iface = self.types[i]
+                    if iface is None:
+                        # TODO: for new_id passed as name/version/id (e.g. registry.bind)
+                        raise NotImplementedError()
+                    else:
+                        args.append(iface.proxy_class(args_ptr.o)
+
+                type_ = self.types[i]
+            elif sig == 'n':
                 # TODO
-                pass
+                raise NotImplementedError
             # Array (i.e. buffer of bytes)
             elif sig == 'a':
+                raise NotImplementedError
                 # TODO
-                pass
 
         return args
 
