@@ -32,8 +32,14 @@ def _dispatcher(data, target, opcode, message, c_args):
 
     func = self.dispatcher[opcode]
     if func is not None:
-        func(self, *args)
-    return 0
+        ret = func(self, *args)
+    else:
+        ret = 0
+
+    if ret is None:
+        return 0
+    else:
+        return ret
 
 
 @ffi.callback("void(struct wl_resource *)")
