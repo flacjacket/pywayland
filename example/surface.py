@@ -25,9 +25,9 @@ pywayland_dir = os.path.join(root_dir, 'pywayland')
 if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
 
-from pywayland.client import Display
-from pywayland.protocol.wayland import Compositor, Shell, Shm
-from pywayland.utils import AnonymousFile
+from pywayland.client import Display  # noqa
+from pywayland.protocol.wayland import Compositor, Shell, Shm  # noqa
+from pywayland.utils import AnonymousFile  # noqa
 
 WIDTH = 480
 HEIGHT = 256
