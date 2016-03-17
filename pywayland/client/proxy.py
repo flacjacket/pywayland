@@ -51,8 +51,9 @@ class Proxy(object):
     def _destroy(self):
         """Frees the pointer associated with the Proxy"""
         if self._ptr:
-            _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-            lib.wl_proxy_destroy(_ptr)
+            # TODO: figure out how to destroy the proxy in the right order
+            # _ptr = ffi.cast('struct wl_proxy *', self._ptr)
+            # lib.wl_proxy_destroy(_ptr)
             self._ptr = None
 
     def _marshal(self, opcode, *args):

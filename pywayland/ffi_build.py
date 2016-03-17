@@ -379,4 +379,5 @@ ffi.cdef(CDEF)
 
 
 if __name__ == '__main__':
-    ffi.compile()
+    if hasattr(ffi, 'compile'):
+        ffi.compile()
