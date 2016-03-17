@@ -22,4 +22,31 @@ class EventQueue(object):
     manner. See :class:`~pywayland.client.Display` for details.
     """
     def __init__(self, display):
-        self._ptr = lib.wl_display_create_queue(display._ptr)
+        # lets check that we attach to an ok display
+        if display._ptr == ffi.NULL:
+            raise ValueError("Display object not connected")
+        ptr = lib.wl_display_create_queue(display._ptr)
+        # catch memory allocation/other errors
+        if ptr == ffi.NULL:
+            raise ValueError("Unable to create event queue")
+        self._ptr = ptr
+        self.display = display
+        self.display.event_queues.append(self)
+
+    def __del__(self):
+        self.destroy()
+
+    def destroy(self):
+        """Destroy an event queue
+
+        Destroy the given event queue. Any pending event on that queue is
+        discarded.
+
+        The wl_display object used to create the queue should not be destroyed
+        until all event queues created with it are destroyed with this
+        function.
+        """
+        if self._ptr:
+            lib.wl_event_queue_destroy(self._ptr)
+            self.display.event_queues.remove(self)
+            self._ptr = None

@@ -12,9 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, lib
+import contextlib
+import functools
 
+from pywayland import ffi, lib
 from pywayland.protocol.wayland import Display as _Display
+
+
+def ensure_connected(func):
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if self._ptr is None:
+            raise ValueError("Invalid display")
+        return func(*args, **kwargs)
+    return wrapper
 
 
 class Display(_Display.proxy_class):
@@ -63,15 +74,17 @@ class Display(_Display.proxy_class):
     dispatches given queue instead of the default queue.
 
     A real world example of event queue usage is Mesa's implementation of
-    glSwapBuffers() for the Wayland platform. This function might need o block
+    glSwapBuffers() for the Wayland platform. This function might need to block
     until a frame callback is received, but dispatching the default ueue could
     cause an event handler on the client to start drawing gain.  This problem
-    is solved using another event queue, so that only he events handled by the
+    is solved using another event queue, so that only the events handled by the
     EGL code are dispatched during the block.
     """
     def __init__(self):
         # Initially, we have no pointer
         super(Display, self).__init__(None)
+        # we need to track event queues, ensure they are all deleted before us
+        self.event_queues = []
 
     def __del__(self):
         self.disconnect()
@@ -106,9 +119,16 @@ class Display(_Display.proxy_class):
         it.
         """
         if self._ptr:
+            # we need to be sure the event queues are destroyed before disconnecting
+            for eq in self.event_queues[:]:
+                eq.destroy()
+            if self.event_queues:
+                raise ValueError("Unable to destroy all event queues attached to this object")
+
             lib.wl_display_disconnect(self._ptr)
             self._ptr = None
 
+    @ensure_connected
     def get_fd(self):
         """Get a display context's file descriptor
 
@@ -117,6 +137,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_get_fd(self._ptr)
 
+    @ensure_connected
     def dispatch(self):
         """Process incoming events
 
@@ -140,6 +161,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_dispatch(self._ptr)
 
+    @ensure_connected
     def dispatch_pending(self):
         """Dispatch default queue events without reading from the display fd
 
@@ -177,6 +199,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_dispatch_pending(self._ptr)
 
+    @ensure_connected
     def dispatch_queue(self, queue):
         """Dispatch events in an event queue
 
@@ -215,6 +238,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_dispatch_queue(self._ptr, queue._ptr)
 
+    @ensure_connected
     def flush(self):
         """Send all buffered requests on the display to the server
 
@@ -230,10 +254,49 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_flush(self._ptr)
 
+    @ensure_connected
     def roundtrip(self):
         """Block until all pending request are processed by the server
 
-        Blocks until the server process all currently issued requests and
-        sends out pending events on the default event queue.
+        This function blocks until the server has processed all currently
+        issued requests by sending a request to the display server and waiting
+        for a reply before returning.
+
+        This function uses wl_display_dispatch_queue() internally. It is not
+        allowed to call this function while the thread is being prepared for
+        reading events, and doing so will cause a dead lock.
+
+        .. note::
+
+            This function may dispatch other events being received on the
+            default queue.
+
+        :returns: The number of dispatched events on success or -1 on failure
         """
         return lib.wl_display_roundtrip(self._ptr)
+
+    @ensure_connected
+    def roundtrip_queue(self, queue):
+        """Block until all pending request are processed by the server
+
+        This function blocks until the server has processed all currently
+        issued requests by sending a request to the display server and waiting
+        for a reply before returning.
+
+        This function uses wl_display_dispatch_queue() internally. It is not
+        allowed to call this function while the thread is being prepared for
+        reading events, and doing so will cause a dead lock.
+
+        .. note::
+
+            This function may dispatch other events being received on the given queue.
+
+        .. seealso::
+
+            :meth:`Display.roundtrip()`
+
+        :param queue: The queue on which to run the roundtrip
+        :type queue: :class:`~pywayland.client.EventQueue`
+        :returns: The number of dispatched events on success or -1 on failure
+        """
+        return lib.wl_display_roundtrip_queue(self._ptr, queue._ptr)

@@ -40,19 +40,23 @@ class Proxy(object):
         if self._ptr is None:
             return
 
-        _handle = ffi.new_handle(self)
-        weakkeydict[self] = _handle
+        self._handle = ffi.new_handle(self)
 
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        lib.wl_proxy_add_dispatcher(_ptr, self.dispatcher._ptr, _handle, ffi.NULL)
+        lib.wl_proxy_add_dispatcher(_ptr, self.dispatcher._ptr, self._handle, ffi.NULL)
+
+    def __del__(self):
+        self._destroy()
 
     def _destroy(self):
+        """Frees the pointer associated with the Proxy"""
         if self._ptr:
             _ptr = ffi.cast('struct wl_proxy *', self._ptr)
             lib.wl_proxy_destroy(_ptr)
             self._ptr = None
 
     def _marshal(self, opcode, *args):
+        """Marshal the given arguments into the Wayland wire format"""
         # Create a wl_argument array
         args_ptr = self._interface.requests[opcode].arguments_to_c(*args)
         # Make the cast to a wl_proxy
@@ -61,6 +65,7 @@ class Proxy(object):
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
     def _marshal_constructor(self, opcode, interface, *args):
+        """Marshal the given arguments into the Wayland wire format for a constructor"""
         # Create a wl_argument array
         args_ptr = self._interface.requests[opcode].arguments_to_c(*args)
         # Make the cast to a wl_proxy
