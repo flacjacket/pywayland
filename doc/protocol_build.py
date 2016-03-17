@@ -3,7 +3,7 @@ import tarfile
 import six.moves.urllib as urllib
 
 wayland_version = '1.10.0'
-protocols_version = '1.1'
+protocols_version = '1.3'
 
 wayland_source = 'http://cgit.freedesktop.org/wayland/wayland/plain/protocol/wayland.xml?id={}'.format(wayland_version)
 protocols_source = 'http://wayland.freedesktop.org/releases/wayland-protocols-{}.tar.xz'.format(protocols_version)
