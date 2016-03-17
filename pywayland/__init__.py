@@ -18,8 +18,12 @@ try:
     from ._ffi import ffi, lib  # noqa
 except ImportError:
     # PyPy < 2.6 compatibility
-    from .ffi_build import ffi, SOURCE
-    lib = ffi.verify(SOURCE, libraries=['wayland-client', 'wayland-server'])
+    import cffi
+    if cffi.__version_info__[0] == 0:
+        from .ffi_build import ffi, SOURCE
+        lib = ffi.verify(SOURCE, libraries=['wayland-client', 'wayland-server'])
+    else:
+        raise ImportError("No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`")
 
 __version__ = '0.0.1a.dev6'
 __wayland_version__ = '{}.{}.{}'.format(

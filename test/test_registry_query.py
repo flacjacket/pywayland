@@ -68,7 +68,7 @@ def test_get_registry():
     s = ServerDisplay()
 
     # Add a compositor so we can query for it
-    comp = Compositor.global_class(s)
+    Compositor.global_class(s)
 
     # Add a timer to kill the server after 0.5 sec (should be more than enough time, don't know a more deterministic way...)
     e = s.get_event_loop()
