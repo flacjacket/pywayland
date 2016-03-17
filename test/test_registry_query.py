@@ -18,6 +18,9 @@ from pywayland.server import Display as ServerDisplay
 from pywayland.protocol.wayland import Compositor
 
 import threading
+import time
+
+got_compositor = None
 
 
 def _get_registry_callback(proxy, id, iface_name, version):
@@ -28,8 +31,17 @@ def _get_registry_callback(proxy, id, iface_name, version):
 
 
 def _run_client():
+    global got_compositor
     c = ClientDisplay()
-    c.connect()
+
+    start = time.time()
+    while time.time() < start + 10:
+        try:
+            c.connect()
+        except Exception:
+            time.sleep(0.1)
+            continue
+        break
 
     reg = c.get_registry()
     reg.dispatcher['global'] = _get_registry_callback
@@ -42,29 +54,29 @@ def _run_client():
 def _kill_server(data):
     # the `data` is the server Display
     data.terminate()
-    return 1
 
 
 def test_get_registry():
     global got_compositor
     got_compositor = None
 
-    # start up the server
-    s = ServerDisplay()
-    s.add_socket()
-
     # run the client in a thread
     client = threading.Thread(target=_run_client)
     client.start()
 
+    # create the server
+    s = ServerDisplay()
+
     # Add a compositor so we can query for it
-    Compositor.global_class(s)
+    comp = Compositor.global_class(s)
 
     # Add a timer to kill the server after 0.5 sec (should be more than enough time, don't know a more deterministic way...)
     e = s.get_event_loop()
     source = e.add_timer(_kill_server, data=s)
     source.timer_update(500)
 
+    # start up the server
+    s.add_socket()
     s.run()
     s.destroy()
 

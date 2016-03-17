@@ -24,7 +24,7 @@ def ensure_connected(func):
     def wrapper(self, *args, **kwargs):
         if self._ptr is None:
             raise ValueError("Invalid display")
-        return func(*args, **kwargs)
+        return func(self, *args, **kwargs)
     return wrapper
 
 

@@ -53,7 +53,6 @@ def _wrap_timer_callback(f):
     @ffi.callback("int(void *data)")
     @functools.wraps(f)
     def _timer_callback(data_ptr):
-        print("callback:", data_ptr)
         if data_ptr == ffi.NULL:
             data = None
         else:
