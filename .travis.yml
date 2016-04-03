@@ -23,6 +23,10 @@ matrix:
     - python: 3.5
       env: TOXENV=docs WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
   allow_failures:
+    - python: pypy
+      env: TOXENV=pypy WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
+    - python: pypy3
+      env: TOXENV=pypy3 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
     - python: nightly
       env: TOXENV=nightly WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
 
