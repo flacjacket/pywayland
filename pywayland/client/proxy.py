@@ -43,7 +43,7 @@ class Proxy(object):
         self._handle = ffi.new_handle(self)
 
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        lib.wl_proxy_add_dispatcher(_ptr, self.dispatcher._ptr, self._handle, ffi.NULL)
+        lib.wl_proxy_add_dispatcher(_ptr, lib.dispatcher_func, self._handle, ffi.NULL)
 
     def __del__(self):
         self._destroy()

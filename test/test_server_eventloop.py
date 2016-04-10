@@ -159,12 +159,12 @@ def test_event_loop_timer_updates():
     assert end_time - start_time < 1
 
 
-def _destroy_notify_a():
+def _destroy_notify_a(data):
     global a
     a = True
 
 
-def _destroy_notify_b():
+def _destroy_notify_b(data):
     global b
     b = True
 

@@ -264,6 +264,22 @@ int
 os_create_anonymous_file(int size);
 """
 
+# cffi callback functions
+CDEF += """
+extern "Python" int dispatcher_func(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *);
+extern "Python" void resource_destroy_func(struct wl_resource *);
+extern "Python" int event_loop_fd_func(int, uint32_t, void *);
+extern "Python" int event_loop_signal_func(int, void *);
+extern "Python" int event_loop_timer_func(void *);
+extern "Python" void global_bind_func(struct wl_client *, void *, uint32_t, uint32_t);
+extern "Python" void notify_func(struct wl_listener *, void *);
+
+struct wl_listener_container {
+    void *handle;
+    struct wl_listener destroy_listener;
+};
+"""
+
 SOURCE = """
 #include <wayland-client-core.h>
 #include <wayland-server-core.h>
@@ -272,6 +288,13 @@ SOURCE = """
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
+"""
+
+SOURCE += """
+struct wl_listener_container {
+    void *handle;
+    struct wl_listener destroy_listener;
+};
 """
 
 SOURCE += """

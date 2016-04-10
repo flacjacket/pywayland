@@ -157,24 +157,16 @@ else:
 # Check if we're running PyPy, cffi can't be updated
 if '_cffi_backend' in sys.builtin_module_names:
     import _cffi_backend
+    if _cffi_backend.__version__ < "1.4.2":
+        raise ValueError("PyPy version is too old, must support cffi>=1.4.2 (PyPy >= 5.0.0)")
     requires_cffi = 'cffi==' + _cffi_backend.__version__
 else:
-    requires_cffi = 'cffi>=1.1.0'
+    requires_cffi = "cffi>=1.4.2"
 
-# PyPy < 2.6 hack, can be dropped when PyPy3 2.6 is released
-if requires_cffi.startswith('cffi==0.'):
-    cffi_args = dict(
-        ext_package='pywayland'
-    )
-else:
-    cffi_args = dict(
-        cffi_modules=['pywayland/ffi_build.py:ffi']
-    )
-
-dependencies = ['six>=1.4.1', requires_cffi]
+dependencies = ["six>=1.4.1", requires_cffi]
 
 if sys.version_info < (3, 4):
-    dependencies.append('enum34')
+    dependencies.append("enum34")
 
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
@@ -228,5 +220,5 @@ setup(
         'install': InstallCommand,
         'sdist': SdistCommand
     },
-    **cffi_args
+    cffi_modules=['pywayland/ffi_build.py:ffi']
 )

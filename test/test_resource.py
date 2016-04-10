@@ -46,7 +46,7 @@ def _destroy_callback(data):
     destroyed = True
 
 
-def _destroy_notify():
+def _destroy_notify(data):
     global notified
     notified = True
 

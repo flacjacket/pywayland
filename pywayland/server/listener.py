@@ -14,20 +14,17 @@
 
 from pywayland import ffi, lib
 
-import functools
-import weakref
 
-weakkeydict = weakref.WeakKeyDictionary()
+# void (*wl_notify_func_t)(struct wl_listener *listener, void *data);
+@ffi.def_extern()
+def notify_func(listener_ptr, data):
+    container = ffi.cast(
+        "struct wl_listener_container *",
+        ffi.cast("char*", listener_ptr) - ffi.offsetof("struct wl_listener_container", "destroy_listener")
+    )
+    listener = ffi.from_handle(container.handle)
 
-
-def _wrap_listener_callback(f):
-    @ffi.callback("void(struct wl_listener *listener, void *data)")
-    @functools.wraps(f)
-    def _listener_callback(listener_ptr, data_ptr):
-        # TODO: figure out how to pass things in
-        f()
-
-    return _listener_callback
+    listener.notify(listener.link)
 
 
 class DestroyListener(object):
@@ -43,13 +40,18 @@ class DestroyListener(object):
     signal at a time.
     """
     def __init__(self, function):
-        self._ptr = ffi.new("struct wl_listener *")
+        self._handle = ffi.new_handle(self)
+        # we need a way to get this Python object from the `struct
+        # wl_listener*`, so we put the pointer in a container struct that
+        # contains both the wl_listener and a pointer to our ffi handle
+        self.container = ffi.new("struct wl_listener_container *")
+        self.container.handle = self._handle
+
+        self._ptr = ffi.addressof(self.container.destroy_listener)
+        self._ptr.notify = lib.notify_func
+
         self.notify = function
         self.link = None
-
-        self._ptr.notify = callback_ffi = _wrap_listener_callback(function)
-
-        weakkeydict[self] = callback_ffi
 
     def remove(self):
         """Remove the listener"""

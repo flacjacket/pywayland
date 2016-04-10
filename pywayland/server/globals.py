@@ -15,8 +15,8 @@
 from pywayland import ffi, lib
 
 
-@ffi.callback("void(struct wl_client *, void *, uint32_t, uint32_t)")
-def _global_bind_func(client_ptr, data, version, id):
+@ffi.def_extern()
+def global_bind_func(client_ptr, data, version, id):
     # `data` is the handle to Global
     _global = ffi.from_handle(data)
 
@@ -46,7 +46,7 @@ class Global(object):
             version = self._interface.version
 
         self._handle = ffi.new_handle(self)
-        self._bind_dispatcher = _global_bind_func
+        self._bind_dispatcher = lib.global_bind_func
         self._ptr = lib.wl_global_create(display._ptr, self._interface._ptr,
                                          version, self._handle, self._bind_dispatcher)
 

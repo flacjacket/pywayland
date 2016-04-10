@@ -19,12 +19,12 @@ from pywayland.server.listener import DestroyListener
 import socket
 
 
-def destroy_notify_a():
+def destroy_notify_a(*args):
     global a
     a = 1
 
 
-def destroy_notify_b():
+def destroy_notify_b(*args):
     global b
     b = 1
 

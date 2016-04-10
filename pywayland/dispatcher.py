@@ -15,8 +15,9 @@
 from pywayland import ffi, lib
 
 
-@ffi.callback("int(void *, void *, uint32_t, struct wl_message *, union wl_argument *)")
-def _dispatcher(data, target, opcode, message, c_args):
+# int (*wl_dispatcher_func_t)(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *)
+@ffi.def_extern()
+def dispatcher_func(data, target, opcode, message, c_args):
     # `data` is the handle to Proxy/Resource
     # `target` is the wl_proxy/wl_resource for self
     # `message` is the wl_message for self._interface.events/requests[opcode]
@@ -42,8 +43,9 @@ def _dispatcher(data, target, opcode, message, c_args):
         return ret
 
 
-@ffi.callback("void(struct wl_resource *)")
-def _destroyed_dispatcher(res_ptr):
+# void (*wl_resource_destroy_func_t)(struct wl_resource *resource)
+@ffi.def_extern()
+def resource_destroy_func(res_ptr):
     res_py_ptr = lib.wl_resource_get_user_data(res_ptr)
 
     if res_py_ptr == ffi.NULL:
@@ -72,13 +74,10 @@ class Dispatcher(object):
     """
     def __init__(self, messages, destructor=False):
         self.messages = messages
-        self._ptr = _dispatcher
-        if destructor:
-            self._destroyed_ptr = _destroyed_dispatcher
 
         # Create a map of message names to message opcodes
         self._names = {msg.name: opcode for opcode, msg in enumerate(messages)}
-        self._callback = [None for _ in messages]
+        self._callback = [None] * len(messages)
 
     def __getitem__(self, opcode_or_name):
         if opcode_or_name in self._names:

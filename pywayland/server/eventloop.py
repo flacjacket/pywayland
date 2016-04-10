@@ -16,51 +16,51 @@ from pywayland import ffi, lib
 
 from enum import Enum
 import functools
-import weakref
-
-weakkeydict = weakref.WeakKeyDictionary()
 
 
-def _wrap_fd_callback(f):
-    @ffi.callback("int(int fd, uint32_t mask, void *data)")
-    @functools.wraps(f)
-    def _signal_callback(fd, mask, data_ptr):
-        if data_ptr == ffi.NULL:
-            data = None
-        else:
-            data = ffi.from_handle(data_ptr)
+# int (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data)
+@ffi.def_extern()
+def event_loop_fd_func(fd, mask, data_ptr):
+    eventloop = ffi.from_handle(data_ptr)
 
-        return f(fd, mask, data)
+    callback = eventloop.callbacks[data_ptr]
+    data = eventloop.data[data_ptr]
 
-    return _signal_callback
+    ret = callback(fd, mask, data)
+    if isinstance(ret, int):
+        return ret
 
-
-def _wrap_signal_callback(f):
-    @ffi.callback("int(int signal_number, void *data)")
-    @functools.wraps(f)
-    def _signal_callback(signal_number, data_ptr):
-        if data_ptr == ffi.NULL:
-            data = None
-        else:
-            data = ffi.from_handle(data_ptr)
-
-        return f(signal_number, data)
-
-    return _signal_callback
+    return 0
 
 
-def _wrap_timer_callback(f):
-    @ffi.callback("int(void *data)")
-    @functools.wraps(f)
-    def _timer_callback(data_ptr):
-        if data_ptr == ffi.NULL:
-            data = None
-        else:
-            data = ffi.from_handle(data_ptr)
+# int (*wl_event_loop_signal_func_t)(int signal_number, void *data)
+@ffi.def_extern()
+def event_loop_signal_func(signal_number, data_ptr):
+    eventloop = ffi.from_handle(data_ptr)
 
-        return f(data)
+    callback = eventloop.callbacks[data_ptr]
+    data = eventloop.data[data_ptr]
 
-    return _timer_callback
+    ret = callback(signal_number, data)
+    if isinstance(ret, int):
+        return ret
+
+    return 0
+
+
+# int (*wl_event_loop_timer_func_t)(void *data)
+@ffi.def_extern()
+def event_loop_timer_func(data_ptr):
+    eventloop = ffi.from_handle(data_ptr)
+
+    callback = eventloop.callbacks[data_ptr]
+    data = eventloop.data[data_ptr]
+
+    ret = callback(data)
+    if isinstance(ret, int):
+        return ret
+
+    return 0
 
 
 class EventLoop(object):
@@ -87,8 +87,9 @@ class EventLoop(object):
         else:
             self._ptr = lib.wl_event_loop_create()
 
-        self._sources = []
-        weakkeydict[self] = []
+        self.event_sources = []
+        self.data = {}
+        self.callbacks = {}
 
     def destroy(self):
         """Destroy the event loop"""
@@ -117,21 +118,16 @@ class EventLoop(object):
 
             :meth:`pywayland.server.eventloop.EventSource.check()`
         """
-        if data is None:
-            data_ptr = ffi.NULL
-        else:
-            data_ptr = ffi.new_handle(data)
-            weakkeydict[self].append(data_ptr)
-
-        self._callback_store = callback_ffi = _wrap_fd_callback(callback)
-        # weakkeydict[self].append(callback_ffi)
+        handle = ffi.new_handle(self)
+        self.data[handle] = data
+        self.callbacks[handle] = callback
 
         mask = [m.value for m in mask]
         mask = functools.reduce(lambda x, y: x | y, mask)
 
-        event_source_cdata = lib.wl_event_loop_add_fd(self._ptr, fd, mask, callback_ffi, data_ptr)
+        event_source_cdata = lib.wl_event_loop_add_fd(self._ptr, fd, mask, lib.event_loop_fd_func, handle)
         event_source = EventSource(event_source_cdata)
-        self._sources.append(event_source)
+        self.event_sources.append(event_source)
 
         return event_source
 
@@ -148,18 +144,13 @@ class EventLoop(object):
         :type data: `object`
         :returns: :class:`EventSource` for specified callback
         """
-        if data is None:
-            data_ptr = ffi.NULL
-        else:
-            data_ptr = ffi.new_handle(data)
-            weakkeydict[self].append(data_ptr)
+        handle = ffi.new_handle(self)
+        self.data[handle] = data
+        self.callbacks[handle] = callback
 
-        callback_ffi = _wrap_signal_callback(callback)
-        weakkeydict[self].append(callback_ffi)
-
-        event_source_cdata = lib.wl_event_loop_add_signal(self._ptr, signal_number, callback_ffi, data_ptr)
+        event_source_cdata = lib.wl_event_loop_add_signal(self._ptr, signal_number, lib.event_loop_signal_func, handle)
         event_source = EventSource(event_source_cdata)
-        self._sources.append(event_source)
+        self.event_sources.append(event_source)
 
         return event_source
 
@@ -177,18 +168,13 @@ class EventLoop(object):
 
             :meth:`pywayland.server.eventloop.EventSource.timer_update()`
         """
-        if data is None:
-            data_ptr = ffi.NULL
-        else:
-            data_ptr = ffi.new_handle(data)
-            weakkeydict[self].append(data_ptr)
+        handle = ffi.new_handle(self)
+        self.data[handle] = data
+        self.callbacks[handle] = callback
 
-        callback_ffi = _wrap_timer_callback(callback)
-        weakkeydict[self].append(callback_ffi)
-
-        event_source_cdata = lib.wl_event_loop_add_timer(self._ptr, callback_ffi, data_ptr)
+        event_source_cdata = lib.wl_event_loop_add_timer(self._ptr, lib.event_loop_timer_func, handle)
         event_source = EventSource(event_source_cdata)
-        self._sources.append(event_source)
+        self.event_sources.append(event_source)
 
         return event_source
 
