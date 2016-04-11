@@ -37,55 +37,63 @@ def get_wayland_protocols():
     except subprocess.CalledProcessError:
         raise OSError("Unable to find wayland-protocols using pkgconfig")
 
+    modules = []
     protocols = []
     # walk the wayland-protocol dir
     for dirpath, _, filenames in os.walk(protocols_dir):
         for filename in filenames:
             file_path = os.path.join(dirpath, filename)
-            _, file_ext = os.path.splitext(filename)
+            file_base, file_ext = os.path.splitext(filename)
             # only generate protocols for xml files
             if file_ext == ".xml":
+                modules.append(file_base.replace("-", "_"))
                 protocols.append(file_path)
 
-    return protocols
+    return modules, protocols
 
 
-this_dir = os.path.split(__file__)[0]
-protocol_dir = os.path.join(this_dir, '..', 'protocol')
+def main():
+    this_dir = os.path.split(__file__)[0]
+    protocol_dir = os.path.join(this_dir, '..', 'protocol')
 
 # try to figure out where the wayland.xml file is installed, otherwise use default
-try:
-    xml_dir = pkgconfig("wayland-scanner", "pkgdatadir")
-    xml_file = os.path.join(xml_dir, "wayland.xml")
-except subprocess.CalledProcessError:
-    xml_file = "/usr/share/wayland/wayland.xml"
+    try:
+        xml_dir = pkgconfig("wayland-scanner", "pkgdatadir")
+        xml_file = os.path.join(xml_dir, "wayland.xml")
+    except subprocess.CalledProcessError:
+        xml_file = "/usr/share/wayland/wayland.xml"
 
-parser = argparse.ArgumentParser(
-    description='Generate wayland protocol files from xml'
-)
-parser.add_argument(
-    '-o', '--output', metavar='DIR', default=protocol_dir, type=str,
-    help='Directory to output protocol files'
-)
-parser.add_argument(
-    "--with-protocols", action="store_true",
-    help="Also locate and build wayland-protocol xml files (using pkg-config)"
-)
-parser.add_argument(
-    "-i", "--input", metavar="XML_FILE", default=[xml_file], nargs="+", type=str,
-    help="Path to input xml file to scan"
-)
+    parser = argparse.ArgumentParser(
+        description='Generate wayland protocol files from xml'
+    )
+    parser.add_argument(
+        '-o', '--output', metavar='DIR', default=protocol_dir, type=str,
+        help='Directory to output protocol files'
+    )
+    parser.add_argument(
+        "--with-protocols", action="store_true",
+        help="Also locate and build wayland-protocol xml files (using pkg-config)"
+    )
+    parser.add_argument(
+        "-i", "--input", metavar="XML_FILE", default=[xml_file], nargs="+", type=str,
+        help="Path to input xml file to scan"
+    )
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-if not os.path.exists(args.output):
-    os.makedirs(args.output, 0o775)
+    if not os.path.exists(args.output):
+        os.makedirs(args.output, 0o775)
 
-input_files = args.input
+    input_files = args.input
 
-if args.with_protocols:
-    input_files += get_wayland_protocols()
+    if args.with_protocols:
+        _, protocols_files = get_wayland_protocols()
+        input_files += protocols_files
 
-for input_file in input_files:
-    scanner = Scanner(input_file)
-    scanner.output(args.output)
+    for input_file in input_files:
+        scanner = Scanner(input_file)
+        scanner.output(args.output)
+
+
+if __name__ == "__main__":
+    main()
