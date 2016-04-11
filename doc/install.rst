@@ -19,13 +19,17 @@ External Dependencies
 In order to run PyWayland, you will need to have installed the Wayland
 libraries and headers such that they can be found by CFFI.  This can be done
 with the ``libwayland-dev`` apt package; however, note that it is probably best
-to use the most `recent version of Wayland available
-<http://wayland.freedesktop.org/releases.html>`_, and the pip package will try
-to track the most recent version.
+to use the most recent version of Wayland available from the `Wayland
+releases`_ site, and the pip package will try to track the most recent version.
 
 You will also need to have the Python headers installed and a version of GCC to
-build the cffi library.  The headers are typically available through the
+compile the cffi library.  The headers are typically available through the
 ``python-dev`` package.
+
+Optionally, you can have installed the ``wayland-protocols`` package, also
+available from the `Wayland releases`_ page.  The package uploaded to PyPI will
+already have these protocols included, so this is only needed if you plan on
+installing from source.
 
 Installing with pip
 -------------------
@@ -83,26 +87,23 @@ file that ships with Wayland.  The scanner parses this XML file and generates
 the relevant objects.
 
 If the Wayland protocol file is in the default location
-(``/usr/share/wayland/wayland.xml``), you should be able to build the protocol
-files without any problems::
+(``/usr/share/wayland/wayland.xml``) or can be found with ``pkg-config``, you
+should be able to build the protocol files without any problems::
 
-    $ python setup.py generate_protocol
+    $ python -m pywayland.scanner
 
 This will output the protocol files to the directory ``./pywayland/protocol/``.
 The input file and the output directory can be set from the command line
-options, see ``python setup.py generate_protocol -h`` for more information.
+options, see ``python -m pywayland.scanner -h`` for more information.
 
+Running PyWayland inplace
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Building cffi Module
-^^^^^^^^^^^^^^^^^^^^
+Once the protocol files are created, you can generate the cffi module.  Note:
+this is only required if you want to run from the source in place.  If the
+libwayland header files are correctly installed, you will just need to run::
 
-Once the protocol files are created, you can generate the cffi module.  If
-libwayland is correctly installed, you will just need to run::
-
-    $ python setup.py build_ext --inplace
-
-Running PyWayland
-^^^^^^^^^^^^^^^^^
+    $ python pywaland/ffi_build.py
 
 At this point, you should be able to use the PyWayland library.  You can check
 that you have everything installed correctly by running the associated
@@ -113,7 +114,21 @@ run::
 
 from the root directory.
 
+Installing PyWayland
+^^^^^^^^^^^^^^^^^^^^
+
+The package can be installed from source using typical ``setup.py``
+mechanisms::
+
+    $ python setup.py install
+
+Additional arguments can be used to automatically generate the Wayland
+protocols for the standard Wayland package (which will fail if it cannot run)
+and the wayland-protocols package (which will be attempted by default, but will
+not raise an error if it fails).
+
 If you have any problems or have any feedback, please report back to the `issue
 tracker`_, contribution is always welcome, see :ref:`contributing`.
 
 .. _issue tracker: https://github.com/flacjacket/pywayland/issues
+.. _Wayland releases: http://wayland.freedesktop.org/releases
