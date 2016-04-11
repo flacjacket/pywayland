@@ -27,6 +27,8 @@ from setuptools.command.sdist import sdist
 # protocol before the cffi module has been compiled
 sys.path.insert(0, 'pywayland')
 
+from version import __version__ as pywayland_version
+
 default_xml_file = '/usr/share/wayland/wayland.xml'
 
 
@@ -170,7 +172,7 @@ modules = [
 
 setup(
     name='pywayland',
-    version='0.0.1a.dev6',
+    version=pywayland_version,
     author='Sean Vig',
     author_email='sean.v.775@gmail.com',
     url='http://github.com/flacjacket/pywayland',

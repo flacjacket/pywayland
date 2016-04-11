@@ -30,6 +30,8 @@ sys.path.insert(0, os.path.abspath('..'))
 MOCK_MODULES = ['pywayland._ffi']
 sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)
 
+from pywayland import __version__
+
 # -- Build pywayland.protocol w/docs --------------------------------------
 
 from protocol_build import wayland_version, wayland_build, protocols_version, protocols_build
@@ -153,12 +155,12 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pywayland'
-copyright = '2015, Sean Vig'
+copyright = '2016, Sean Vig'
 
 # The short X.Y version.
-version = '0.0.1'
+version = __version__.split("a")[0]
 # The full version, including alpha/beta/rc tags.
-release = '0.0.1a.dev6'
+release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

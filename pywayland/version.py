@@ -1,4 +1,4 @@
-# Copyright 2015 Sean Vig
+# Copyright 2016 Sean Vig
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-from .version import __version__  # noqa
-
-try:
-    from ._ffi import ffi, lib  # noqa
-except ImportError:
-    raise ImportError("No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`")
-
-__wayland_version__ = '{}.{}.{}'.format(
-    lib.WAYLAND_VERSION_MAJOR,
-    lib.WAYLAND_VERSION_MINOR,
-    lib.WAYLAND_VERSION_MICRO
-)
+__version__ = "0.0.1a0dev7"
