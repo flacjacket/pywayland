@@ -19,13 +19,10 @@ from .eventloop import EventLoop
 class Display(object):
     """Create a Wayland Display object"""
     def __init__(self, ptr=None):
-        if ptr:
-            self._ptr = ptr
-        else:
-            self._ptr = lib.wl_display_create()
+        if ptr is None:
+            ptr = lib.wl_display_create()
 
-    def __del__(self):
-        self.destroy()
+        self._ptr = ffi.gc(ptr, lib.wl_display_destroy)
 
     def destroy(self):
         """Destroy Wayland display object.
@@ -39,10 +36,8 @@ class Display(object):
 
             :meth:`Display.add_destroy_listener()`
         """
-
-        if self._ptr:
-            lib.wl_display_destroy(self._ptr)
-            self._ptr = None
+        # let the ffi garbage collector clean-up the cdata
+        self._ptr = None
 
     def add_socket(self, name=None):
         """Add a socket to Wayland display for the clients to connect.

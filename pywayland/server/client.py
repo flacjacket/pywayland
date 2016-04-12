@@ -14,6 +14,10 @@
 
 from pywayland import ffi, lib
 
+import weakref
+
+weakkeydict = weakref.WeakKeyDictionary()
+
 
 class Client(object):
     """Create a client for the given file descriptor
@@ -33,19 +37,24 @@ class Client(object):
     :type fd: `int`
     """
     def __init__(self, display, fd):
-        if display._ptr == ffi.NULL:
-            raise ValueError("Display pointer cannot be null")
-        self._ptr = lib.wl_client_create(display._ptr, fd)
+        if display._ptr == ffi.NULL or display._ptr is None:
+            raise ValueError("Display has been destroyed")
 
-        self.display = display
+        def client_destroy(cdata):
+            # if the display is already destroyed
+            if display._ptr == ffi.NULL or display._ptr is None:
+                return
+            lib.wl_client_destroy(cdata)
 
-    def __del__(self):
-        self.destroy()
+        ptr = lib.wl_client_create(display._ptr, fd)
+        self._ptr = ffi.gc(ptr, client_destroy)
+
+        # both this object its cdata keep the display alive
+        weakkeydict[self] = weakkeydict[self._ptr] = display
 
     def destroy(self):
         """Destroy the client"""
-        if self._ptr:
-            lib.wl_client_destroy(self._ptr)
+        # ffi.gc will clean-up the cdata
         self._ptr = None
 
     def flush(self):
@@ -61,7 +70,7 @@ class Client(object):
     def add_destroy_listener(self, listener):
         """Add a listener for the destroy signal
 
-        :params listener: The listener object
+        :param listener: The listener object
         :type listener: :class:`~pywayland.server.DestroyListener`
         """
         lib.wl_client_add_destroy_listener(self._ptr, listener._ptr)

@@ -13,6 +13,9 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+import weakref
+
+weakkeydict = weakref.WeakKeyDictionary()
 
 
 @ffi.def_extern()
@@ -42,18 +45,27 @@ class Global(object):
     :type version: `int`
     """
     def __init__(self, display, version=None):
+        if display._ptr is None or display._ptr == ffi.NULL:
+            raise ValueError("Display has been destroyed or couldn't initialize")
+
         if version is None:
             version = self._interface.version
+        self.bind_handler = None
+
+        def global_destroy(cdata):
+            if display._ptr is None:
+                return
+            lib.wl_global_destroy(cdata)
 
         self._handle = ffi.new_handle(self)
-        self._bind_dispatcher = lib.global_bind_func
-        self._ptr = lib.wl_global_create(display._ptr, self._interface._ptr,
-                                         version, self._handle, self._bind_dispatcher)
+        ptr = lib.wl_global_create(display._ptr, self._interface._ptr,
+                                   version, self._handle, lib.global_bind_func)
+        self._ptr = ffi.gc(ptr, global_destroy)
 
-        self.bind_handler = None
+        # this object and its cdata should keep the display alive
+        weakkeydict[self] = weakkeydict[self._ptr] = display
 
     def destroy(self):
         """Destroy the global object"""
-        if self._ptr:
-            lib.wl_global_destroy(self._ptr)
-            self._ptr = None
+        # let the garbage collector run wl_global_destroy
+        self._ptr = None

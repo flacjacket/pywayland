@@ -14,6 +14,10 @@
 
 from pywayland import ffi, lib
 
+import weakref
+
+weakkeydict = weakref.WeakKeyDictionary()
+
 
 class EventQueue(object):
     """A queue for wl_proxy object events.
@@ -23,18 +27,18 @@ class EventQueue(object):
     """
     def __init__(self, display):
         # lets check that we attach to an ok display
-        if display._ptr == ffi.NULL:
+        if display._ptr is None or display._ptr == ffi.NULL:
             raise ValueError("Display object not connected")
-        ptr = lib.wl_display_create_queue(display._ptr)
-        # catch memory allocation/other errors
-        if ptr == ffi.NULL:
-            raise ValueError("Unable to create event queue")
-        self._ptr = ptr
-        self.display = display
-        self.display.event_queues.append(self)
 
-    def __del__(self):
-        self.destroy()
+        def event_queue_destroy(cdata):
+            if display._ptr is None:
+                return
+            lib.wl_event_queue_destroy(cdata)
+
+        ptr = lib.wl_display_create_queue(display._ptr)
+        self._ptr = ffi.gc(ptr, event_queue_destroy)
+
+        weakkeydict[self] = display
 
     def destroy(self):
         """Destroy an event queue
@@ -46,7 +50,5 @@ class EventQueue(object):
         until all event queues created with it are destroyed with this
         function.
         """
-        if self._ptr:
-            lib.wl_event_queue_destroy(self._ptr)
-            self.display.event_queues.remove(self)
-            self._ptr = None
+        # let the ffi.gc function take care of the details
+        self._ptr = None

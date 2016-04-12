@@ -103,6 +103,12 @@ class EventLoop(object):
 
         Triggers function call when file descriptor state matches the mask.
 
+        The callback should take three arguments:
+
+            * `fd` - file descriptor (int)
+            * `mask` - file descriptor mask (uint)
+            * `data` - any object
+
         :param fd: File descriptor
         :type fd: `int`
         :param callback: Callback function
@@ -136,6 +142,11 @@ class EventLoop(object):
 
         Triggers function call signal is received.
 
+        The callback should take three arguments:
+
+            * `signal_number` - signal (int)
+            * `data` - any object
+
         :param signal_number: Signal number to trigger on
         :type signal_number: `int`
         :param callback: Callback function
@@ -159,6 +170,10 @@ class EventLoop(object):
 
         Triggers function call after a specified time.
 
+        The callback should take one argument:
+
+            * `data` - any object
+
         :param callback: Callback function
         :type fd: function with callback `int(void *data)`
         :param data: User data to send to callback
@@ -181,7 +196,7 @@ class EventLoop(object):
     def add_destroy_listener(self, listener):
         """Add a listener for the destroy signal
 
-        :params listener: The listener object
+        :param listener: The listener object
         :type listener: :class:`~pywayland.server.DestroyListener`
         """
         lib.wl_event_loop_add_destroy_listener(self._ptr, listener._ptr)
@@ -218,7 +233,7 @@ class EventSource(object):
     def timer_update(self, timeout):
         """Set the timeout of the times callback
 
-        :params timeout: Delay for timeout in ms
+        :param timeout: Delay for timeout in ms
         :type timeout: `int`
         """
         lib.wl_event_source_timer_update(self._ptr, timeout)

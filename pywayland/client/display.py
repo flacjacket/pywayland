@@ -82,10 +82,11 @@ class Display(_Display.proxy_class):
     def __init__(self):
         # Initially, we have no pointer
         super(Display, self).__init__(None)
-        # we need to track event queues, ensure they are all deleted before us
-        self.event_queues = []
 
-    def __del__(self):
+    def __enter__(self):
+        self.connect()
+
+    def __exit__(self):
         self.disconnect()
 
     def connect(self, name_or_fd=None):
@@ -117,12 +118,24 @@ class Display(_Display.proxy_class):
         Close the connection to display and free all resources associated with
         it.
         """
+        from .eventqueue import weakkeydict as eventqueue_dict
+        from .proxy import weakkeydict as proxy_dict
         if self._ptr:
-            # we need to be sure the event queues are destroyed before disconnecting
-            for eq in self.event_queues[:]:
-                eq.destroy()
-            if self.event_queues:
-                raise ValueError("Unable to destroy all event queues attached to this object")
+            # we need to be sure the event queues and proxies are destroyed
+            # first, and they are currently keeping us alive in their
+            # respective weakkeydict's
+
+            # NOTE: i think this might only be guaranteed to work with CPython,
+            # as this is designed to trigger the various wl_*_destroy methods,
+            # but I don't know when, for example, the PyPy garbage collector
+            # will run the callback set with ffi.gc on the relevant cdata
+            # objects
+            for eq, display in eventqueue_dict.items():
+                if self is display:
+                    eq.destroy()
+            for pr, display in proxy_dict.items():
+                if self is display:
+                    pr._destroy()
 
             lib.wl_display_disconnect(self._ptr)
             self._ptr = None

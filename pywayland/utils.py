@@ -31,12 +31,6 @@ class AnonymousFile(object):
         self.size = size
         self.fd = None
 
-    def __del__(self):
-        # Just in case the context manager isn't used...
-        if self.fd is not None:
-            os.close(self.fd)
-            self.fd = None
-
     def __enter__(self):
         self.open()
 

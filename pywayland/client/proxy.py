@@ -30,9 +30,8 @@ class Proxy(object):
     proxy, which will in turn call the handler set with
     :func:`Proxy.add_listener`.
     """
-    def __init__(self, ptr):
+    def __init__(self, ptr, parent_display=None):
         self._ptr = ptr
-
         self.user_data = None
 
         # This should only be true for wl_display proxies, as they will
@@ -45,8 +44,9 @@ class Proxy(object):
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
         lib.wl_proxy_add_dispatcher(_ptr, lib.dispatcher_func, self._handle, ffi.NULL)
 
-    def __del__(self):
-        self._destroy()
+        # parent display is the root-most client Display object, all proxies
+        # should keep the display alive
+        weakkeydict[self] = parent_display
 
     def _destroy(self):
         """Frees the pointer associated with the Proxy"""
@@ -67,6 +67,11 @@ class Proxy(object):
 
     def _marshal_constructor(self, opcode, interface, *args):
         """Marshal the given arguments into the Wayland wire format for a constructor"""
+        from .display import Display
+
+        # figure out what the display is, if not self, then we stored it in the weakkeydict
+        display = self if isinstance(self, Display) else weakkeydict[self]
+
         # Create a wl_argument array
         args_ptr = self._interface.requests[opcode].arguments_to_c(*args)
         # Make the cast to a wl_proxy
@@ -75,4 +80,4 @@ class Proxy(object):
         proxy_ptr = lib.wl_proxy_marshal_array_constructor(
             proxy, opcode, args_ptr, interface._ptr
         )
-        return interface.proxy_class(proxy_ptr)
+        return interface.proxy_class(proxy_ptr, display)
