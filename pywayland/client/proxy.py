@@ -46,7 +46,8 @@ class Proxy(object):
 
         # parent display is the root-most client Display object, all proxies
         # should keep the display alive
-        weakkeydict[self] = parent_display
+        if parent_display:
+            weakkeydict[self] = parent_display
 
     def _destroy(self):
         """Frees the pointer associated with the Proxy"""

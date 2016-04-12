@@ -173,6 +173,7 @@ class Message(object):
                 args_ptr[i].o = new_arg
             # Array (i.e. buffer of bytes)
             elif sig == 'a':
+                # TODO: this is a bit messy, we probably don't want to put everything in one buffer like this
                 new_arg = ffi.new('struct wl_array *')
                 new_data = ffi.new('void []', len(arg))
                 new_arg.alloc = new_arg.size = len(arg)
