@@ -35,6 +35,7 @@ class Resource(object):
         if version is None:
             version = self._interface.version
 
+        # TODO: this create a reference loop, refactor this out
         self._handle = ffi.new_handle(self)
         self.version = version
         self.destructor = None

@@ -14,19 +14,19 @@
 
 from pywayland import ffi, lib
 
+from collections import namedtuple
 from enum import Enum
 import functools
+
+CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
 
 
 # int (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data)
 @ffi.def_extern()
 def event_loop_fd_func(fd, mask, data_ptr):
-    eventloop = ffi.from_handle(data_ptr)
+    callback_info = ffi.from_handle(data_ptr)
 
-    callback = eventloop.callbacks[data_ptr]
-    data = eventloop.data[data_ptr]
-
-    ret = callback(fd, mask, data)
+    ret = callback_info.callback(fd, mask, callback_info.data)
     if isinstance(ret, int):
         return ret
 
@@ -36,12 +36,9 @@ def event_loop_fd_func(fd, mask, data_ptr):
 # int (*wl_event_loop_signal_func_t)(int signal_number, void *data)
 @ffi.def_extern()
 def event_loop_signal_func(signal_number, data_ptr):
-    eventloop = ffi.from_handle(data_ptr)
+    callback_info = ffi.from_handle(data_ptr)
 
-    callback = eventloop.callbacks[data_ptr]
-    data = eventloop.data[data_ptr]
-
-    ret = callback(signal_number, data)
+    ret = callback_info.callback(signal_number, callback_info.data)
     if isinstance(ret, int):
         return ret
 
@@ -51,12 +48,9 @@ def event_loop_signal_func(signal_number, data_ptr):
 # int (*wl_event_loop_timer_func_t)(void *data)
 @ffi.def_extern()
 def event_loop_timer_func(data_ptr):
-    eventloop = ffi.from_handle(data_ptr)
+    callback_info = ffi.from_handle(data_ptr)
 
-    callback = eventloop.callbacks[data_ptr]
-    data = eventloop.data[data_ptr]
-
-    ret = callback(data)
+    ret = callback_info.callback(callback_info.data)
     if isinstance(ret, int):
         return ret
 
@@ -88,8 +82,7 @@ class EventLoop(object):
             self._ptr = lib.wl_event_loop_create()
 
         self.event_sources = []
-        self.data = {}
-        self.callbacks = {}
+        self.callbacks = []
 
     def destroy(self):
         """Destroy the event loop"""
@@ -124,9 +117,12 @@ class EventLoop(object):
 
             :meth:`pywayland.server.eventloop.EventSource.check()`
         """
-        handle = ffi.new_handle(self)
-        self.data[handle] = data
-        self.callbacks[handle] = callback
+        callback = CallbackInfo(
+            callback=callback,
+            data=data
+        )
+        handle = ffi.new_handle(callback)
+        self.callbacks.append(handle)
 
         mask = [m.value for m in mask]
         mask = functools.reduce(lambda x, y: x | y, mask)
@@ -155,9 +151,12 @@ class EventLoop(object):
         :type data: `object`
         :returns: :class:`EventSource` for specified callback
         """
-        handle = ffi.new_handle(self)
-        self.data[handle] = data
-        self.callbacks[handle] = callback
+        callback = CallbackInfo(
+            callback=callback,
+            data=data
+        )
+        handle = ffi.new_handle(callback)
+        self.callbacks.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_signal(self._ptr, signal_number, lib.event_loop_signal_func, handle)
         event_source = EventSource(event_source_cdata)
@@ -183,9 +182,12 @@ class EventLoop(object):
 
             :meth:`pywayland.server.eventloop.EventSource.timer_update()`
         """
-        handle = ffi.new_handle(self)
-        self.data[handle] = data
-        self.callbacks[handle] = callback
+        callback = CallbackInfo(
+            callback=callback,
+            data=data
+        )
+        handle = ffi.new_handle(callback)
+        self.callbacks.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_timer(self._ptr, lib.event_loop_timer_func, handle)
         event_source = EventSource(event_source_cdata)

@@ -18,17 +18,19 @@ import weakref
 weakkeydict = weakref.WeakKeyDictionary()
 
 
+# void (*wl_global_bind_func_t)(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 @ffi.def_extern()
 def global_bind_func(client_ptr, data, version, id):
     # `data` is the handle to Global
-    _global = ffi.from_handle(data)
+    callback_info = ffi.from_handle(data)
 
-    version = min(_global._interface.version, version)
-    resource = _global._interface.resource_class(client_ptr, version, id)
+    version = min(callback_info["interface"].version, version)
+    resource = callback_info["interface"].resource_class(client_ptr, version, id)
 
     # Call a user defined handler
-    if _global.bind_handler:
-        _global.bind_handler(resource)
+    if callback_info["bind_func"]:
+        # TODO: add some error catching so we don't segfault
+        callback_info["bind_func"](resource)
 
 
 class Global(object):
@@ -50,20 +52,35 @@ class Global(object):
 
         if version is None:
             version = self._interface.version
-        self.bind_handler = None
 
         def global_destroy(cdata):
             if display._ptr is None:
                 return
             lib.wl_global_destroy(cdata)
 
-        self._handle = ffi.new_handle(self)
+        # we can't keep alive a handle to self without creating a reference
+        # loop, so use this dict as the handle to pass to the global_bind_func
+        # callback
+        self._callback_info = {
+            "interface": self._interface,
+            "bind_func": None
+        }
+        self._handle = ffi.new_handle(self._callback_info)
+
         ptr = lib.wl_global_create(display._ptr, self._interface._ptr,
                                    version, self._handle, lib.global_bind_func)
         self._ptr = ffi.gc(ptr, global_destroy)
 
         # this object and its cdata should keep the display alive
         weakkeydict[self] = weakkeydict[self._ptr] = display
+
+    @property
+    def bind_func(self):
+        return self._callback_info["bind_func"]
+
+    @bind_func.setter
+    def bind_func(self, value):
+        self._callback_info["bind_func"] = value
 
     def destroy(self):
         """Destroy the global object"""

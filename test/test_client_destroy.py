@@ -16,6 +16,7 @@ from pywayland.server.client import Client
 from pywayland.server.display import Display
 from pywayland.server.listener import DestroyListener
 
+import gc
 import socket
 
 
@@ -47,8 +48,8 @@ def test_client_destroy_listener():
     destroy_listener_a.remove()
 
     client.destroy()
+    # run collection to ensure finalizer runs
+    gc.collect()
 
     assert a == 0
     assert b == 1
-
-    display.destroy()

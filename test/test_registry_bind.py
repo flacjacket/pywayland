@@ -17,6 +17,7 @@ from pywayland.server import Display as ServerDisplay
 
 from pywayland.protocol.wayland import Compositor
 
+import gc
 import time
 import threading
 
@@ -72,7 +73,7 @@ def test_get_registry():
 
     # Add a compositor so we can query for it
     global_ = Compositor.global_class(s)
-    global_.bind_handler = _bind_handler
+    global_.bind_func = _bind_handler
 
     # Add a timer to kill the server after 0.5 sec (should be more than enough time, don't know a more deterministic way...)
     e = s.get_event_loop()
@@ -83,6 +84,9 @@ def test_get_registry():
     s.add_socket()
     s.run()
     s.destroy()
+
+    # we need to clean up the resources
+    gc.collect()
 
     # wait for the client (shouldn't block on roundtrip once the server is down)
     client.join()

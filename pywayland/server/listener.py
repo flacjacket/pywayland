@@ -24,7 +24,8 @@ def notify_func(listener_ptr, data):
     )
     listener = ffi.from_handle(container.handle)
 
-    listener.notify(listener.link)
+    callback = listener["notify"]
+    callback(listener["link"])
 
 
 class DestroyListener(object):
@@ -40,7 +41,12 @@ class DestroyListener(object):
     signal at a time.
     """
     def __init__(self, function):
-        self._handle = ffi.new_handle(self)
+        self._callback_info = {
+            "notify": function,
+            "link": None
+        }
+        self._handle = ffi.new_handle(self._callback_info)
+
         # we need a way to get this Python object from the `struct
         # wl_listener*`, so we put the pointer in a container struct that
         # contains both the wl_listener and a pointer to our ffi handle
@@ -50,8 +56,13 @@ class DestroyListener(object):
         self._ptr = ffi.addressof(self.container.destroy_listener)
         self._ptr.notify = lib.notify_func
 
-        self.notify = function
-        self.link = None
+    @property
+    def link(self):
+        return self._callback_info["link"]
+
+    @link.setter
+    def link(self, value):
+        self._callback_info["link"] = value
 
     def remove(self):
         """Remove the listener"""

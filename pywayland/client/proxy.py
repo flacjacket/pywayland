@@ -39,6 +39,7 @@ class Proxy(object):
         if self._ptr is None:
             return
 
+        # TODO: this creates a reference loop, refactor
         self._handle = ffi.new_handle(self)
 
         _ptr = ffi.cast('struct wl_proxy *', self._ptr)
