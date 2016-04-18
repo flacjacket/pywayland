@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.utils import ensure_valid
 
 import weakref
 
@@ -57,6 +58,7 @@ class Client(object):
         # ffi.gc will clean-up the cdata
         self._ptr = None
 
+    @ensure_valid
     def flush(self):
         """Flush pending events to the client
 
@@ -67,6 +69,7 @@ class Client(object):
         """
         lib.wl_client_flush(self._ptr)
 
+    @ensure_valid
     def add_destroy_listener(self, listener):
         """Add a listener for the destroy signal
 
@@ -76,6 +79,7 @@ class Client(object):
         lib.wl_client_add_destroy_listener(self._ptr, listener._ptr)
         listener.link = self
 
+    @ensure_valid
     def get_object(self, id):
         """Look up an object in the client name space
 

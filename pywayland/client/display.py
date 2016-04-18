@@ -12,19 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
-
 from pywayland import ffi, lib
+from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import Display as _Display
-
-
-def ensure_connected(func):
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if self._ptr is None:
-            raise ValueError("Invalid display")
-        return func(self, *args, **kwargs)
-    return wrapper
 
 
 class Display(_Display.proxy_class):
@@ -85,6 +75,7 @@ class Display(_Display.proxy_class):
 
     def __enter__(self):
         self.connect()
+        return self
 
     def __exit__(self):
         self.disconnect()
@@ -101,8 +92,10 @@ class Display(_Display.proxy_class):
         set, otherwise display ``"wayland-0"`` will be used.
         """
         if isinstance(name_or_fd, int):
+            # argument passed is a file descriptor
             self._ptr = lib.wl_display_connect_to_fd(name_or_fd)
         else:
+            # connect using string by name, or use default
             if name_or_fd is None:
                 name = ffi.NULL
             else:
@@ -110,7 +103,7 @@ class Display(_Display.proxy_class):
             self._ptr = lib.wl_display_connect(name)
 
         if self._ptr == ffi.NULL:
-            raise Exception
+            raise ValueError("Unable to connect to display")
 
     def disconnect(self):
         """Close a connection to a Wayland display
@@ -140,7 +133,7 @@ class Display(_Display.proxy_class):
             lib.wl_display_disconnect(self._ptr)
             self._ptr = None
 
-    @ensure_connected
+    @ensure_valid
     def get_fd(self):
         """Get a display context's file descriptor
 
@@ -149,7 +142,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_get_fd(self._ptr)
 
-    @ensure_connected
+    @ensure_valid
     def dispatch(self):
         """Process incoming events
 
@@ -173,7 +166,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_dispatch(self._ptr)
 
-    @ensure_connected
+    @ensure_valid
     def dispatch_pending(self):
         """Dispatch default queue events without reading from the display fd
 
@@ -211,7 +204,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_dispatch_pending(self._ptr)
 
-    @ensure_connected
+    @ensure_valid
     def dispatch_queue(self, queue):
         """Dispatch events in an event queue
 
@@ -250,7 +243,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_dispatch_queue(self._ptr, queue._ptr)
 
-    @ensure_connected
+    @ensure_valid
     def flush(self):
         """Send all buffered requests on the display to the server
 
@@ -266,7 +259,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_flush(self._ptr)
 
-    @ensure_connected
+    @ensure_valid
     def roundtrip(self):
         """Block until all pending request are processed by the server
 
@@ -287,7 +280,7 @@ class Display(_Display.proxy_class):
         """
         return lib.wl_display_roundtrip(self._ptr)
 
-    @ensure_connected
+    @ensure_valid
     def roundtrip_queue(self, queue):
         """Block until all pending request are processed by the server
 

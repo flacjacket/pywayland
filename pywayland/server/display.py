@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.utils import ensure_valid
 from .eventloop import EventLoop
 
 
@@ -39,6 +40,7 @@ class Display(object):
         # let the ffi garbage collector clean-up the cdata
         self._ptr = None
 
+    @ensure_valid
     def add_socket(self, name=None):
         """Add a socket to Wayland display for the clients to connect.
 
@@ -78,6 +80,7 @@ class Display(object):
                 # TODO: raise better
                 raise Exception()
 
+    @ensure_valid
     def get_serial(self):
         """Get the current serial number
 
@@ -86,6 +89,7 @@ class Display(object):
         """
         return lib.wl_display_get_serial(self._ptr)
 
+    @ensure_valid
     def next_serial(self):
         """Get the next serial
 
@@ -94,6 +98,7 @@ class Display(object):
         """
         return lib.wl_display_next_serial(self._ptr)
 
+    @ensure_valid
     def get_event_loop(self):
         """Get the event loop for the display
 
@@ -101,11 +106,12 @@ class Display(object):
         """
         return EventLoop(self)
 
+    @ensure_valid
     def terminate(self):
         """Stop the display from running"""
-        if self._ptr:
-            lib.wl_display_terminate(self._ptr)
+        lib.wl_display_terminate(self._ptr)
 
+    @ensure_valid
     def run(self):
         """Run the display"""
         lib.wl_display_run(self._ptr)

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.utils import ensure_valid
 
 from weakref import WeakSet
 from collections import namedtuple
@@ -103,6 +104,7 @@ class EventLoop(object):
             event_source.remove()
         self._ptr = None
 
+    @ensure_valid
     def add_fd(self, fd, callback, mask=[fd_mask.WL_EVENT_READABLE], data=None):
         """Add file descriptor callback
 
@@ -145,6 +147,7 @@ class EventLoop(object):
 
         return event_source
 
+    @ensure_valid
     def add_signal(self, signal_number, callback, data=None):
         """Add signal callback
 
@@ -176,6 +179,7 @@ class EventLoop(object):
 
         return event_source
 
+    @ensure_valid
     def add_timer(self, callback, data=None):
         """Add timer callback
 
@@ -208,6 +212,7 @@ class EventLoop(object):
 
         return event_source
 
+    @ensure_valid
     def add_idle(self, callback, data=None):
         """Add idle callback
 
@@ -229,6 +234,7 @@ class EventLoop(object):
 
         return event_source
 
+    @ensure_valid
     def add_destroy_listener(self, listener):
         """Add a listener for the destroy signal
 
@@ -238,10 +244,12 @@ class EventLoop(object):
         lib.wl_event_loop_add_destroy_listener(self._ptr, listener._ptr)
         listener.link = self
 
+    @ensure_valid
     def dispatch(self, timeout):
         """Dispatch callbacks on the event loop"""
         lib.wl_event_loop_dispatch(self._ptr, timeout)
 
+    @ensure_valid
     def dispatch_idle(self):
         """Dispatch idle callback on the event loop"""
         lib.wl_event_loop_dispatch_idle(self._ptr)
@@ -263,10 +271,12 @@ class EventSource(object):
             lib.wl_event_source_remove(self._ptr)
         self._ptr = None
 
+    @ensure_valid
     def check(self):
         """Insert the EventSource into the check list"""
         lib.wl_event_source_check(self._ptr)
 
+    @ensure_valid
     def timer_update(self, timeout):
         """Set the timeout of the times callback
 

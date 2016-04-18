@@ -15,6 +15,18 @@
 from . import lib
 
 import os
+from functools import wraps
+
+
+def ensure_valid(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if self._ptr is None:
+            raise ValueError("{cls} object has been destroyed".format(
+                self.__class__.__name__
+            ))
+        return func(self, *args, **kwargs)
+    return wrapper
 
 
 class AnonymousFile(object):

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.utils import ensure_valid
 from .client import Client
 
 
@@ -57,6 +58,7 @@ class Resource(object):
             lib.wl_resource_destroy(self._ptr)
             self._ptr = None
 
+    @ensure_valid
     def add_destroy_listener(self, listener):
         """Add a listener for the destroy signal
 
@@ -65,7 +67,8 @@ class Resource(object):
         """
         lib.wl_resource_add_destroy_listener(self._ptr, listener._ptr)
 
-    def _post_event(self, opcode, args):
+    @ensure_valid
+    def _post_event(self, opcode, *args):
         # Create wl_argument array
         args_ptr = self._interface.events[opcode].arguments_to_c(*args)
         # Make the cast to a wl_resource
@@ -73,6 +76,7 @@ class Resource(object):
 
         lib.wl_resource_post_event_array(resource, opcode, args_ptr)
 
+    @ensure_valid
     def _post_error(self, code, msg=""):
         msg_ptr = ffi.new('char []', msg)
         lib.wl_resouce_post_error(self._ptr, code, msg_ptr)

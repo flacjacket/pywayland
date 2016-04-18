@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.utils import ensure_valid
 
 import re
 import weakref
@@ -58,6 +59,7 @@ class Proxy(object):
             # lib.wl_proxy_destroy(_ptr)
             self._ptr = None
 
+    @ensure_valid
     def _marshal(self, opcode, *args):
         """Marshal the given arguments into the Wayland wire format"""
         # Create a wl_argument array
@@ -67,6 +69,7 @@ class Proxy(object):
 
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
+    @ensure_valid
     def _marshal_constructor(self, opcode, interface, *args):
         """Marshal the given arguments into the Wayland wire format for a constructor"""
         from .display import Display
