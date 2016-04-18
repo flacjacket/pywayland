@@ -79,17 +79,16 @@ class EventLoop(object):
         if display:
             self._ptr = lib.wl_display_get_event_loop(display._ptr)
         else:
-            self._ptr = lib.wl_event_loop_create()
+            # if we are creating an eventloop. we need to destroy it later
+            ptr = lib.wl_event_loop_create()
+            self._ptr = ffi.gc(ptr, lib.wl_event_loop_destroy)
 
         self.event_sources = []
         self.callbacks = []
 
     def destroy(self):
         """Destroy the event loop"""
-        # TODO: figure out when this should be run, definitely not always...
-        if self._ptr:
-            lib.wl_event_loop_destroy(self._ptr)
-            self._ptr = None
+        self._ptr = None
 
     def add_fd(self, fd, callback, mask=[fd_mask.WL_EVENT_READABLE], data=None):
         """Add file descriptor callback
