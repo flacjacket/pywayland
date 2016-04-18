@@ -271,6 +271,7 @@ extern "Python" void resource_destroy_func(struct wl_resource *);
 extern "Python" int event_loop_fd_func(int, uint32_t, void *);
 extern "Python" int event_loop_signal_func(int, void *);
 extern "Python" int event_loop_timer_func(void *);
+extern "Python" void event_loop_idle_func(void *);
 extern "Python" void global_bind_func(struct wl_client *, void *, uint32_t, uint32_t);
 extern "Python" void notify_func(struct wl_listener *, void *);
 

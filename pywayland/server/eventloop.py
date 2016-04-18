@@ -14,11 +14,14 @@
 
 from pywayland import ffi, lib
 
+from weakref import WeakSet
 from collections import namedtuple
 from enum import Enum
 import functools
 
 CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
+
+# TODO: add error handling to all callbacks
 
 
 # int (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data)
@@ -57,6 +60,14 @@ def event_loop_timer_func(data_ptr):
     return 0
 
 
+# void (void *data)
+@ffi.def_extern()
+def event_loop_idle_func(data_ptr):
+    callback_info = ffi.from_handle(data_ptr)
+
+    callback_info.callback(callback_info.data)
+
+
 class EventLoop(object):
     """An event loop to add events too
 
@@ -83,11 +94,13 @@ class EventLoop(object):
             ptr = lib.wl_event_loop_create()
             self._ptr = ffi.gc(ptr, lib.wl_event_loop_destroy)
 
-        self.event_sources = []
+        self.event_sources = WeakSet()
         self.callbacks = []
 
     def destroy(self):
         """Destroy the event loop"""
+        for event_source in self.event_sources:
+            event_source.remove()
         self._ptr = None
 
     def add_fd(self, fd, callback, mask=[fd_mask.WL_EVENT_READABLE], data=None):
@@ -127,8 +140,8 @@ class EventLoop(object):
         mask = functools.reduce(lambda x, y: x | y, mask)
 
         event_source_cdata = lib.wl_event_loop_add_fd(self._ptr, fd, mask, lib.event_loop_fd_func, handle)
-        event_source = EventSource(event_source_cdata)
-        self.event_sources.append(event_source)
+        event_source = EventSource(self, event_source_cdata)
+        self.event_sources.add(event_source)
 
         return event_source
 
@@ -158,8 +171,8 @@ class EventLoop(object):
         self.callbacks.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_signal(self._ptr, signal_number, lib.event_loop_signal_func, handle)
-        event_source = EventSource(event_source_cdata)
-        self.event_sources.append(event_source)
+        event_source = EventSource(self, event_source_cdata)
+        self.event_sources.add(event_source)
 
         return event_source
 
@@ -173,9 +186,10 @@ class EventLoop(object):
             * `data` - any object
 
         :param callback: Callback function
-        :type fd: function with callback `int(void *data)`
+        :type callback: function with callback `int(void *data)`
         :param data: User data to send to callback
         :type data: `object`
+        :returns: :class:`EventSource` for specified callback
 
         .. seealso::
 
@@ -189,8 +203,29 @@ class EventLoop(object):
         self.callbacks.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_timer(self._ptr, lib.event_loop_timer_func, handle)
-        event_source = EventSource(event_source_cdata)
-        self.event_sources.append(event_source)
+        event_source = EventSource(self, event_source_cdata)
+        self.event_sources.add(event_source)
+
+        return event_source
+
+    def add_idle(self, callback, data=None):
+        """Add idle callback
+
+        :param callback: Callback function
+        :type callback: function with callback `void(void *data)`
+        :param data: User data to send to callback
+        :returns: :class:`EventSource` for specified callback
+        """
+        callback = CallbackInfo(
+            callback=callback,
+            data=data
+        )
+        handle = ffi.new_handle(callback)
+        self.callbacks.append(handle)
+
+        event_source_cdata = lib.wl_event_loop_add_idle(self._ptr, lib.event_loop_idle_func, handle)
+        event_source = EventSource(self, event_source_cdata)
+        self.event_sources.add(event_source)
 
         return event_source
 
@@ -218,7 +253,8 @@ class EventSource(object):
     :param cdata: The struct corresponding to the EventSource
     :type cdata: `ffi cdata`
     """
-    def __init__(self, cdata):
+    def __init__(self, eventloop, cdata):
+        self._eventloop = eventloop
         self._ptr = cdata
 
     def remove(self):
