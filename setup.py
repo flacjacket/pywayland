@@ -23,25 +23,24 @@ from distutils.command.build import build
 from setuptools.command.install import install
 from setuptools.command.sdist import sdist
 
-# we need this to import the scanner module directly so we can build the
-# protocol before the cffi module has been compiled
+# we need this to import the version and scanner module directly so we can
+# build the protocol before the cffi module has been compiled
 sys.path.insert(0, 'pywayland')
 
-from version import __version__ as pywayland_version
+from version import __version__ as pywayland_version  # noqa
 
 default_xml_file = '/usr/share/wayland/wayland.xml'
 
 
 def get_protocol_command(klass):
     class ProtocolCommand(klass):
-        description = "Generate the pywayland protocol files"
         user_options = [
             ('xml-file=', None, 'Location of wayland.xml protocol file'),
             ('output-dir=', None, 'Output location for protocol python files'),
             ('wayland-protocols', None, 'Force generation of external protocols from wayland-protocols'),
             ('no-wayland-protocols', None, 'Disable generation of external protocols from wayland-protocols')
-        ]
-        boolean_options = ['wayland-protocols', 'no-wayland-protocols']
+        ] + klass.user_options
+        boolean_options = ['wayland-protocols', 'no-wayland-protocols'] + klass.boolean_options
 
         def initialize_options(self):
             from scanner.__main__ import pkgconfig
@@ -102,11 +101,6 @@ def get_protocol_command(klass):
                     self.distribution.packages.append('pywayland.protocol.{}'.format(module))
 
             klass.run(self)
-
-    if hasattr(klass, "user_options"):
-        ProtocolCommand.user_options += klass.user_options
-    if hasattr(klass, "boolean_options"):
-        ProtocolCommand.boolean_options += klass.boolean_options
 
     return ProtocolCommand
 
