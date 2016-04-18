@@ -13,11 +13,8 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.dispatcher import dispatcher_to_object
 from pywayland.utils import ensure_valid
-
-import weakref
-
-weakkeydict = weakref.WeakKeyDictionary()
 
 
 class Client(object):
@@ -38,20 +35,18 @@ class Client(object):
     :type fd: `int`
     """
     def __init__(self, display, fd):
-        if display._ptr == ffi.NULL or display._ptr is None:
+        if display._ptr is None:
             raise ValueError("Display has been destroyed")
 
         def client_destroy(cdata):
             # if the display is already destroyed
-            if display._ptr == ffi.NULL or display._ptr is None:
+            if display._ptr is None:
                 return
             lib.wl_client_destroy(cdata)
 
         ptr = lib.wl_client_create(display._ptr, fd)
         self._ptr = ffi.gc(ptr, client_destroy)
-
-        # both this object its cdata keep the display alive
-        weakkeydict[self] = weakkeydict[self._ptr] = display
+        self._display = display
 
     def destroy(self):
         """Destroy the client"""
@@ -97,5 +92,7 @@ class Client(object):
         # forgiveness doesn't work, becuase it will seg fault
         if res_ptr == ffi.NULL:
             return
-        res_py_ptr = lib.wl_resource_get_user_data(res_ptr)
-        return ffi.from_handle(res_py_ptr)
+        # we attach the handle to resources, so first get the dispatcher, then resolve it's corresponding resource
+        dispatcher_handle = lib.wl_resource_get_user_data(res_ptr)
+        dispatcher = ffi.from_handle(dispatcher_handle)
+        return dispatcher_to_object.get(dispatcher)

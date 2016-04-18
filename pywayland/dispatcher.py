@@ -14,28 +14,40 @@
 
 from pywayland import ffi, lib
 
+from weakref import WeakValueDictionary
+
+dispatcher_to_object = WeakValueDictionary()
+
 
 # int (*wl_dispatcher_func_t)(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *)
 @ffi.def_extern()
 def dispatcher_func(data, target, opcode, message, c_args):
-    # `data` is the handle to Proxy/Resource
+    # `data` is the handle to Dispatcher
     # `target` is the wl_proxy/wl_resource for self
     # `message` is the wl_message for self._interface.events/requests[opcode]
     # TODO: handle any user_data attached to the wl_proxy/wl_resource
 
-    # So this is _massively_ broken, but somehow resources give NULL data, but
-    # the user data is not null
-    if data == ffi.NULL:
-        data = lib.wl_resource_get_user_data(target)
+    # get the dispatcher object
+    dispatcher = ffi.from_handle(data)
+    # get the callback
+    func = dispatcher[opcode]
+    # rebuild the args into python objects
+    args = dispatcher.messages[opcode].c_to_arguments(c_args)
 
-    self = ffi.from_handle(data)
-    args = self.dispatcher.messages[opcode].c_to_arguments(c_args)
+    if func is None:
+        return 0
 
-    func = self.dispatcher[opcode]
-    if func is not None:
+    # try to get the Proxy/Resource tied to the dispatcher
+    self = dispatcher_to_object.get(dispatcher)
+    if self is None:
+        # TODO: log this
+        return 0
+
+    try:
         ret = func(self, *args)
-    else:
-        ret = 0
+    except:
+        # TODO: log this
+        ret = None
 
     if ret is None:
         return 0
@@ -46,16 +58,20 @@ def dispatcher_func(data, target, opcode, message, c_args):
 # void (*wl_resource_destroy_func_t)(struct wl_resource *resource)
 @ffi.def_extern()
 def resource_destroy_func(res_ptr):
-    res_py_ptr = lib.wl_resource_get_user_data(res_ptr)
+    # the user data to the resource is the handle to the dispatcher
+    dispatcher_handle = lib.wl_resource_get_user_data(res_ptr)
+    dispatcher = ffi.from_handle(dispatcher_handle)
 
-    if res_py_ptr == ffi.NULL:
+    # try to get the Proxy/Resource tied to the dispatcher
+    self = dispatcher_to_object.get(dispatcher)
+    if self is None:
+        # TODO: log this
         return
 
-    res = ffi.from_handle(res_py_ptr)
-
-    func = res.destructor
+    # if the destructor has been set, run it
+    func = dispatcher.destructor
     if func is not None:
-        func(res)
+        func(self)
 
 
 class Dispatcher(object):
@@ -78,6 +94,9 @@ class Dispatcher(object):
         # Create a map of message names to message opcodes
         self._names = {msg.name: opcode for opcode, msg in enumerate(messages)}
         self._callback = [None] * len(messages)
+
+        if destructor:
+            self.destructor = None
 
     def __getitem__(self, opcode_or_name):
         if opcode_or_name in self._names:

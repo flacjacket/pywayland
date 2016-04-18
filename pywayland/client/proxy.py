@@ -13,12 +13,10 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.dispatcher import dispatcher_to_object
 from pywayland.utils import ensure_valid
 
 import re
-import weakref
-
-weakkeydict = weakref.WeakKeyDictionary()
 
 re_args = re.compile(r'(\??)([fsoanuih])')
 
@@ -31,8 +29,11 @@ class Proxy(object):
     proxy, which will in turn call the handler set with
     :func:`Proxy.add_listener`.
     """
-    def __init__(self, ptr, parent_display=None):
+    dispatcher = None
+
+    def __init__(self, ptr, display=None):
         self._ptr = ptr
+        self._display = display
         self.user_data = None
 
         # This should only be true for wl_display proxies, as they will
@@ -40,16 +41,17 @@ class Proxy(object):
         if self._ptr is None:
             return
 
-        # TODO: this creates a reference loop, refactor
-        self._handle = ffi.new_handle(self)
-
-        _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-        lib.wl_proxy_add_dispatcher(_ptr, lib.dispatcher_func, self._handle, ffi.NULL)
-
         # parent display is the root-most client Display object, all proxies
         # should keep the display alive
-        if parent_display:
-            weakkeydict[self] = parent_display
+        if display is None:
+            raise ValueError("Non-Display Proxy objects must be associated to a Display")
+
+        if self.dispatcher is not None:
+            # associate our dispatcher to ourself
+            dispatcher_to_object[self.dispatcher] = self
+
+            self._handle = ffi.new_handle(self.dispatcher)
+            lib.wl_proxy_add_dispatcher(ffi.cast("struct wl_proxy *", self._ptr), lib.dispatcher_func, self._handle, ffi.NULL)
 
     def _destroy(self):
         """Frees the pointer associated with the Proxy"""
@@ -74,8 +76,10 @@ class Proxy(object):
         """Marshal the given arguments into the Wayland wire format for a constructor"""
         from .display import Display
 
-        # figure out what the display is, if not self, then we stored it in the weakkeydict
-        display = self if isinstance(self, Display) else weakkeydict[self]
+        # figure out what the display is, if _display is None, then this object is a Display
+        display = self._display or self
+        if not isinstance(display, Display):
+            ValueError("Display not correctly set")
 
         # Create a wl_argument array
         args_ptr = self._interface.requests[opcode].arguments_to_c(*args)

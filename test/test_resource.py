@@ -64,7 +64,7 @@ def test_destroy_resource():
     # Create resource
     res = DisplayProto.resource_class(client, version=4)
     # Attach a destructor and a destroy notification
-    res.destructor = _destroy_callback
+    res.dispatcher.destructor = _destroy_callback
     res.add_destroy_listener(listener)
     # Destroy the resource
     res.destroy()
@@ -77,7 +77,7 @@ def test_destroy_resource():
     # Create resource
     res = DisplayProto.resource_class(client, version=2)
     # Attach a destructor and a destroy notification
-    res.destructor = _destroy_callback
+    res.dispatcher.destructor = _destroy_callback
     res.add_destroy_listener(listener)
     # Destroy the client
     client.destroy()

@@ -22,6 +22,8 @@ class Display(object):
     def __init__(self, ptr=None):
         if ptr is None:
             ptr = lib.wl_display_create()
+            if ptr == ffi.NULL:
+                raise MemoryError("Unable to create wl_display object")
 
         self._ptr = ffi.gc(ptr, lib.wl_display_destroy)
 

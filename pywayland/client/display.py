@@ -112,7 +112,6 @@ class Display(_Display.proxy_class):
         it.
         """
         from .eventqueue import weakkeydict as eventqueue_dict
-        from .proxy import weakkeydict as proxy_dict
         if self._ptr:
             # we need to be sure the event queues and proxies are destroyed
             # first, and they are currently keeping us alive in their
@@ -126,9 +125,6 @@ class Display(_Display.proxy_class):
             for eq, display in eventqueue_dict.items():
                 if self is display:
                     eq.destroy()
-            for pr, display in proxy_dict.items():
-                if self is display:
-                    pr._destroy()
 
             lib.wl_display_disconnect(self._ptr)
             self._ptr = None

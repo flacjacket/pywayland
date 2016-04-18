@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.dispatcher import dispatcher_to_object
 from pywayland.utils import ensure_valid
 from .client import Client
 
@@ -24,7 +25,7 @@ class Resource(object):
     :class:`~pywayland.interface.Interface` object.
 
     :param client: The client that the Resource is for
-    :type client: :class:`~pywayland.server.Client`
+    :type client: :class:`~pywayland.server.Client` or cdata for ``wl_client *``
     :param version: The version to use for the
                     :class:`~pywayland.interface.Interface`, uses current
                     version if not specified
@@ -32,25 +33,29 @@ class Resource(object):
     :param id: The id for the item
     :type id: `int`
     """
+    dispatcher = None
+
     def __init__(self, client, version=None, id=0):
         if version is None:
             version = self._interface.version
 
-        # TODO: this create a reference loop, refactor this out
-        self._handle = ffi.new_handle(self)
         self.version = version
-        self.destructor = None
 
         if isinstance(client, Client):
-            ptr = client._ptr
+            client_ptr = client._ptr
         else:
-            ptr = client
+            client_ptr = client
 
-        self._ptr = lib.wl_resource_create(ptr, self._interface._ptr, version, id)
+        self._ptr = lib.wl_resource_create(client_ptr, self._interface._ptr, version, id)
         self.id = lib.wl_resource_get_id(self._ptr)
 
-        lib.wl_resource_set_dispatcher(self._ptr, lib.dispatcher_func, ffi.NULL,
-                                       self._handle, lib.resource_destroy_func)
+        if self.dispatcher is not None:
+            # associate the dispatcher to ourself
+            dispatcher_to_object[self.dispatcher] = self
+
+            self._handle = ffi.new_handle(self.dispatcher)
+            lib.wl_resource_set_dispatcher(self._ptr, lib.dispatcher_func, ffi.NULL,
+                                           self._handle, lib.resource_destroy_func)
 
     def destroy(self):
         """Destroy the Resource"""
