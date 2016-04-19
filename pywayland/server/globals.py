@@ -56,7 +56,8 @@ class Global(object):
         def global_destroy(cdata):
             if display._ptr is None:
                 return
-            lib.wl_global_destroy(cdata)
+            # TODO: figure out how this can get run...
+            # lib.wl_global_destroy(cdata)
 
         # we can't keep alive a handle to self without creating a reference
         # loop, so use this dict as the handle to pass to the global_bind_func
