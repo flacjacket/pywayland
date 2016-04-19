@@ -117,3 +117,31 @@ class Display(object):
     def run(self):
         """Run the display"""
         lib.wl_display_run(self._ptr)
+
+    @ensure_valid
+    def init_shm(self):
+        """Initialize shm for this display"""
+        ret = lib.wl_display_init_shm(self._ptr)
+        if ret == -1:
+            raise MemoryError("Unable to create shm for display")
+
+    @ensure_valid
+    def add_shm_format(self, shm_format):
+        """Add support for a Shm pixel format
+
+        Add the specified :attr:`~pywayland.protocol.wayland.shm.Shm.format`
+        format to the list of formats the
+        :class:`~pywayland.protocol.wayland.shm.Shm` object advertises when a
+        client binds to it.  Adding a format to the list means that clients
+        will know that the compositor supports this format and may use it for
+        creating :class:`~pywayland.protocol.wayland.shm.Shm` buffers.  The
+        compositor must be able to handle the pixel format when a client
+        requests it.
+
+        The compositor by default supports ``WL_SHM_FORMAT_ARGB8888`` and
+        ``WL_SHM_FORMAT_XRGB8888``.
+
+        :param shm_format: The shm pixel format to advertise
+        :type shm_format: :attr:`~pywayland.protocol.wayland.shm.Shm.format`
+        """
+        lib.wl_display_add_shm_format(self._ptr, shm_format.value)

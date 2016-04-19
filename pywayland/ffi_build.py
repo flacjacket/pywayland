@@ -199,6 +199,9 @@ void wl_display_run(struct wl_display *display);
 
 uint32_t wl_display_get_serial(struct wl_display *display);
 uint32_t wl_display_next_serial(struct wl_display *display);
+
+int wl_display_init_shm(struct wl_display *display);
+uint32_t *wl_display_add_shm_format(struct wl_display *display, uint32_t format);
 """
 
 # wl_global methods
