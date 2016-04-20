@@ -99,12 +99,19 @@ class Drm(object):
 
     def __enter__(self):
         self.create_buffer()
-        lib.drmSetMaster(self.fd)
+        master = lib.drmSetMaster(self.fd)
+
+        if master:
+            logger.info("Set drm master: %d", master)
 
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        lib.drmDropMaster(self.fd)
+        master = lib.drmDropMaster(self.fd)
+
+        if master:
+            logger.info("Drop drm master: %d", master)
+
         self.destroy()
 
     def destroy(self):
