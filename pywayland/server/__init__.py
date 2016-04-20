@@ -15,4 +15,4 @@
 from .client import Client  # noqa
 from .display import Display  # noqa
 from .eventloop import EventLoop  # noqa
-from .listener import DestroyListener  # noqa
+from .listener import Listener, Signal  # noqa

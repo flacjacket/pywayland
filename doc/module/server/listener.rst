@@ -2,8 +2,14 @@
 
 .. _server-listener:
 
-DestroyListener
-===============
+Listener
+========
 
-.. autoclass:: DestroyListener
+.. autoclass:: Listener
+   :members:
+
+Signal
+======
+
+.. autoclass:: Signal
    :members:

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.server import Client, DestroyListener, Display
+from pywayland.server import Client, Listener, Display
 from pywayland.protocol.wayland.display import Display as DisplayProto
 
 import socket
@@ -59,7 +59,7 @@ def test_destroy_resource():
     s1, s2 = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)
     display = Display()
     client = Client(display, s1.fileno())
-    listener = DestroyListener(_destroy_notify)
+    listener = Listener(_destroy_notify)
 
     # Create resource
     res = DisplayProto.resource_class(client, version=4)

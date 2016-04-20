@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pywayland.server.eventloop import EventLoop
-from pywayland.server.listener import DestroyListener
+from pywayland.server.listener import Listener
 
 import os
 import signal
@@ -175,8 +175,8 @@ def test_event_loop_destroy():
     b = False
 
     event_loop = EventLoop()
-    listener_a = DestroyListener(_destroy_notify_a)
-    listener_b = DestroyListener(_destroy_notify_b)
+    listener_a = Listener(_destroy_notify_a)
+    listener_b = Listener(_destroy_notify_b)
 
     event_loop.add_destroy_listener(listener_a)
     event_loop.add_destroy_listener(listener_b)

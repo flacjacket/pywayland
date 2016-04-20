@@ -14,7 +14,7 @@
 
 from pywayland.server.client import Client
 from pywayland.server.display import Display
-from pywayland.server.listener import DestroyListener
+from pywayland.server.listener import Listener
 
 import gc
 import socket
@@ -39,8 +39,8 @@ def test_client_destroy_listener():
     display = Display()
     client = Client(display, s1.fileno())
 
-    destroy_listener_a = DestroyListener(destroy_notify_a)
-    destroy_listener_b = DestroyListener(destroy_notify_b)
+    destroy_listener_a = Listener(destroy_notify_a)
+    destroy_listener_b = Listener(destroy_notify_b)
 
     client.add_destroy_listener(destroy_listener_a)
     client.add_destroy_listener(destroy_listener_b)

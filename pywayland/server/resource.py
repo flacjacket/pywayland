@@ -68,7 +68,7 @@ class Resource(object):
         """Add a listener for the destroy signal
 
         :param listener: The listener object
-        :type listener: :class:`~pywayland.server.DestroyListener`
+        :type listener: :class:`~pywayland.server.Listener`
         """
         lib.wl_resource_add_destroy_listener(self._ptr, listener._ptr)
 
