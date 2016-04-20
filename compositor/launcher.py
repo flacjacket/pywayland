@@ -29,18 +29,6 @@ def handle_chld(launcher, signum, stack):
     # TODO: figure out how to run/kill the launcher... asyncio event loop maybe? or wayland event loop?
 
 
-def handle_usr1(launcher, signum, stack):
-    # TODO: send deactivate...
-    fcntl.ioctl(launcher.tty_fd, VT_RELDISP, 1)
-    logger.info("launcher: USR1 handler run")
-
-
-def handle_usr2(launcher, signum, stack):
-    fcntl.ioctl(launcher.tty_fd, VT_RELDISP, VT_ACKACQ)
-    logger.info("launcher: USR2 handler run")
-    # TODO: send activate...
-
-
 class Launcher(object):
     def __init__(self, tty=None):
         self.tty = tty
@@ -53,8 +41,8 @@ class Launcher(object):
         logger.info("launcher: running on VT %d", tty)
 
         # setup signals
-        signal.signal(signal.SIGUSR1, functools.partial(handle_usr1, self))
-        signal.signal(signal.SIGUSR2, functools.partial(handle_usr2, self))
+        signal.signal(signal.SIGUSR1, self.handle_usr1)
+        signal.signal(signal.SIGUSR2, self.handle_usr2)
 
         # setup tty
         stat = os.fstat(tty)
@@ -94,6 +82,8 @@ class Launcher(object):
 
         logger.info('launcher: setup done')
 
+        self.activate()
+
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -120,5 +110,21 @@ class Launcher(object):
 
         logger.info('launcher: finalize done')
 
-    def activate_vt(self, vt):
-        fcntl.ioctl(self.tty_fd, VT_ACTIVATE, vt)
+    #def activate_vt(self, vt):
+    #    fcntl.ioctl(self.tty_fd, VT_ACTIVATE, vt)
+
+    def activate(self):
+        pass
+
+    def deactivete(self):
+        pass
+
+    def handle_usr1(launcher, signum, stack):
+        self.deactivate()
+        fcntl.ioctl(launcher.tty_fd, VT_RELDISP, 1)
+        logger.info("launcher: USR1 handler run")
+
+    def handle_usr2(launcher, signum, stack):
+        fcntl.ioctl(launcher.tty_fd, VT_RELDISP, VT_ACKACQ)
+        logger.info("launcher: USR2 handler run")
+        self.activate()

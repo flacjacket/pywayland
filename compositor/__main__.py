@@ -11,8 +11,9 @@ def kill_server(server):
     server.terminate()
 
 
-with Launcher() as t:
+with Launcher() as launch:
     display = Display()
+
     sock = os.getenv("WAYLAND_DISPLAY", "wayland-0")
     display.add_socket(sock)
     # loop = display.get_event_loop()
