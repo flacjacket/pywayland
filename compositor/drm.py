@@ -13,7 +13,7 @@ def is_drm_master(fd):
     return lib.drmGetMagic(fd, magic) == 0 and lib.drmAuthMagic(fd, magic[0]) == 0
 
 
-def find_gpu(self):
+def find_gpu():
     return "/dev/dri/card0"
     # There is a udev way to do this automatically...
     # c = pyudev.Context()
@@ -76,11 +76,10 @@ class Gbm(object):
 
     def destroy(self):
         logger.info("gbm: destroying gbm device")
-        self.gbm.destroy()
         lib.gbm_device_destroy(self.gbm)
 
 
-@ffi.define()
+@ffi.def_extern()
 def page_flip_handler_func(fd, sequence, tv_sec, tv_usec, user_data):
     logger.info("drm: got page flip")
 
