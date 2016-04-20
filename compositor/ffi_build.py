@@ -69,12 +69,7 @@ ffi_drm.set_source("compositor._ffi_drm", """
 ffi_drm.cdef("""
 // ---------------------------------------------------------
 // libdrm
-int drmSetMaster(int fd);
-int drmDropMaster(int fd);
-
-typedef unsigned int drm_magic_t;
-int drmGetMagic(int fd, drm_magic_t * magic);
-int drmAuthMagic(int fd, drm_magic_t magic);
+#define DRM_EVENT_CONTEXT_VERSION ...
 
 typedef struct _drmEventContext {
     int version;
@@ -82,13 +77,21 @@ typedef struct _drmEventContext {
                             unsigned int sequence,
                             unsigned int tv_sec,
                             unsigned int tv_usec,
-                            void *user_data)
+                            void *user_data);
     void (*page_flip_handler) (int fd,
                                unsigned int sequence,
                                unsigned int tv_sec,
                                unsigned int tv_usec,
-                               void *user_data)
-} drmEventContext;
+                               void *user_data);
+} drmEventContext, *drmEventContextPtr;
+
+int drmSetMaster(int fd);
+int drmDropMaster(int fd);
+
+typedef unsigned int drm_magic_t;
+int drmGetMagic(int fd, drm_magic_t * magic);
+int drmAuthMagic(int fd, drm_magic_t magic);
+int drmHandleEvent(int fd, drmEventContextPtr evctx);
 
 // ---------------------------------------------------------
 // libgbm
@@ -98,13 +101,18 @@ void gbm_device_destroy(struct gbm_device *gbm);
 
 // ---------------------------------------------------------
 // libEGL
+typedef unsigned int EGLBoolean;
 typedef void* EGLDisplay;
 
 typedef ... EGLNativeDisplayType;
 typedef int32_t EGLint;
 
-EGLDisplay eglGetDisplay(
-EGLBoolean eglInitialize(EGLDiplay display, EGLint *major, EGLint *minor);
+char const * eglQueryString(EGLDisplay display, EGLint name);
+void * eglGetProcAddress(const char *procname);
+EGLBoolean eglInitialize(EGLDisplay display, EGLint *major, EGLint *minor);
+
+// ---------------------------------------------------------
+extern "Python" void page_flip_handler_func(int, unsigned int, unsigned int, unsigned int, void*);
 """)
 
 if __name__ == "__main__":

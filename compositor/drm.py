@@ -60,7 +60,7 @@ def gl_renderer_supports(suffix):
 class Gbm(object):
     def __init__(self, fd):
         gbm = lib.gbm_create_device(fd)
-        logger.info("drm: created gbm device")
+        logger.info("gbm: created gbm device")
         if gbm == ffi.NULL:
             raise Exception()
         self.gbm = gbm
@@ -71,23 +71,32 @@ class Gbm(object):
             0
         ])
 
-        if gl_renderer_supports("gbm"):
-            get_platform_display = lib.eglGetProcAddress("eglGetPlatformDisplayExt")
+        #if gl_renderer_supports("gbm"):
+        #    get_platform_display = lib.eglGetProcAddress("eglGetPlatformDisplayExt")
 
     def destroy(self):
-        logger.info("drm: destroying gbm device")
+        logger.info("gbm: destroying gbm device")
         self.gbm.destroy()
         lib.gbm_device_destroy(self.gbm)
 
 
+@ffi.define()
+def page_flip_handler_func(fd, sequence, tv_sec, tv_usec, user_data):
+    logger.info("drm: got page flip")
+
+
 class Drm(object):
-    def __init__(self):
+    def __init__(self, eventloop=None):
         path = find_gpu()
         logger.info("drm: opening %s", path)
         self.fd = fd_open(path, os.O_RDWR)
 
+        if eventloop:
+            self.event_source = eventloop.add_fd(self.fd, self.drm_event)
+        else:
+            self.event_source = None
+
         self.gbm = None
-        self.event_source = None
 
     def __enter__(self):
         self.create_buffer()
@@ -100,6 +109,7 @@ class Drm(object):
     def destroy(self):
         if self.event_source:
             self.event_source.remove()
+            self.event_source = None
 
         if self.gbm:
             self.gbm.destroy()
@@ -107,12 +117,14 @@ class Drm(object):
 
         if self.fd is not None:
             os.close(self.fd)
+            self.fd = None
 
     def create_buffer(self):
         self.gbm = Gbm(self.fd)
 
-    def create_callback(self, eventloop):
-        self.event_source = eventloop.add_fd(self.fd, self.drm_event)
-
     def drm_event(self, fd, mask, data):
-        context = ffi.new("drmEventContext")
+        context = ffi.new("drmEventContext*")
+        context.version = lib.DRM_EVENT_CONTEXT_VERSION
+        context.page_flip_handler = lib.page_flip_handler_func
+
+        drmHandleEvent(fd, context)
