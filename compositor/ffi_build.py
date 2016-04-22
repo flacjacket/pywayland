@@ -16,40 +16,46 @@ def get_includes(package):
 
 
 ffi_launch = FFI()
+swc_defs = """
+struct swc_launch_request {
+    enum {
+        SWC_LAUNCH_REQUEST_OPEN_DEVICE,
+        SWC_LAUNCH_REQUEST_ACTIVATE_VT,
+    } type;
 
-ffi_launch.set_source('compositor._ffi_launcher', """
-#include <linux/kd.h>
-#include <linux/major.h>
-#include <linux/vt.h>
-""")
+    uint32_t serial;
 
-ffi_launch.cdef("""
-#define TTY_MAJOR ...
-
-#define KDGKBMODE ...
-#define KDSKBMODE ...
-#define KDSETMODE ...
-#define KDGETMODE ...
-
-#define K_OFF ...
-#define KD_GRAPHICS ...
-
-#define VT_SETMODE ...
-#define VT_AUTO ...
-#define VT_PROCESS ...
-#define VT_ACKACQ ...
-#define VT_ACTIVATE ...
-
-#define VT_RELDISP ...
-
-struct vt_mode {
-    char mode;          /* vt mode */
-    char waitv;         /* if set, hang on writes if not active */
-    short relsig;       /* signal to raise on release req */
-    short acqsig;       /* signal to raise on acquisition */
-    short frsig;        /* unused (set to 0) */
+    union {
+        struct /* OPEN_DEVICE */
+        {
+            int flags;
+            char path[0];
+        };
+        struct /* ACTIVATE_VT */
+        {
+            unsigned vt;
+        };
+    };
 };
-""")
+
+struct swc_launch_event {
+    enum {
+        SWC_LAUNCH_EVENT_RESPONSE,
+        SWC_LAUNCH_EVENT_ACTIVATE,
+        SWC_LAUNCH_EVENT_DEACTIVATE,
+    } type;
+
+    union {
+        struct /* RESPONSE */
+        {
+            uint32_t serial;
+            bool success;
+        };
+    };
+};"""
+
+ffi_launch.set_source("compositor._ffi_launch", "#include <stdbool.h>" + swc_defs)
+ffi_launch.cdef(swc_defs)
 
 ffi_drm = FFI()
 
@@ -84,9 +90,6 @@ typedef struct _drmEventContext {
                                unsigned int tv_usec,
                                void *user_data);
 } drmEventContext, *drmEventContextPtr;
-
-int drmSetMaster(int fd);
-int drmDropMaster(int fd);
 
 typedef unsigned int drm_magic_t;
 int drmGetMagic(int fd, drm_magic_t * magic);

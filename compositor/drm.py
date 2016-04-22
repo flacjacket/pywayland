@@ -1,11 +1,9 @@
 from pywayland.protocol.wayland.shm import Shm
 
-from .launcher import logger
+from .log_utils import logger
 from ._ffi_drm import ffi, lib
 
 import os
-
-DRM_MAJOR = 226
 
 
 def is_drm_master(fd):
@@ -24,24 +22,6 @@ def find_gpu():
     # drm_device = None
     # for device in enumerator:
     #     return device.syspath
-
-
-def fd_open(path, flags):
-    if hasattr(os, "O_CLOEXEC"):
-        flags |= os.O_CLOEXEC
-    fd = os.open(path, flags)
-
-    stat = os.fstat(fd)
-
-    if os.major(stat.st_rdev) == DRM_MAJOR:
-        logger.info("drm: got DRM_MAJOR")
-        if not is_drm_master(fd):
-            logger.exception("drm: fd not master")
-            os.close(fd)
-            raise OSError()
-        return fd
-    logger.exception("drm: fd not drm major")
-    raise OSError()
 
 
 def gl_renderer_supports(suffix):
@@ -65,11 +45,11 @@ class Gbm(object):
             raise Exception()
         self.gbm = gbm
 
-        visual_id = ffi.new("EGLint []", [
-            Shm.format.xrgb8888.value,
-            Shm.format.argb8888.value,
-            0
-        ])
+        #visual_id = ffi.new("EGLint []", [
+        #    Shm.format.xrgb8888.value,
+        #    Shm.format.argb8888.value,
+        #    0
+        #])
 
         #if gl_renderer_supports("gbm"):
         #    get_platform_display = lib.eglGetProcAddress("eglGetPlatformDisplayExt")
@@ -85,10 +65,14 @@ def page_flip_handler_func(fd, sequence, tv_sec, tv_usec, user_data):
 
 
 class Drm(object):
-    def __init__(self, eventloop=None):
+    def __init__(self, ipc, eventloop=None):
         path = find_gpu()
         logger.info("drm: opening %s", path)
-        self.fd = fd_open(path, os.O_RDWR)
+
+        flags = os.O_RDWR
+        if hasattr(os, "O_CLOEXEC"):
+            flags |= os.O_CLOEXEC
+        self.fd = ipc.send_open_device(path, flags)
 
         if eventloop:
             self.event_source = eventloop.add_fd(self.fd, self.drm_event)
@@ -99,19 +83,10 @@ class Drm(object):
 
     def __enter__(self):
         self.create_buffer()
-        master = lib.drmSetMaster(self.fd)
-
-        if master:
-            logger.info("Set drm master: %d", master)
 
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        master = lib.drmDropMaster(self.fd)
-
-        if master:
-            logger.info("Drop drm master: %d", master)
-
         self.destroy()
 
     def destroy(self):
@@ -123,10 +98,6 @@ class Drm(object):
             self.gbm.destroy()
             self.gbm = None
 
-        if self.fd is not None:
-            os.close(self.fd)
-            self.fd = None
-
     def create_buffer(self):
         self.gbm = Gbm(self.fd)
 
@@ -135,4 +106,4 @@ class Drm(object):
         context.version = lib.DRM_EVENT_CONTEXT_VERSION
         context.page_flip_handler = lib.page_flip_handler_func
 
-        drmHandleEvent(fd, context)
+        lib.drmHandleEvent(fd, context)
