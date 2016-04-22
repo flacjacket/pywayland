@@ -1,6 +1,8 @@
 import array
+import itertools
 import select
 import socket
+import struct
 
 from ._ffi_launch import ffi, lib
 
@@ -13,12 +15,13 @@ class SwcClient(object):
 
         self.sock = socket.socket(socket.AF_UNIX, fileno=self.fd)
 
-    def _send_request(self, request):
+    def _send_request(self, buf):
         """Send the swc_launch_request cdata"""
+        request = ffi.cast("struct swc_launch_request *", buf)
         request.serial = SwcClient.serial
         SwcClient.serial += 1
 
-        msg = ffi.buffer(request)[:]
+        msg = ffi.buffer(buf)[:]
         cmsg = array.array("i", [self.fd])
         self.sock.sendmsg([msg], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, cmsg)])
 
@@ -37,12 +40,11 @@ class SwcClient(object):
         msg_size = ffi.sizeof("struct swc_launch_event")
         cmsg_size = ffi.sizeof("int")
         msg, ancdata, _, _ = self.sock.recvmsg(msg_size, socket.CMSG_LEN(cmsg_size))
-        print("ancdata:", ancdata)
 
         event = ffi.new("struct swc_launch_event *")
         ffi.memmove(event, msg, msg_size)
 
-        fds = [struct.unpack("i", cmsg_data) for _, _, cmsg_data in ancdata]
+        fds = list(itertools.chain.from_iterable(struct.unpack("i", cmsg_data) for _, _, cmsg_data in ancdata))
 
         return event, fds
 
@@ -65,19 +67,19 @@ class SwcClient(object):
 
     def send_open_device(self, path, flags):
         """Send message to open fd to given path"""
-        buf = ffi.new("char[]", ffi.sizeof("struct swc_launch_request *") + len(path) + 1)
+        path_cdata = ffi.new("char[]", path.encode())
+
+        buf = ffi.new("char[]", ffi.sizeof("struct swc_launch_request") + ffi.sizeof(path_cdata))
         request = ffi.cast("struct swc_launch_request *", buf)
         request.type = lib.SWC_LAUNCH_REQUEST_OPEN_DEVICE
         request.flags = flags
-        path = path.encode()
 
-        ffi.memmove(request.path, path, len(path) + 1)
+        ffi.memmove(request + 1, path_cdata, ffi.sizeof(path_cdata))
 
-        fds = self._send_request(request)
+        fds = self._send_request(buf)
         if not fds:
-            print("got no fds")
+            print("request {:d}: Unable to open {:s}".format(request.serial, path))
             return
-        print("got:", str(fds))
         fd = fds[0]
         print("request {}: opened fd {:d} to path {:s}".format(request.serial, fd, path))
         return fd
