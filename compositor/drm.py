@@ -82,12 +82,13 @@ class Drm(object):
         self.gbm = None
 
     def __enter__(self):
-        self.create_buffer()
+        #self.create_buffer()
 
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        self.destroy()
+        #self.destroy()
+        pass
 
     def destroy(self):
         if self.event_source:

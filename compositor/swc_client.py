@@ -25,9 +25,9 @@ class SwcClient(object):
         while True:
             rlist, _, _ = select.select([self.fd], [], [], 2)
             if rlist:
-                event = self._recv_event()
+                event, fds = self._recv_event()
                 if event.type == lib.SWC_LAUNCH_EVENT_RESPONSE and event.serial == request.serial:
-                    return event
+                    return fds
                 self._handle_event(event)
                 continue
             raise TimeoutError("Did not receive response from swc launcher")
@@ -37,11 +37,14 @@ class SwcClient(object):
         msg_size = ffi.sizeof("struct swc_launch_event")
         cmsg_size = ffi.sizeof("int")
         msg, ancdata, _, _ = self.sock.recvmsg(msg_size, socket.CMSG_LEN(cmsg_size))
+        print("ancdata:", ancdata)
 
         event = ffi.new("struct swc_launch_event *")
         ffi.memmove(event, msg, msg_size)
 
-        return event
+        fds = [struct.unpack("i", cmsg_data) for _, _, cmsg_data in ancdata]
+
+        return event, fds
 
     def _handle_event(self, event):
         if event.type == lib.SWC_LAUNCH_EVENT_ACTIVATE:
@@ -70,9 +73,14 @@ class SwcClient(object):
 
         ffi.memmove(request.path, path, len(path) + 1)
 
-        event = self._send_request(request)
-        print("request {}: opened fd {:d} to path {:s}".format(event.serial, event.fd, path))
-        return event.fd
+        fds = self._send_request(request)
+        if not fds:
+            print("got no fds")
+            return
+        print("got:", str(fds))
+        fd = fds[0]
+        print("request {}: opened fd {:d} to path {:s}".format(request.serial, fd, path))
+        return fd
 
     def handle_data(self):
         """Read and handle all pending messages"""
@@ -80,5 +88,5 @@ class SwcClient(object):
             rlist, _, _ = select.select([self.fd], [], [], 0)
             if not rlist:
                 break
-            event = self._recv_event()
+            event, _ = self._recv_event()
             self._handle_event(event)
