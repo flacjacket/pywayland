@@ -1,7 +1,7 @@
 from pywayland.protocol.wayland.shm import Shm
 
 from .log_utils import logger
-from ._ffi_drm import ffi, lib
+from ._ffi_compositor import ffi, lib
 
 import os
 

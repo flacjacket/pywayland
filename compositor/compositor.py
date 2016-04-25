@@ -1,7 +1,9 @@
 from .log_utils import logger
 
 # from pywayland.server import Client, DestroyListener
-from pywayland.protocol.wayland import Compositor as CompositorProtocol, Subcompositor  # , Surface
+from pywayland.protocol.wayland import (
+    Compositor as CompositorProtocol, Subcompositor as SubcompositorProtocol
+)
 # import pyudev
 
 resources = []

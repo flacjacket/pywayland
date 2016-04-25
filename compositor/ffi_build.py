@@ -57,22 +57,24 @@ struct swc_launch_event {
 ffi_launch.set_source("compositor._ffi_launch", "#include <stdbool.h>" + swc_defs)
 ffi_launch.cdef(swc_defs)
 
-ffi_drm = FFI()
+ffi_compositor = FFI()
 
-libs = ["drm", "gbm", "EGL", "GLESv2"]
+libs = ["drm", "gbm", "EGL", "GLESv2", "udev"]
 dirs = list(itertools.chain.from_iterable(map(get_includes, libs)))
 
-ffi_drm.set_source("compositor._ffi_drm", """
+ffi_compositor.set_source("compositor._ffi_compositor", """
 #include <xf86drm.h>
 
 #include <gbm.h>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+
+#include <libudev.h>
 """, libraries=libs, include_dirs=dirs)
 
 
-ffi_drm.cdef("""
+ffi_compositor.cdef("""
 // ---------------------------------------------------------
 // libdrm
 #define DRM_EVENT_CONTEXT_VERSION ...
@@ -115,9 +117,41 @@ void * eglGetProcAddress(const char *procname);
 EGLBoolean eglInitialize(EGLDisplay display, EGLint *major, EGLint *minor);
 
 // ---------------------------------------------------------
+// libudev
+// ---------------------------------------------------------
+// opaque types
+struct udev;
+struct udev_device;
+struct udev_monitor;
+
+// udev
+struct udev *       udev_new                            (void);
+void                udev_unref                          (struct udev *udev);
+// udev_device
+void                udev_device_unref                   (struct udev_device *udev_device);
+const char *        udev_device_get_sysname             (struct udev_device *udev_device);
+const char *        udev_device_get_sysnum              (struct udev_device *udev_device);
+const char *        udev_device_get_property_value      (struct udev_device *udev_device,
+                                                         const char *key);
+const char *        udev_device_get_action              (struct udev_device *udev_device);
+// udev_monitor
+void                udev_monitor_unref                  (struct udev_monitor *udev_monitor);
+struct udev_monitor * udev_monitor_new_from_netlink     (struct udev *udev,
+                                                         const char *name);
+int                 udev_monitor_get_fd                 (struct udev_monitor *udev_monitor);
+struct udev_device * udev_monitor_receive_device        (struct udev_monitor *udev_monitor);
+int                 udev_monitor_filter_add_match_subsystem_devtype
+                                                        (struct udev_monitor *udev_monitor,
+                                                         const char *subsystem,
+                                                         const char *devtype);
+int                 udev_monitor_enable_receiving       (struct udev_monitor *udev_monitor);
+
+
+
+// ---------------------------------------------------------
 extern "Python" void page_flip_handler_func(int, unsigned int, unsigned int, unsigned int, void*);
 """)
 
 if __name__ == "__main__":
     ffi_launch.compile()
-    ffi_drm.compile()
+    ffi_compositor.compile()
