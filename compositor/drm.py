@@ -74,6 +74,13 @@ class Drm(object):
             flags |= os.O_CLOEXEC
         self.fd = ipc.send_open_device(path, flags)
 
+        master = os.fstat(self.fd)
+        render_path = "/dev/dri/renderD{:d}".format(os.minor(master.st_rdev) + 0x80)
+        render = os.stat(render_path)
+
+        if master.st_mode != render.st_mode or os.minor(master.st_rdev) + 0x80 != os.minor(render.st_rdev)):
+            raise TypeError("Render node does not have expected mode or minor number")
+
         if eventloop:
             self.event_source = eventloop.add_fd(self.fd, self.drm_event)
         else:

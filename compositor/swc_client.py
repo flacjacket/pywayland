@@ -15,24 +15,31 @@ class SwcClient(object):
 
         self.sock = socket.socket(socket.AF_UNIX, fileno=self.fd)
 
+    def poll(self, timeout):
+        rlist, _, _ = select.select([self.fd], [], [], timeout)
+        return bool(rlist)
+
     def _send_request(self, buf):
         """Send the swc_launch_request cdata"""
+        # cast the input cdata to the corrent struct type so we can set the serial
         request = ffi.cast("struct swc_launch_request *", buf)
         request.serial = SwcClient.serial
         SwcClient.serial += 1
 
+        # dump the input buffer to bytes for message
         msg = ffi.buffer(buf)[:]
+        # command message is the file descriptor
         cmsg = array.array("i", [self.fd])
+        # send message
         self.sock.sendmsg([msg], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, cmsg)])
 
-        while True:
-            rlist, _, _ = select.select([self.fd], [], [], 2)
-            if rlist:
-                event, fds = self._recv_event()
-                if event.type == lib.SWC_LAUNCH_EVENT_RESPONSE and event.serial == request.serial:
-                    return fds
-                self._handle_event(event)
-                continue
+        # poll for results, with 2 sec timeout
+        while self.poll(2):
+            event, fds = self._recv_event()
+            if event.type == lib.SWC_LAUNCH_EVENT_RESPONSE and event.serial == request.serial:
+                return fds
+            self._handle_event(event)
+        else:
             raise TimeoutError("Did not receive response from swc launcher")
 
     def _recv_event(self):
@@ -86,9 +93,6 @@ class SwcClient(object):
 
     def handle_data(self):
         """Read and handle all pending messages"""
-        while True:
-            rlist, _, _ = select.select([self.fd], [], [], 0)
-            if not rlist:
-                break
+        while self.poll(0):
             event, _ = self._recv_event()
             self._handle_event(event)

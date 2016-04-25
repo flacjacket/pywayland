@@ -12,22 +12,27 @@ def kill_server(server):
 
 
 if __name__ == "__main__":
-    fd = os.getenv("SWC_LAUNCH_SOCKET")
-    fd = int(fd)
+    fd = int(os.getenv("SWC_LAUNCH_SOCKET"))
 
     ipc_client = SwcClient(fd)
 
     display = Display()
 
-    sock = os.getenv("WAYLAND_DISPLAY", "wayland-0")
-    display.add_socket(sock)
+    display_sock = os.getenv("WAYLAND_DISPLAY", "wayland-0")
+    display.add_socket(display_sock)
+    os.setenv("WAYLAND_DISPLAY", display_sock)
     # loop = display.get_event_loop()
     # TODO: hook up SIGTERM/SIGINT/SIGQUIT eventloop callbacks
 
-    with Drm(ipc_client) as drm:
-        c = Compositor(display)
+    # udev?
 
-        e = display.get_event_loop()
-        s = e.add_timer(kill_server, display)
-        s.timer_update(2000)
+    # libinput?
+
+    c = Compositor(display)
+
+    e = display.get_event_loop()
+    s = e.add_timer(kill_server, display)
+    s.timer_update(2000)
+
+    with Drm(ipc_client) as drm:
         display.run()
