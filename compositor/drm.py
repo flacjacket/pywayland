@@ -1,5 +1,3 @@
-from pywayland.protocol.wayland.shm import Shm
-
 from .log_utils import logger
 from ._ffi_compositor import ffi, lib
 
@@ -37,35 +35,14 @@ def gl_renderer_supports(suffix):
     )
 
 
-class Gbm(object):
-    def __init__(self, fd):
-        gbm = lib.gbm_create_device(fd)
-        logger.info("gbm: created gbm device")
-        if gbm == ffi.NULL:
-            raise Exception()
-        self.gbm = gbm
-
-        #visual_id = ffi.new("EGLint []", [
-        #    Shm.format.xrgb8888.value,
-        #    Shm.format.argb8888.value,
-        #    0
-        #])
-
-        #if gl_renderer_supports("gbm"):
-        #    get_platform_display = lib.eglGetProcAddress("eglGetPlatformDisplayExt")
-
-    def destroy(self):
-        logger.info("gbm: destroying gbm device")
-        lib.gbm_device_destroy(self.gbm)
-
-
 @ffi.def_extern()
 def page_flip_handler_func(fd, sequence, tv_sec, tv_usec, user_data):
     logger.info("drm: got page flip")
 
 
 class Drm(object):
-    def __init__(self, ipc, eventloop=None):
+    """Create a DRM backend tied to the given eventloop"""
+    def __init__(self, ipc, eventloop):
         path = find_gpu()
         logger.info("drm: opening %s", path)
 
@@ -74,44 +51,34 @@ class Drm(object):
             flags |= os.O_CLOEXEC
         self.fd = ipc.send_open_device(path, flags)
 
-        master = os.fstat(self.fd)
-        render_path = "/dev/dri/renderD{:d}".format(os.minor(master.st_rdev) + 0x80)
-        render = os.stat(render_path)
-
-        if master.st_mode != render.st_mode or os.minor(master.st_rdev) + 0x80 != os.minor(render.st_rdev)):
-            raise TypeError("Render node does not have expected mode or minor number")
+        self.gbm = lib.gbm_create_device(self.fd)
 
         if eventloop:
             self.event_source = eventloop.add_fd(self.fd, self.drm_event)
         else:
             self.event_source = None
 
-        self.gbm = None
-
     def __enter__(self):
-        #self.create_buffer()
-
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        #self.destroy()
-        pass
+        self.destroy()
 
     def destroy(self):
         if self.event_source:
             self.event_source.remove()
             self.event_source = None
 
-        if self.gbm:
-            self.gbm.destroy()
-            self.gbm = None
-
-    def create_buffer(self):
-        self.gbm = Gbm(self.fd)
+        lib.gbm_device_destroy(self.gbm)
 
     def drm_event(self, fd, mask, data):
+        """Handle a DRM event"""
+        # create the DRM event context, linking to the page flip handler
         context = ffi.new("drmEventContext*")
         context.version = lib.DRM_EVENT_CONTEXT_VERSION
         context.page_flip_handler = lib.page_flip_handler_func
 
+        # handle the events using this context
         lib.drmHandleEvent(fd, context)
+
+        return 0

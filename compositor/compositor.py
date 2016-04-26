@@ -46,7 +46,7 @@ class Compositor(object):
         compositor = CompositorProtocol.global_class(display, 4)
         compositor.bind_handler = bind_compositor
 
-        subcompositor = Subcompositor.global_class(display, 1)
+        subcompositor = SubcompositorProtocol.global_class(display, 1)
         subcompositor.bind_handler = bind_subcompositor
 
         self.globals_ = {
