@@ -17,7 +17,8 @@ class Udev(object):
         if udev_monitor_enable_receiving(self.monitor) < 0:
             pass
 
-        # set event loop
+        self.event_source = None
+        self.setup_event_loop(eventloop)
 
         # add activate_listener to activate signal
 
@@ -37,6 +38,9 @@ class Udev(object):
     def setup_event_loop(self, eventloop):
         assert self.udev
         assert self.monitory
+
+        if self.event_source:
+            self.event_source.remove()
 
         fd = lib.udev_monitor_get_fd(self.monitor)
         self.event_source = eventloop.add_fd(fd, self.udev_event)  # to-do: add data
