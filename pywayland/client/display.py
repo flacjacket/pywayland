@@ -77,7 +77,7 @@ class Display(_Display.proxy_class):
         self.connect()
         return self
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.disconnect()
 
     def connect(self, name_or_fd=None):
