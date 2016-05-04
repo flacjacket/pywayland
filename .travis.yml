@@ -1,38 +1,24 @@
 language: python
 
+python:
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - pypy
+  - nightly
+
 matrix:
   include:
     - python: 2.7
-      env: TOXENV=py27 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 2.7
-      env: TOXENV=py27 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 3.3
-      env: TOXENV=py33 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 3.3
-      env: TOXENV=py33 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 3.4
-      env: TOXENV=py34 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 3.4
-      env: TOXENV=py34 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
+      env: TEST=pep8 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
     - python: 3.5
-      env: TOXENV=py35 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
+      env: TEST=pep8 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
     - python: 3.5
-      env: TOXENV=py35 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: pypy
-      env: TOXENV=pypy WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: nightly
-      env: TOXENV=nightly WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 2.7
-      env: TOXENV=pep8 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 3.5
-      env: TOXENV=pep8 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
-    - python: 3.5
-      env: TOXENV=docs WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
+      env: TEST=docs WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
   allow_failures:
     - python: pypy
-      env: TOXENV=pypy WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
     - python: nightly
-      env: TOXENV=nightly WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
 
 env:
   global:
@@ -41,6 +27,9 @@ env:
     - LIBRARY_PATH="${HOME}/wayland/lib"
     - PKG_CONFIG_PATH="${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig"
     - XDG_RUNTIME_DIR="/tmp"
+  matrix:
+    - WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.3
+    - WAYLAND_VERSION=1.10.91 WAYLAND_PROTOCOLS=1.3
 
 install:
 # build Wayland
@@ -59,8 +48,26 @@ install:
   - make
   - make install
   - popd
-# install tox for us
-  - pip install tox
+# install necessary packages
+  - pip install -r requirements.txt;
+  - python pywayland/ffi_build.py;
+  - python -m pywayland.scanner --with-protocols;
+  - if [[ $TEST == pep8 ]]; then
+        pip install flake8;
+    elif [[ $TEST == docs ]]; then
+        pip install sphinx sphinx_rtd_theme;
+    else
+        pip install -r requirements-dev.txt;
+    fi
 
 script:
-  - tox
+  - if [[ $TEST == pep8 ]]; then
+        flake8 pywayland example test;
+    elif [[ $TEST == docs ]]; then
+        sphinx-build -W -b html doc doc/_build/html;
+    else
+        py.test --cov pywayland --cov-report term-missing;
+    fi
+
+after_success:
+  - if [[ -z $TEST ]]; then coveralls; fi

@@ -1,0 +1,5 @@
+# testing/CI libraries
+pytest
+pytest-cov
+coverage
+coveralls
