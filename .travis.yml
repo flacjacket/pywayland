@@ -34,7 +34,7 @@ env:
 
 install:
 # build Wayland
-  - wget http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz
+  - wget --no-check-certificate http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz
   - tar -xJf wayland-${WAYLAND_VERSION}.tar.xz
   - pushd wayland-${WAYLAND_VERSION}
   - ./configure --disable-documentation --prefix=${HOME}/wayland
@@ -42,7 +42,7 @@ install:
   - make install
   - popd
 # build Wayland-protocols
-  - wget http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz
+  - wget --no-check-certificate http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz
   - tar -xJf wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz
   - pushd wayland-protocols-${WAYLAND_PROTOCOLS}
   - ./configure --prefix=${HOME}/wayland
@@ -56,7 +56,7 @@ install:
   - if [[ $TEST == pep8 ]]; then
         pip install flake8;
     elif [[ $TEST == docs ]]; then
-        pip install sphinx sphinx_rtd_theme;
+        pip install -r doc/requirements.txt;
     else
         pip install -r requirements-dev.txt;
     fi
