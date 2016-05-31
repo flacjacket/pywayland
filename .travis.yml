@@ -21,7 +21,6 @@ matrix:
     - python: 3.5
       env: TEST=docs WAYLAND_VERSION=1.11.0 WAYLAND_PROTOCOLS=1.7
   allow_failures:
-    - python: pypy
     - python: nightly
 
 env:
@@ -36,6 +35,21 @@ env:
   matrix:
     - WAYLAND_VERSION=1.11.0 WAYLAND_PROTOCOLS=1.7
     - WAYLAND_VERSION=1.11.91 WAYLAND_PROTOCOLS=1.7
+
+before_install:
+  - if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
+        export PYPY_VERSION=5.3.0;
+        pushd ~;
+        wget https://bitbucket.org/pypy/pypy/downloads/pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
+        tar -xjf pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
+        ln -s pypy pypy2-v${PYPY_VERSION}-linux64/bin/python;
+        export PATH=~/pypy2-v${PYPY_VERSION}-linux64/bin:$PATH;
+        hash -r;
+        which python;
+        curl -O https://bootstrap.pypa.io/get-pip.py;
+        python get-pip.py;
+        popd;
+    fi
 
 install:
   - WAYLAND_URL=`echo $WAYLAND_URL | envsubst`
