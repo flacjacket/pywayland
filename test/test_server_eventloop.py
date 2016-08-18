@@ -185,5 +185,8 @@ def test_event_loop_destroy():
 
     event_loop.destroy()
 
+    import gc
+    gc.collect()
+
     assert a is False
     assert b is True
