@@ -29,8 +29,8 @@ class Method(object):
         self.opcode = opcode
         self.interface = iface_name
 
-        # 'global' is a protected name, so append '_'
-        if self.name == 'global':
+        # some methods are protected names, so append '_'
+        if self.name in ('global', 'import'):
             self.name += '_'
 
     @property
