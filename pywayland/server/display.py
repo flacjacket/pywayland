@@ -39,8 +39,11 @@ class Display(object):
 
             :meth:`Display.add_destroy_listener()`
         """
-        # let the ffi garbage collector clean-up the cdata
-        self._ptr = None
+        if self._ptr is not None:
+            # clean up cdata and remove destructor
+            lib.wl_display_destroy(self._ptr)
+            ffi.gc(self._ptr, None)
+            self._ptr = None
 
     @ensure_valid
     def add_socket(self, name=None):

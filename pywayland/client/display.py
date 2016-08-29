@@ -16,6 +16,8 @@ from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import Display as _Display
 
+import weakref
+
 
 class Display(_Display.proxy_class):
     """Represents a connection to the compositor
@@ -105,6 +107,10 @@ class Display(_Display.proxy_class):
         if self._ptr == ffi.NULL:
             raise ValueError("Unable to connect to display")
 
+        self._ptr = ffi.gc(self._ptr, lib.wl_display_disconnect)
+
+        self._children = weakref.WeakSet()
+
     def disconnect(self):
         """Close a connection to a Wayland display
 
@@ -114,19 +120,13 @@ class Display(_Display.proxy_class):
         from .eventqueue import weakkeydict as eventqueue_dict
         if self._ptr:
             # we need to be sure the event queues and proxies are destroyed
-            # first, and they are currently keeping us alive in their
-            # respective weakkeydict's
+            # before we disconnect the client
+            for obj in self._children:
+                obj.destroy()
 
-            # NOTE: i think this might only be guaranteed to work with CPython,
-            # as this is designed to trigger the various wl_*_destroy methods,
-            # but I don't know when, for example, the PyPy garbage collector
-            # will run the callback set with ffi.gc on the relevant cdata
-            # objects
-            for eq, display in eventqueue_dict.items():
-                if self is display:
-                    eq.destroy()
-
+            # run destructor and remove it
             lib.wl_display_disconnect(self._ptr)
+            ffi.gc(self._ptr, None)
             self._ptr = None
 
     @ensure_valid

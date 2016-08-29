@@ -100,9 +100,13 @@ class EventLoop(object):
 
     def destroy(self):
         """Destroy the event loop"""
-        for event_source in self.event_sources:
-            event_source.remove()
-        self._ptr = None
+        if self._ptr is not None:
+            for event_source in self.event_sources:
+                event_source.remove()
+            # destroy the pointer and remove the destructor
+            lib.wl_event_loop_destroy(self._ptr)
+            ffi.gc(self._ptr, None)
+            self._ptr = None
 
     @ensure_valid
     def add_fd(self, fd, callback, mask=[fd_mask.WL_EVENT_READABLE], data=None):
@@ -267,7 +271,7 @@ class EventSource(object):
 
     def remove(self):
         """Remove the callback from the event loop"""
-        if self._ptr:
+        if self._ptr is not None:
             lib.wl_event_source_remove(self._ptr)
         self._ptr = None
 

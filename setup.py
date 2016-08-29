@@ -126,11 +126,11 @@ else:
 # Check if we're running PyPy, cffi can't be updated
 if '_cffi_backend' in sys.builtin_module_names:
     import _cffi_backend
-    if _cffi_backend.__version__ < "1.4.2":
-        raise ValueError("PyPy version is too old, must support cffi>=1.4.2 (PyPy >= 5.0.0)")
+    if _cffi_backend.__version__ < "1.7.0":
+        raise ValueError("PyPy version is too old, must support cffi>=1.7.0 (PyPy >= 5.3.0)")
     requires_cffi = 'cffi==' + _cffi_backend.__version__
 else:
-    requires_cffi = "cffi>=1.4.2"
+    requires_cffi = "cffi>=1.7.0"
 
 dependencies = ["six>=1.4.1", requires_cffi]
 

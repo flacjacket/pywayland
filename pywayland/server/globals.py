@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+
+import functools
 import weakref
 
 weakkeydict = weakref.WeakKeyDictionary()
@@ -31,6 +33,13 @@ def global_bind_func(client_ptr, data, version, id):
     if callback_info["bind_func"]:
         # TODO: add some error catching so we don't segfault
         callback_info["bind_func"](resource)
+
+
+def _global_destroy(display, cdata):
+    if display._ptr is not None:
+        # TODO: figure out how this can get run...
+        # lib.wl_global_destroy(cdata)
+        pass
 
 
 class Global(object):
@@ -53,12 +62,6 @@ class Global(object):
         if version is None:
             version = self._interface.version
 
-        def global_destroy(cdata):
-            if display._ptr is None:
-                return
-            # TODO: figure out how this can get run...
-            # lib.wl_global_destroy(cdata)
-
         # we can't keep alive a handle to self without creating a reference
         # loop, so use this dict as the handle to pass to the global_bind_func
         # callback
@@ -70,10 +73,12 @@ class Global(object):
 
         ptr = lib.wl_global_create(display._ptr, self._interface._ptr,
                                    version, self._handle, lib.global_bind_func)
-        self._ptr = ffi.gc(ptr, global_destroy)
+        destructor = functools.partial(_global_destroy, display)
+        self._ptr = ffi.gc(ptr, destructor)
+        self._display = display
 
-        # this object and its cdata should keep the display alive
-        weakkeydict[self] = weakkeydict[self._ptr] = display
+        # this c data should keep the display alive
+        weakkeydict[self._ptr] = display
 
     @property
     def bind_func(self):
@@ -85,5 +90,9 @@ class Global(object):
 
     def destroy(self):
         """Destroy the global object"""
-        # let the garbage collector run wl_global_destroy
-        self._ptr = None
+        if self._ptr is not None:
+            # run and remove destructor on c data
+            _global_destroy(self._display, self._ptr)
+            ffi.gc(self._ptr, None)
+            self._ptr = None
+            self._display = None

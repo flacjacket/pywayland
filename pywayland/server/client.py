@@ -16,6 +16,15 @@ from pywayland import ffi, lib
 from pywayland.dispatcher import dispatcher_to_object
 from pywayland.utils import ensure_valid
 
+import functools
+
+
+def _client_destroy(display, cdata):
+    # do nothing if the display is already destroyed
+    if display._ptr is None:
+        return
+    lib.wl_client_destroy(cdata)
+
 
 class Client(object):
     """Create a client for the given file descriptor
@@ -38,20 +47,20 @@ class Client(object):
         if display._ptr is None:
             raise ValueError("Display has been destroyed")
 
-        def client_destroy(cdata):
-            # if the display is already destroyed
-            if display._ptr is None:
-                return
-            lib.wl_client_destroy(cdata)
-
         ptr = lib.wl_client_create(display._ptr, fd)
-        self._ptr = ffi.gc(ptr, client_destroy)
+
+        destructor = functools.partial(_client_destroy, display)
+        self._ptr = ffi.gc(ptr, destructor)
         self._display = display
 
     def destroy(self):
         """Destroy the client"""
-        # ffi.gc will clean-up the cdata
-        self._ptr = None
+        if self._ptr is not None:
+            # destroy the client and remove the destructor
+            _client_destroy(self._display, self._ptr)
+            ffi.gc(self._ptr, None)
+            self._ptr = None
+            self._display = None
 
     @ensure_valid
     def flush(self):

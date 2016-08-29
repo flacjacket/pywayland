@@ -14,9 +14,17 @@
 
 from pywayland import ffi, lib
 
+import functools
 import weakref
 
 weakkeydict = weakref.WeakKeyDictionary()
+
+
+def _event_queue_destroy(display, cdata):
+    # we should be careful that the display is still around
+    if display._ptr is None:
+        return
+    lib.wl_event_queue_destroy(cdata)
 
 
 class EventQueue(object):
@@ -30,15 +38,16 @@ class EventQueue(object):
         if display._ptr is None or display._ptr == ffi.NULL:
             raise ValueError("Display object not connected")
 
-        def event_queue_destroy(cdata):
-            if display._ptr is None:
-                return
-            lib.wl_event_queue_destroy(cdata)
-
         ptr = lib.wl_display_create_queue(display._ptr)
-        self._ptr = ffi.gc(ptr, event_queue_destroy)
 
-        weakkeydict[self] = display
+        # create a destructor, save data and display
+        destructor = functools.partial(_event_queue_destroy, display)
+        self._ptr = ffi.gc(ptr, destructor)
+        self._display = display
+
+        display._children.add(self)
+
+        weakkeydict[self._ptr] = display
 
     def destroy(self):
         """Destroy an event queue
@@ -50,5 +59,11 @@ class EventQueue(object):
         until all event queues created with it are destroyed with this
         function.
         """
-        # let the ffi.gc function take care of the details
-        self._ptr = None
+        if self._ptr is not None and self._display is not None:
+            # run destroyer and remove it from the _ffi object
+            _event_queue_destroy(self._display, self._ptr)
+            ffi.gc(self._ptr, None)
+
+            # delete the pointer and the reference to the display
+            self._ptr = None
+            self._display = None
