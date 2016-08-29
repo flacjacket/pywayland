@@ -15,11 +15,11 @@ python:
 matrix:
   include:
     - python: 2.7
-      env: TEST=pep8 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.4
+      env: TEST=pep8 WAYLAND_VERSION=1.11.0 WAYLAND_PROTOCOLS=1.7
     - python: 3.5
-      env: TEST=pep8 WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.4
+      env: TEST=pep8 WAYLAND_VERSION=1.11.0 WAYLAND_PROTOCOLS=1.7
     - python: 3.5
-      env: TEST=docs WAYLAND_VERSION=1.10.0 WAYLAND_PROTOCOLS=1.4
+      env: TEST=docs WAYLAND_VERSION=1.11.0 WAYLAND_PROTOCOLS=1.7
   allow_failures:
     - python: pypy
     - python: nightly
