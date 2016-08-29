@@ -117,7 +117,6 @@ class Display(_Display.proxy_class):
         Close the connection to display and free all resources associated with
         it.
         """
-        from .eventqueue import weakkeydict as eventqueue_dict
         if self._ptr:
             # we need to be sure the event queues and proxies are destroyed
             # before we disconnect the client
