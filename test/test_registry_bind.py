@@ -17,7 +17,6 @@ from pywayland.server import Display as ServerDisplay
 
 from pywayland.protocol.wayland import Compositor
 
-import gc
 import time
 import threading
 
@@ -84,9 +83,6 @@ def test_get_registry():
     s.add_socket()
     s.run()
     s.destroy()
-
-    # we need to clean up the resources
-    gc.collect()
 
     # wait for the client (shouldn't block on roundtrip once the server is down)
     client.join()
