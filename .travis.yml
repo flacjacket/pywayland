@@ -38,7 +38,7 @@ env:
 
 before_install:
   - if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
-        export PYPY_VERSION=5.3.1;
+        export PYPY_VERSION=5.4.0;
         pushd ~;
         wget https://bitbucket.org/pypy/pypy/downloads/pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
         tar -xjf pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
