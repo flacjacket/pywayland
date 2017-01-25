@@ -37,7 +37,6 @@ def test_create_resource():
     client.destroy()
     display.destroy()
 
-    s1.close()
     s2.close()
 
 
@@ -87,7 +86,6 @@ def test_destroy_resource():
 
     display.destroy()
 
-    s1.close()
     s2.close()
 
 
@@ -110,5 +108,4 @@ def notest_create_resource_with_same_id():
     client.destroy()
     display.destroy()
 
-    s1.close()
     s2.close()
