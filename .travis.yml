@@ -11,6 +11,7 @@ python:
   - 3.5
   - 3.6
   - pypy
+  - pypy3
   - nightly
 
 matrix:
@@ -33,20 +34,30 @@ env:
     - XDG_RUNTIME_DIR="/tmp"
     - WAYLAND_URL='http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz'
     - WAYLAND_PROTOCOLS_URL='http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz'
+    - PYPY_VERSION=5.6.0
+    - PYPY3_VERSION=5.5.0
   matrix:
     - WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
     - WAYLAND_VERSION=1.12.91 WAYLAND_PROTOCOLS=1.7
 
 before_install:
-  - if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
-        export PYPY_VERSION=5.6.0;
+  - if [[ $TRAVIS_PYTHON_VERSION == pypy* ]]; then
+        if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
+            export PYPY_FILE=pypy2-v${PYPY_VERSION}-linux64;
+        else
+            export PYPY_FILE=pypy3.3-v${PYPY3_VERSION}-alpha-linux64;
+        fi;
         pushd ~;
-        wget https://bitbucket.org/pypy/pypy/downloads/pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
-        tar -xjf pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
-        ln -s pypy pypy2-v${PYPY_VERSION}-linux64/bin/python;
-        export PATH=~/pypy2-v${PYPY_VERSION}-linux64/bin:$PATH;
+        wget https://bitbucket.org/pypy/pypy/downloads/${PYPY_FILE}.tar.bz2;
+        tar -xjf ${PYPY_FILE}.tar.bz2;
+        if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
+            export PATH=~/${PYPY_FILE}/bin:$PATH;
+            ln -s pypy ${PYPY_FILE}/bin/python;
+        else
+            export PATH=~/pypy3-v${PYPY3_VERSION}-linux64/bin:$PATH;
+            ln -s pypy3 pypy3-v${PYPY3_VERSION}-linux64/bin/python;
+        fi;
         hash -r;
-        which python;
         curl -O https://bootstrap.pypa.io/get-pip.py;
         python get-pip.py;
         popd;
