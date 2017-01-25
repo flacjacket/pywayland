@@ -9,6 +9,7 @@ python:
   - 3.3
   - 3.4
   - 3.5
+  - 3.6
   - pypy
   - nightly
 
@@ -16,9 +17,9 @@ matrix:
   include:
     - python: 2.7
       env: TEST=pep8 WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
-    - python: 3.5
+    - python: 3.6
       env: TEST=pep8 WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
-    - python: 3.5
+    - python: 3.6
       env: TEST=docs WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
   allow_failures:
     - python: nightly
@@ -33,12 +34,12 @@ env:
     - WAYLAND_URL='http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz'
     - WAYLAND_PROTOCOLS_URL='http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz'
   matrix:
-    - WAYLAND_VERSION=1.11.0 WAYLAND_PROTOCOLS=1.7
     - WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
+    - WAYLAND_VERSION=1.12.91 WAYLAND_PROTOCOLS=1.7
 
 before_install:
   - if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
-        export PYPY_VERSION=5.4.0;
+        export PYPY_VERSION=5.6.0;
         pushd ~;
         wget https://bitbucket.org/pypy/pypy/downloads/pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
         tar -xjf pypy2-v${PYPY_VERSION}-linux64.tar.bz2;
