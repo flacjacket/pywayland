@@ -17,11 +17,11 @@ python:
 matrix:
   include:
     - python: 2.7
-      env: TEST=pep8 WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
+      env: TEST=pep8 WAYLAND_VERSION=1.14.0 WAYLAND_PROTOCOLS=1.11
     - python: 3.6
-      env: TEST=pep8 WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
+      env: TEST=pep8 WAYLAND_VERSION=1.14.0 WAYLAND_PROTOCOLS=1.11
     - python: 3.6
-      env: TEST=docs WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
+      env: TEST=docs WAYLAND_VERSION=1.14.0 WAYLAND_PROTOCOLS=1.11
   allow_failures:
     - python: nightly
 
@@ -37,8 +37,7 @@ env:
     - PYPY_VERSION=5.6.0
     - PYPY3_VERSION=5.5.0
   matrix:
-    - WAYLAND_VERSION=1.12.0 WAYLAND_PROTOCOLS=1.7
-    - WAYLAND_VERSION=1.12.91 WAYLAND_PROTOCOLS=1.7
+    - WAYLAND_VERSION=1.14.0 WAYLAND_PROTOCOLS=1.11
 
 before_install:
   - if [[ $TRAVIS_PYTHON_VERSION == pypy* ]]; then
