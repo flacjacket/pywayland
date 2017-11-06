@@ -17,7 +17,8 @@ import inspect
 
 from docutils.statemachine import ViewList
 from jinja2 import Template
-from sphinx.util.compat import nodes, Directive
+from docutils import nodes
+from docutils.parsers.rst import Directive
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import getargspec
 from sphinx.util.nodes import nested_parse_with_titles
