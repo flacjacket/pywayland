@@ -81,7 +81,7 @@ def get_protocol_command(klass):
                     protocol_modules, protocol_files = get_wayland_protocols()
                     input_files += protocol_files
                     modules += protocol_modules
-                except:
+                except Exception:
                     # but only complain if we ask specifically to build them
                     if self.wayland_protocols:
                         raise
@@ -115,7 +115,7 @@ description = 'Python bindings for the libwayland library written in pure Python
 try:
     from pywayland import __wayland_version__
     rst_input = open('README.rst').read().split('\n')
-except:
+except Exception:
     long_description = ""
 else:
     version = 'Built against Wayland {}\n'.format(__wayland_version__)

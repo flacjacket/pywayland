@@ -45,7 +45,7 @@ def dispatcher_func(data, target, opcode, message, c_args):
 
     try:
         ret = func(self, *args)
-    except:
+    except Exception:
         # TODO: log this
         ret = None
 
