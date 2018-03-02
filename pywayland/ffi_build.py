@@ -398,13 +398,12 @@ os_create_anonymous_file(off_t size)
 }
 """
 
-ffi = FFI()
-if hasattr(ffi, 'set_source'):
-    ffi.set_source('pywayland._ffi', SOURCE,
-                   libraries=['wayland-client', 'wayland-server'])
-ffi.cdef(CDEF)
+ffi_builder = FFI()
+ffi_builder.set_source(
+    'pywayland._ffi', SOURCE, libraries=['wayland-client', 'wayland-server']
+)
+ffi_builder.cdef(CDEF)
 
 
 if __name__ == '__main__':
-    if hasattr(ffi, 'compile'):
-        ffi.compile()
+    ffi_builder.compile()

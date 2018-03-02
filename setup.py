@@ -188,5 +188,5 @@ setup(
         'install': InstallCommand,
         'sdist': SdistCommand
     },
-    cffi_modules=['pywayland/ffi_build.py:ffi']
+    cffi_modules=['pywayland/ffi_build.py:ffi_builder']
 )
