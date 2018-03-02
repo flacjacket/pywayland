@@ -55,13 +55,31 @@ class Printer(object):
         paragraphs = []
         for paragraph in docstring.split('\n\n'):
             # try to detect and properly output lists
-            if paragraph.lstrip().startswith('- '):
-                paragraph = paragraph.replace('\n  ', '\n')
-                lines = textwrap.fill(paragraph[2:], 79 - tab_stop * self.level - 2).split('\n')
-                lines = ['- ' + lines[0]] + ['  ' + line for line in lines[1:]]
-                paragraphs.append(
-                    '\n'.join(lines)
-                )
+            for start_block in ('- ', '* '):
+                if paragraph.lstrip().startswith(start_block):
+                    # the list items are not always separated by paragraph
+                    # breaks, so parse each line and see if they start with the
+                    # list block
+                    lines = paragraph.split('\n')
+                    list_items = []
+                    current_list_item = [lines[0][2:]]
+                    for line in lines[1:]:
+                        if line.startswith(start_block):
+                            list_items.append('\n'.join(current_list_item))
+                            current_list_item = [line[2:]]
+                        else:
+                            current_list_item.append(line)
+                    list_items.append('\n'.join(current_list_item))
+
+                    # wrap each list item
+                    lines = []
+                    for list_item in list_items:
+                        list_item = list_item.replace('\n  ', '\n')
+                        list_item_lines = textwrap.fill(list_item, 79 - tab_stop * self.level - 2).split('\n')
+                        lines.append(start_block + list_item_lines[0])
+                        lines.extend('  ' + line for line in list_item_lines[1:])
+                    paragraphs.append('\n'.join(lines))
+                    break
             else:
                 paragraphs.append(
                     textwrap.fill(paragraph, 79 - tab_stop * self.level)
