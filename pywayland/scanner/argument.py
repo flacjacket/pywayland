@@ -116,7 +116,9 @@ class Argument(Element):
 
     def _doc_interface(self, printer, module_imports):
         interface_class = ''.join(x.capitalize() for x in self.interface.split('_'))
-        if self.interface != printer.iface_name and interface_class in module_imports:
+        if self.interface == printer.iface_name:
+            return ':class:`{}`'.format(interface_class)
+        elif interface_class in module_imports:
             interface_module = module_imports[interface_class]
             return ':class:`~pywayland.protocol.{}.{}`'.format(interface_module, interface_class)
         else:

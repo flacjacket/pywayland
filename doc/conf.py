@@ -64,7 +64,7 @@ protocol_header = """\
 """
 
 protocol_rst = """\
-.. module:: pywayland.protocol.{module}.{protocol}
+.. module:: pywayland.protocol.{module}
 
 {protocol_upper}
 {empty:=^{len}}
@@ -110,9 +110,12 @@ def protocol_doc(input_dir, output_dir):
         for doc_file in doc_files:
             mod = importlib.import_module('pywayland.protocol.{}.{}'.format(module, doc_file))
             # Get out the name of the class in the module
+            class_name = ''.join(x.capitalize() for x in doc_file.split('_'))
             for mod_upper in dir(mod):
-                if mod_upper.lower() == doc_file:
+                if mod_upper == class_name:
                     break
+            else:
+                raise RuntimeError("Unable to find module: {}, {}".format(doc_file, mod))
 
             protocol_len = len(doc_file)
             doc = os.path.join(module_dir, '{}.rst'.format(doc_file))
