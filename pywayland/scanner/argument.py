@@ -42,7 +42,7 @@ class Argument(Element):
         Gives the class name for the Interface coresponding to the type of the
         argument.
         """
-        return ''.join(x.capitalize() for x in self.interface.split('_')[1:])
+        return ''.join(x.capitalize() for x in self.interface.split('_'))
 
     @property
     def signature(self):
@@ -78,39 +78,31 @@ class Argument(Element):
         elif self.type == 'fd':
             return 'h'
 
-    def output_doc_param(self, printer):
+    def output_doc_param(self, printer, module_imports):
         """Document the argument as a parameter"""
         # Output the parameter and summary
         if self.summary:
-            printer.doc(':param {}: {}'.format(self.name, self.summary))
+            printer.doc(':param {}: {}'.format(self.name, self.summary), module_imports)
         else:
-            printer.doc(':param {}:'.format(self.name))
+            printer.doc(':param {}:'.format(self.name), module_imports)
 
         # Determine the type to be output
         if self.interface:
-            iface, iface_path, need_tilde = printer._get_iface(self.interface)
-            if need_tilde:
-                arg_type = ':class:`~{}`'.format(iface_path)
-            else:
-                arg_type = ':class:`{}`'.format(iface)
+            arg_type = self._doc_interface(printer, module_imports)
         else:
             arg_type = '`{}`'.format(self.type)
 
         # Output the parameter type
         if self.allow_null:
-            printer.doc(':type {}: {} or `None`'.format(self.name, arg_type))
+            printer.doc(':type {}: {} or `None`'.format(self.name, arg_type), module_imports)
         else:
-            printer.doc(':type {}: {}'.format(self.name, arg_type))
+            printer.doc(':type {}: {}'.format(self.name, arg_type), module_imports)
 
-    def output_doc_ret(self, printer):
+    def output_doc_ret(self, printer, module_imports):
         """Document the argument as a return"""
         # Determine the type to be output
         if self.interface:
-            iface, iface_path, need_tilde = printer._get_iface(self.interface)
-            if need_tilde:
-                arg_type = ':class:`~{}`'.format(iface_path)
-            else:
-                arg_type = ':class:`{}`'.format(iface)
+            arg_type = self._doc_interface(printer, module_imports)
         else:
             # Only new_id's are returned, the only corner case here is for
             # wl_registry.bind, so no interface => Proxy
@@ -118,6 +110,15 @@ class Argument(Element):
 
         # Output the type and summary
         if self.summary:
-            printer.doc(':returns: {} -- {}'.format(arg_type, self.summary))
+            printer.doc(':returns: {} -- {}'.format(arg_type, self.summary), module_imports)
         else:
-            printer.doc(':returns: {}'.format(arg_type))
+            printer.doc(':returns: {}'.format(arg_type), module_imports)
+
+    def _doc_interface(self, printer, module_imports):
+        interface_class = ''.join(x.capitalize() for x in self.interface.split('_'))
+        if self.interface != printer.iface_name and interface_class in module_imports:
+            interface_module = module_imports[interface_class]
+            return ':class:`~pywayland.protocol.{}.{}`'.format(interface_module, interface_class)
+        else:
+            print(interface_class)
+            return ':class:`{}`'.format(interface_class)

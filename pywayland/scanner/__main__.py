@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .scanner import Scanner
+from .protocol import Protocol
 
 import argparse
+import logging
 import os
 import shlex
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 
 def pkgconfig(package, variable):
@@ -37,26 +40,24 @@ def get_wayland_protocols():
     except subprocess.CalledProcessError:
         raise OSError("Unable to find wayland-protocols using pkgconfig")
 
-    modules = []
     protocols = []
     # walk the wayland-protocol dir
     for dirpath, _, filenames in os.walk(protocols_dir):
         for filename in filenames:
-            file_path = os.path.join(dirpath, filename)
             file_base, file_ext = os.path.splitext(filename)
             # only generate protocols for xml files
             if file_ext == ".xml":
-                modules.append(file_base.replace("-", "_"))
-                protocols.append(file_path)
+                protocols.append(os.path.join(dirpath, filename))
 
-    return modules, protocols
+    return protocols
 
 
 def main():
     this_dir = os.path.split(__file__)[0]
     protocol_dir = os.path.join(this_dir, '..', 'protocol')
 
-# try to figure out where the wayland.xml file is installed, otherwise use default
+    # try to figure out where the wayland.xml file is installed, otherwise use
+    # default
     try:
         xml_dir = pkgconfig("wayland-scanner", "pkgdatadir")
         xml_file = os.path.join(xml_dir, "wayland.xml")
@@ -67,7 +68,7 @@ def main():
         description='Generate wayland protocol files from xml'
     )
     parser.add_argument(
-        '-o', '--output', metavar='DIR', default=protocol_dir, type=str,
+        '-o', '--output-dir', metavar='DIR', default=protocol_dir, type=str,
         help='Directory to output protocol files'
     )
     parser.add_argument(
@@ -81,19 +82,31 @@ def main():
 
     args = parser.parse_args()
 
-    if not os.path.exists(args.output):
-        os.makedirs(args.output, 0o775)
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir, 0o775)
 
     input_files = args.input
 
     if args.with_protocols:
-        _, protocols_files = get_wayland_protocols()
+        protocols_files = get_wayland_protocols()
         input_files += protocols_files
 
-    for input_file in input_files:
-        scanner = Scanner(input_file)
-        scanner.output(args.output)
+    protocols = [
+        Protocol(input_file) for input_file in input_files
+    ]
+    logger.info("Parsed {} input xml files".format(len(protocols)))
+
+    protocol_imports = {
+        interface.class_name: protocol.name
+        for protocol in protocols
+        for interface in protocol.interface
+    }
+
+    for protocol in protocols:
+        protocol.output(args.output_dir, protocol_imports)
+        logger.info("Generated protocol: {}".format(protocol.name))
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

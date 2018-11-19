@@ -14,11 +14,11 @@
 
 from .argument import Argument
 from .description import Description
-from .element import Element, Attribute, Child
+from .element import Attribute, Child
 from .method import Method
 
 
-class Event(Method, Element):
+class Event(Method):
     """Scanner for event objects (server-side method)
 
     Required attributes: `name`
@@ -32,11 +32,6 @@ class Event(Method, Element):
     attributes = [
         Attribute('name', True),
         Attribute('since', False)
-    ]
-
-    children = [
-        Child('description', Description, False, False),
-        Child('arg', Argument, False, True)
     ]
 
     @property
@@ -61,13 +56,13 @@ class Event(Method, Element):
             else:
                 yield 'None'
 
-    def output_doc_params(self, printer):
+    def output_doc_params(self, printer, module_imports):
         """Aguments documented as parameters
 
         All arguments are event parameters.
         """
         for arg in self.arg:
-            arg.output_doc_param(printer)
+            arg.output_doc_param(printer, module_imports)
 
     def output_doc_ret(self, printer):
         """Aguments documented as return values

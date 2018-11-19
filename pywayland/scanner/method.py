@@ -12,16 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .argument import Argument
+from .description import Description
+from .element import Child, Element
+
 # For 'new_id' types with no 'interface'
 NO_IFACE = 'interface'
 NO_IFACE_VERSION = 'version'
 
 
-class Method(object):
+class Method(Element):
     """Scanner for methods
 
     Corresponds to event and requests defined on an interface
     """
+
+    children = [
+        Child('description', Description, False, False),
+        Child('arg', Argument, False, True),
+    ]
 
     def __init__(self, method, iface_name, opcode):
         super(Method, self).__init__(method)
@@ -33,26 +42,32 @@ class Method(object):
         if self.name in ('global', 'import'):
             self.name += '_'
 
-    @property
-    def imports(self):
+    def imports(self, module_imports):
         """Get the imports required for each of the interfaces"""
+        interface_class = ''.join(x.capitalize() for x in self.interface.split('_'))
+        current_protocol = module_imports[interface_class]
+
         imports = []
         for arg in self.arg:
-            if arg.interface and arg.interface != self.interface:
-                # External protocols can import from main Wayland protocols
-                if arg.interface.split('_')[0] != self.interface.split('_')[0]:
-                    assert arg.interface.split('_')[0] == 'wl', "Don't know how to import interface"
-                    prefix = arg.interface.split('_')[0]
-                    import_path = '..wayland.{}'.format(arg.interface_class.lower())
-                    import_class = '{0} as {1}_{0}'.format(arg.interface_class, prefix)
-                else:
-                    import_path = '.{}'.format(arg.interface_class.lower())
-                    import_class = arg.interface_class
-                imports.append((import_path, import_class))
+            if arg.interface is None:
+                continue
+
+            if arg.interface == self.interface:
+                continue
+
+            import_class = arg.interface_class
+            import_protocol = module_imports[import_class]
+
+            if current_protocol == import_protocol:
+                import_path = ".{}".format(arg.interface)
+            else:
+                import_path = "..{}".format(import_protocol)
+
+            imports.append((import_path, import_class))
 
         return imports
 
-    def output(self, printer, in_class):
+    def output(self, printer, in_class, module_imports):
         """Generate the output for the given method to the printer"""
         # Generate the decorator for the method
         signature = ''.join(arg.signature for arg in self.arg)
@@ -70,23 +85,23 @@ class Method(object):
         printer.inc_level()
 
         # Write the documentation
-        self.output_doc(printer)
+        self.output_doc(printer, module_imports)
         # Write out the body of the method
         self.output_body(printer)
         printer.dec_level()
 
-    def output_doc(self, printer):
+    def output_doc(self, printer, module_imports):
         """Output the documentation for the interface"""
         if self.description:
-            self.description.output(printer)
+            self.description.output(printer, module_imports)
         else:
             printer('"""' + self.name)
         # Parameter and returns documentation
         if self.arg:
             printer()
-            self.output_doc_params(printer)
+            self.output_doc_params(printer, module_imports)
         printer('"""')
 
-    def output_doc_param(self, printer):
+    def output_doc_param(self, printer, module_imports):
         # Subclasses must define this to output the parameters
         raise NotImplementedError()

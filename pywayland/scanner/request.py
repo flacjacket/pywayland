@@ -14,7 +14,7 @@
 
 from .argument import Argument
 from .description import Description
-from .element import Element, Attribute, Child
+from .element import Attribute, Child
 from .method import Method
 
 # For 'new_id' types with no 'interface'
@@ -22,7 +22,7 @@ NO_IFACE = 'interface'
 NO_IFACE_VERSION = 'version'
 
 
-class Request(Method, Element):
+class Request(Method):
     """Scanner for request objects (client-side method)
 
     Required attributes: `name`
@@ -37,11 +37,6 @@ class Request(Method, Element):
         Attribute('name', True),
         Attribute('type', False),
         Attribute('since', False)
-    ]
-
-    children = [
-        Child('description', Description, False, False),
-        Child('arg', Argument, False, True)
     ]
 
     @property
@@ -96,7 +91,7 @@ class Request(Method, Element):
             else:
                 yield arg.name
 
-    def output_doc_params(self, printer):
+    def output_doc_params(self, printer, module_imports):
         """Aguments documented as parameters
 
         Anything that is not a `new_id` is
@@ -112,9 +107,9 @@ class Request(Method, Element):
                 printer(':param {}: Interface version'.format(NO_IFACE_VERSION))
                 printer(':type {}: `int`'.format(NO_IFACE_VERSION))
             else:
-                arg.output_doc_param(printer)
+                arg.output_doc_param(printer, module_imports)
         if ret is not None:
-            ret.output_doc_ret(printer)
+            ret.output_doc_ret(printer, module_imports)
 
     def output_doc_ret(self, printer):
         """Aguments documented as return values

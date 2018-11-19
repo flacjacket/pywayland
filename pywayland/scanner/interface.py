@@ -23,50 +23,50 @@ import itertools
 
 
 class Interface(Element):
-    """Scanner for interface objects
-
-    Required attributes: `name` and `version`
-
-    Child elements: `description`, `request`, `event`, `enum`
-    """
     attributes = [Attribute('name', True), Attribute('version', True)]
     children = [
-        Child('description', Description, False, False),  # should be true, but not, c.f. fullscreen-shell and input-method
+        Child('description', Description, False, False),
         Child('enum', Enum, False, True),
         # Child('request', Request, False, True),
         # Child('event', Event, False, True)
     ]
 
     def __init__(self, iface):
+        """Scanner for interface objects
+
+        Required attributes: `name` and `version`
+
+        Child elements: `description`, `request`, `event`, `enum`
+        """
         super(Interface, self).__init__(iface)
 
-        # Requests and events need special handling to get the opcode and interface name
-        self.event = [Event(event, self.name, i) for i, event in enumerate(iface.findall('event'))]
-        self.request = [Request(request, self.name, i) for i, request in enumerate(iface.findall('request'))]
-
-    @property
-    def module(self):
-        """Returns the name of the module the interface is printed to
-
-        Trims the ``wl_`` from the specified interface name and drops
-        underscores, for example `wl_data_device` becomes `datadevice`.
-        """
-        return ''.join(self.name.split('_')[1:])
+        # Requests and events need special handling to get the opcode and
+        # interface name
+        self.event = [
+            Event(event, self.name, i)
+            for i, event in enumerate(iface.findall('event'))
+        ]
+        self.request = [
+            Request(request, self.name, i)
+            for i, request in enumerate(iface.findall('request'))
+        ]
 
     @property
     def class_name(self):
         """Returns the name of the class of the interface
 
-        Trim the ``wl_`` from the specified interface, and capitalize the first
-        letter of each word, dropping the underscores.
+        Camel cases the name of the interface, to be used as the class name.
         """
-        return ''.join(x.capitalize() for x in self.name.split('_')[1:])
+        return ''.join(x.capitalize() for x in self.name.split('_'))
 
-    def output(self, printer):
+    def output(self, printer, module_imports):
         """Generate the output for the interface to the printer"""
         # Imports
-        imports = set(_import for method in itertools.chain(self.request, self.event)
-                      for _import in method.imports)
+        imports = set(
+            _import
+            for method in itertools.chain(self.request, self.event)
+            for _import in method.imports(module_imports)
+        )
         printer('from pywayland.interface import Interface')
         for module, import_ in sorted(imports):
             printer('from {} import {}'.format(module, import_))
@@ -81,7 +81,7 @@ class Interface(Element):
         # Docstring
         printer.inc_level()
         if self.description:
-            self.description.output(printer)
+            self.description.output(printer, module_imports)
             printer('"""')
 
         # Class attributes
@@ -98,7 +98,7 @@ class Interface(Element):
         for method in itertools.chain(self.request, self.event):
             printer()
             printer()
-            method.output(printer, self.class_name)
+            method.output(printer, self.class_name, module_imports)
 
         printer()
         printer()

@@ -22,18 +22,7 @@ from .interface import Interface
 from .printer import Printer
 
 
-class Scanner(Element):
-    """Main scanner object
-
-    Main scanner object that acts on the input ``wayland.xml`` file to generate
-    protocol files.
-
-    Required attributes: `name`
-
-    Child elements: `copyright?`, `description?`, and `interface+`
-
-    :param input_file: Name of input XML file
-    """
+class Protocol(Element):
     attributes = [Attribute('name', True)]
 
     children = [
@@ -43,6 +32,17 @@ class Scanner(Element):
     ]
 
     def __init__(self, input_file):
+        """Protocol scanner object
+
+        Main scanner object that acts on the input xml files to generate
+        protocol files.
+
+        Required attributes: `name`
+
+        Child elements: `copyright?`, `description?`, and `interface+`
+
+        :param input_file: Name of input XML file
+        """
         self._input_file = os.path.basename(input_file)
         if not os.path.exists(input_file):
             raise ValueError("Input xml file does not exist: {}".format(input_file))
@@ -50,14 +50,13 @@ class Scanner(Element):
         if xmlroot.tag != 'protocol':
             raise ValueError("Input file not a valid Wayland protocol file: {}".format(input_file))
 
-        super(Scanner, self).__init__(xmlroot)
+        super(Protocol, self).__init__(xmlroot)
 
     def __repr__(self):
-        return "Scanner({})".format(self._input_file)
+        return "Protocol({})".format(self._input_file)
 
-    def output(self, output_dir):
+    def output(self, output_dir, module_imports):
         """Output the scanned files to the given directory
-
 
         :param output_dir: Path of directory to output protocol files to
         :type output_dir: string
@@ -77,8 +76,8 @@ class Scanner(Element):
             printer(copyright_default)
 
         printer()
-        for iface in self.interface:
-            printer('from .{} import {}  # noqa'.format(iface.module, iface.class_name))
+        for iface in sorted(self.interface, key=lambda x: x.name):
+            printer('from .{} import {}  # noqa: F401'.format(iface.name, iface.class_name))
 
         init_path = os.path.join(output_dir, '__init__.py')
         with open(init_path, 'wb') as f:
@@ -86,7 +85,7 @@ class Scanner(Element):
 
         # Now build all the modules
         for iface in self.interface:
-            module_path = os.path.join(output_dir, iface.module + ".py")
+            module_path = os.path.join(output_dir, iface.name + ".py")
 
             printer = Printer(self.name.replace('-', '_'))
             printer.initialize_file(iface.name)
@@ -96,7 +95,7 @@ class Scanner(Element):
                 printer(copyright_default)
             printer()
 
-            iface.output(printer)
+            iface.output(printer, module_imports)
 
             with open(module_path, 'wb') as f:
                 printer.write(f)
