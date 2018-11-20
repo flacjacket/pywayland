@@ -122,5 +122,4 @@ class Argument(Element):
             interface_module = module_imports[interface_class]
             return ':class:`~pywayland.protocol.{}.{}`'.format(interface_module, interface_class)
         else:
-            print(interface_class)
             return ':class:`{}`'.format(interface_class)

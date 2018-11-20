@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pywayland.server import Client, Listener, Display
-from pywayland.protocol.wayland.display import Display as DisplayProto
+from pywayland.protocol.wayland import WlDisplay
 
 import socket
 
@@ -24,7 +24,7 @@ def test_create_resource():
     client = Client(display, s1.fileno())
 
     # Create resource
-    res = DisplayProto.resource_class(client, version=4)
+    res = WlDisplay.resource_class(client, version=4)
 
     assert res.version == 4
 
@@ -61,7 +61,7 @@ def test_destroy_resource():
     listener = Listener(_destroy_notify)
 
     # Create resource
-    res = DisplayProto.resource_class(client, version=4)
+    res = WlDisplay.resource_class(client, version=4)
     # Attach a destructor and a destroy notification
     res.dispatcher.destructor = _destroy_callback
     res.add_destroy_listener(listener)
@@ -74,7 +74,7 @@ def test_destroy_resource():
     assert client.get_object(res.id) is None
 
     # Create resource
-    res = DisplayProto.resource_class(client, version=2)
+    res = WlDisplay.resource_class(client, version=2)
     # Attach a destructor and a destroy notification
     res.dispatcher.destructor = _destroy_callback
     res.add_destroy_listener(listener)
@@ -95,11 +95,11 @@ def notest_create_resource_with_same_id():
     client = Client(display, s1.fileno())
 
     # Create resource
-    res = DisplayProto.resource_class(client, version=2)
+    res = WlDisplay.resource_class(client, version=2)
     assert client.get_object(res.id) == res
 
     # This should replace the old one
-    res2 = DisplayProto.resource_class(client, version=1, id=res.id)
+    res2 = WlDisplay.resource_class(client, version=1, id=res.id)
     assert client.get_object(res.id) == res2
 
     res2.destroy()

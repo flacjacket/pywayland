@@ -16,11 +16,11 @@
 # limitations under the License.
 
 from pywayland.interface import Interface
-from .core import Core
-from .events import Events
+from .wl_core import WlCore
+from .wl_events import WlEvents
 
 
-class Requests(Interface):
+class WlRequests(Interface):
     """Request object
 
     The interface object with the different types of requests.
@@ -29,7 +29,7 @@ class Requests(Interface):
     version = 2
 
 
-@Requests.request("niuh", [Core, None, None, None])
+@WlRequests.request("niuh", [WlCore, None, None, None])
 def make_request(self, the_int, the_uint, the_fd):
     """A request
 
@@ -41,13 +41,13 @@ def make_request(self, the_int, the_uint, the_fd):
     :type the_uint: `uint`
     :param the_fd:
     :type the_fd: `fd`
-    :returns: :class:`~pywayland.protocol.scanner_test.core.Core`
+    :returns: :class:`~pywayland.protocol.scanner_test.WlCore`
     """
-    id = self._marshal_constructor(0, Core, the_int, the_uint, the_fd)
+    id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fd)
     return id
 
 
-@Requests.request("", [])
+@WlRequests.request("", [])
 def no_args(self):
     """Request with no args
 
@@ -56,29 +56,29 @@ def no_args(self):
     self._marshal(1)
 
 
-@Requests.request("n", [Core])
+@WlRequests.request("n", [WlCore])
 def create_id(self):
     """Create an id
 
     With a description
 
-    :returns: :class:`~pywayland.protocol.scanner_test.core.Core`
+    :returns: :class:`~pywayland.protocol.scanner_test.WlCore`
     """
-    id = self._marshal_constructor(2, Core)
+    id = self._marshal_constructor(2, WlCore)
     return id
 
 
-@Requests.request("n", [Core])
+@WlRequests.request("n", [WlCore])
 def create_id2(self):
     """Create an id without a description
 
-    :returns: :class:`~pywayland.protocol.scanner_test.core.Core`
+    :returns: :class:`~pywayland.protocol.scanner_test.WlCore`
     """
-    id = self._marshal_constructor(3, Core)
+    id = self._marshal_constructor(3, WlCore)
     return id
 
 
-@Requests.request("u?s", [None, None])
+@WlRequests.request("u?s", [None, None])
 def allow_null(self, serial, mime_type):
     """Request that allows for null arguments
 
@@ -92,7 +92,7 @@ def allow_null(self, serial, mime_type):
     self._marshal(4, serial, mime_type)
 
 
-@Requests.request("n?o", [Events, Core])
+@WlRequests.request("n?o", [WlEvents, WlCore])
 def make_import(self, object):
     """Request that causes an import
 
@@ -100,14 +100,14 @@ def make_import(self, object):
     new_id and as an object.
 
     :param object:
-    :type object: :class:`~pywayland.protocol.scanner_test.core.Core` or `None`
-    :returns: :class:`~pywayland.protocol.scanner_test.events.Events`
+    :type object: :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
+    :returns: :class:`~pywayland.protocol.scanner_test.WlEvents`
     """
-    id = self._marshal_constructor(5, Events, object)
+    id = self._marshal_constructor(5, WlEvents, object)
     return id
 
 
-@Requests.request("2", [])
+@WlRequests.request("2", [])
 def versioned(self):
     """A versioned request
 
@@ -116,13 +116,12 @@ def versioned(self):
     self._marshal(6)
 
 
-@Requests.request("usun", [None, None, None, None])
+@WlRequests.request("usun", [None, None, None, None])
 def new_id_no_interface(self, name, interface, version):
     """Create a new id, but with no interface
 
     A method with an argument for a new_id, but with no corresponding interface
-    (c.f. :func:`Registry.bind()
-    <pywayland.protocol.scanner_test.registry.Registry.bind>`).
+    (c.f. :func:`WlRegistry.bind()`).
 
     :param name:
     :type name: `uint`
@@ -136,4 +135,4 @@ def new_id_no_interface(self, name, interface, version):
     return id
 
 
-Requests._gen_c()
+WlRequests._gen_c()

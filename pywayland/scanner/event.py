@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .argument import Argument
-from .description import Description
-from .element import Attribute, Child
+from .element import Attribute
 from .method import Method
 
 

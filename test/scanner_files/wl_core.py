@@ -16,12 +16,12 @@
 # limitations under the License.
 
 from pywayland.interface import Interface
-from .object import Object
+from .wl_requests import WlRequests
 
 import enum
 
 
-class Core(Interface):
+class WlCore(Interface):
     """Interface object
 
     The interface object with the most basic content.
@@ -36,7 +36,7 @@ class Core(Interface):
     })
 
 
-@Core.request("niuf", [Core, None, None, None])
+@WlCore.request("niuf", [WlCore, None, None, None])
 def make_request(self, the_int, the_uint, the_fixed):
     """A request
 
@@ -48,13 +48,13 @@ def make_request(self, the_int, the_uint, the_fixed):
     :type the_uint: `uint`
     :param the_fixed:
     :type the_fixed: `fixed`
-    :returns: :class:`Core`
+    :returns: :class:`WlCore`
     """
-    id = self._marshal_constructor(0, Core, the_int, the_uint, the_fixed)
+    id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fixed)
     return id
 
 
-@Core.request("iufn", [None, None, None, Core])
+@WlCore.request("iufn", [None, None, None, WlCore])
 def make_request2(self, the_int, the_uint, the_fixed):
     """A request
 
@@ -66,27 +66,26 @@ def make_request2(self, the_int, the_uint, the_fixed):
     :type the_uint: `uint`
     :param the_fixed:
     :type the_fixed: `fixed`
-    :returns: :class:`Core` -- a :class:`Core` object
+    :returns: :class:`WlCore` -- a :class:`WlCore` object
     """
-    id = self._marshal_constructor(1, Core, the_int, the_uint, the_fixed)
+    id = self._marshal_constructor(1, WlCore, the_int, the_uint, the_fixed)
     return id
 
 
-@Core.event("no", [Core, Object])
+@WlCore.event("no", [WlCore, WlRequests])
 def send_event(self, id, object):
-    """A :class:`Core` event
+    """A :class:`WlCore` event
 
-    Send an event, but also put in some docs for our interface :class:`Core`,
-    some other interface :class:`~pywayland.protocol.scanner_test.other.Other`,
-    a local function call :func:`Core.func`, and another function call
-    :func:`Other.func() <pywayland.protocol.scanner_test.other.Other.func>`.
+    Send an event, but also put in some docs for our interface :class:`WlCore`,
+    some other interface :class:`WlOther`, a local function call
+    :func:`WlCore.func()`, and another function call :func:`WlOther.func()`.
 
-    :param id: a :class:`Core` object
-    :type id: :class:`Core`
-    :param object: a :class:`~pywayland.protocol.scanner_test.object.Object` object
-    :type object: :class:`~pywayland.protocol.scanner_test.object.Object`
+    :param id: a :class:`WlCore` object
+    :type id: :class:`WlCore`
+    :param object: a :class:`~pywayland.protocol.scanner_test.WlRequests` object
+    :type object: :class:`~pywayland.protocol.scanner_test.WlRequests`
     """
     self._post_event(0, id, object)
 
 
-Core._gen_c()
+WlCore._gen_c()

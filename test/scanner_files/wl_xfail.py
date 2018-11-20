@@ -18,7 +18,7 @@
 from pywayland.interface import Interface
 
 
-class Xfail(Interface):
+class WlXfail(Interface):
     """Xfailing interface
 
     Items that do not really work yet are put in here, they should be moved
@@ -28,4 +28,4 @@ class Xfail(Interface):
     version = 1
 
 
-Xfail._gen_c()
+WlXfail._gen_c()

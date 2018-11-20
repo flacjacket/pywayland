@@ -16,11 +16,11 @@
 # limitations under the License.
 
 from pywayland.interface import Interface
-from .core import Core
-from .requests import Requests
+from .wl_core import WlCore
+from .wl_requests import WlRequests
 
 
-class Events(Interface):
+class WlEvents(Interface):
     """Events object
 
     The interface object with the different types of events.
@@ -29,7 +29,7 @@ class Events(Interface):
     version = 2
 
 
-@Events.event("niuh", [Requests, None, None, None])
+@WlEvents.event("niuh", [WlRequests, None, None, None])
 def send_event(self, id, the_int, the_uint, the_fd):
     """Send the data
 
@@ -37,7 +37,7 @@ def send_event(self, id, the_int, the_uint, the_fd):
     over the passed file descriptor, then close it.
 
     :param id:
-    :type id: :class:`~pywayland.protocol.scanner_test.requests.Requests`
+    :type id: :class:`~pywayland.protocol.scanner_test.WlRequests`
     :param the_int:
     :type the_int: `int`
     :param the_uint: the arg summary
@@ -48,7 +48,7 @@ def send_event(self, id, the_int, the_uint, the_fd):
     self._post_event(0, id, the_int, the_uint, the_fd)
 
 
-@Events.event("", [])
+@WlEvents.event("", [])
 def no_args(self):
     """Event with no args
 
@@ -57,29 +57,29 @@ def no_args(self):
     self._post_event(1)
 
 
-@Events.event("n", [Core])
+@WlEvents.event("n", [WlCore])
 def create_id(self, id):
     """Create an id
 
     With a description
 
     :param id:
-    :type id: :class:`~pywayland.protocol.scanner_test.core.Core`
+    :type id: :class:`~pywayland.protocol.scanner_test.WlCore`
     """
     self._post_event(2, id)
 
 
-@Events.event("n", [Core])
+@WlEvents.event("n", [WlCore])
 def create_id2(self, id):
     """Create an id without a description
 
     :param id:
-    :type id: :class:`~pywayland.protocol.scanner_test.core.Core`
+    :type id: :class:`~pywayland.protocol.scanner_test.WlCore`
     """
     self._post_event(3, id)
 
 
-@Events.event("?s", [None])
+@WlEvents.event("?s", [None])
 def allow_null_event(self, null_string):
     """A event with an allowed null argument
 
@@ -91,21 +91,21 @@ def allow_null_event(self, null_string):
     self._post_event(4, null_string)
 
 
-@Events.event("n?o", [Requests, Core])
+@WlEvents.event("n?o", [WlRequests, WlCore])
 def make_import(self, id, object):
     """Event that causes an import
 
     An event method that causes an imoprt of other interfaces
 
     :param id:
-    :type id: :class:`~pywayland.protocol.scanner_test.requests.Requests`
+    :type id: :class:`~pywayland.protocol.scanner_test.WlRequests`
     :param object:
-    :type object: :class:`~pywayland.protocol.scanner_test.core.Core` or `None`
+    :type object: :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
     """
     self._post_event(5, id, object)
 
 
-@Events.event("2", [])
+@WlEvents.event("2", [])
 def versioned(self):
     """A versioned event
 
@@ -114,4 +114,4 @@ def versioned(self):
     self._post_event(6)
 
 
-Events._gen_c()
+WlEvents._gen_c()

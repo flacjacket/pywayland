@@ -15,28 +15,30 @@
 from cffi import FFI
 import re
 
-from pywayland.protocol.wayland.buffer import Buffer
-from pywayland.protocol.wayland.callback import Callback
-from pywayland.protocol.wayland.compositor import Compositor
-from pywayland.protocol.wayland.datadevicemanager import DataDeviceManager
-from pywayland.protocol.wayland.datadevice import DataDevice
-from pywayland.protocol.wayland.dataoffer import DataOffer
-from pywayland.protocol.wayland.datasource import DataSource
-from pywayland.protocol.wayland.display import Display
-from pywayland.protocol.wayland.keyboard import Keyboard
-from pywayland.protocol.wayland.output import Output
-from pywayland.protocol.wayland.pointer import Pointer
-from pywayland.protocol.wayland.region import Region
-from pywayland.protocol.wayland.registry import Registry
-from pywayland.protocol.wayland.seat import Seat
-from pywayland.protocol.wayland.shell import Shell
-from pywayland.protocol.wayland.shellsurface import ShellSurface
-from pywayland.protocol.wayland.shmpool import ShmPool
-from pywayland.protocol.wayland.shm import Shm
-from pywayland.protocol.wayland.subcompositor import Subcompositor
-from pywayland.protocol.wayland.subsurface import Subsurface
-from pywayland.protocol.wayland.surface import Surface
-from pywayland.protocol.wayland.touch import Touch
+from pywayland.protocol.wayland import (
+    WlBuffer,
+    WlCallback,
+    WlCompositor,
+    WlDataDeviceManager,
+    WlDataDevice,
+    WlDataOffer,
+    WlDataSource,
+    WlDisplay,
+    WlKeyboard,
+    WlOutput,
+    WlPointer,
+    WlRegion,
+    WlRegistry,
+    WlSeat,
+    WlShell,
+    WlShellSurface,
+    WlShmPool,
+    WlShm,
+    WlSubcompositor,
+    WlSubsurface,
+    WlSurface,
+    WlTouch,
+)
 
 ffi = FFI()
 
@@ -86,28 +88,28 @@ C = ffi.verify("""
 # Check the generated cdata interfaces against actual ones, list of all
 # interfaces as of wayland 1.7.0
 interfaces = [
-    (Buffer, C.wl_buffer_interface),
-    (Callback, C.wl_callback_interface),
-    (Compositor, C.wl_compositor_interface),
-    (DataDeviceManager, C.wl_data_device_manager_interface),
-    (DataDevice, C.wl_data_device_interface),
-    (DataOffer, C.wl_data_offer_interface),
-    (DataSource, C.wl_data_source_interface),
-    (Display, C.wl_display_interface),
-    (Keyboard, C.wl_keyboard_interface),
-    (Output, C.wl_output_interface),
-    (Pointer, C.wl_pointer_interface),
-    (Region, C.wl_region_interface),
-    (Registry, C.wl_registry_interface),
-    (Seat, C.wl_seat_interface),
-    (Shell, C.wl_shell_interface),
-    (ShellSurface, C.wl_shell_surface_interface),
-    (ShmPool, C.wl_shm_pool_interface),
-    (Shm, C.wl_shm_interface),
-    (Subcompositor, C.wl_subcompositor_interface),
-    (Subsurface, C.wl_subsurface_interface),
-    (Surface, C.wl_surface_interface),
-    (Touch, C.wl_touch_interface),
+    (WlBuffer, C.wl_buffer_interface),
+    (WlCallback, C.wl_callback_interface),
+    (WlCompositor, C.wl_compositor_interface),
+    (WlDataDeviceManager, C.wl_data_device_manager_interface),
+    (WlDataDevice, C.wl_data_device_interface),
+    (WlDataOffer, C.wl_data_offer_interface),
+    (WlDataSource, C.wl_data_source_interface),
+    (WlDisplay, C.wl_display_interface),
+    (WlKeyboard, C.wl_keyboard_interface),
+    (WlOutput, C.wl_output_interface),
+    (WlPointer, C.wl_pointer_interface),
+    (WlRegion, C.wl_region_interface),
+    (WlRegistry, C.wl_registry_interface),
+    (WlSeat, C.wl_seat_interface),
+    (WlShell, C.wl_shell_interface),
+    (WlShellSurface, C.wl_shell_surface_interface),
+    (WlShmPool, C.wl_shm_pool_interface),
+    (WlShm, C.wl_shm_interface),
+    (WlSubcompositor, C.wl_subcompositor_interface),
+    (WlSubsurface, C.wl_subsurface_interface),
+    (WlSurface, C.wl_surface_interface),
+    (WlTouch, C.wl_touch_interface),
 ]
 
 re_arg = re.compile(r"(\??)([uifsonah])")

@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .argument import Argument
-from .description import Description
-from .element import Attribute, Child
+from .element import Attribute
 from .method import Method
 
 # For 'new_id' types with no 'interface'
@@ -120,11 +118,7 @@ class Request(Method):
         """Output the body of the request to the printer"""
         if self.new_id:
             if self.new_id.interface:
-                if self.new_id.interface.split('_')[0] != self.interface.split('_')[0]:
-                    prefix = self.new_id.interface.split('_')[0]
-                    id_class = '{}_{}'.format(prefix, self.new_id.interface_class)
-                else:
-                    id_class = self.new_id.interface_class
+                id_class = self.new_id.interface_class
             else:
                 id_class = NO_IFACE
             args = ', '.join([str(self.opcode), id_class] + list(self.marshal_args))

@@ -49,7 +49,7 @@
         another function call wl_other.func.
       </description>
       <arg name="id" type="new_id" interface="wl_core" summary="a wl_core object"/>
-      <arg name="object" type="object" interface="wl_object" summary="a wl_object object"/>
+      <arg name="object" type="object" interface="wl_requests" summary="a wl_requests object"/>
     </event>
 
     <enum name="the_enum">

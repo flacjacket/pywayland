@@ -110,33 +110,42 @@ class Printer(object):
         elif iface_class in module_imports:
             iface_path = module_imports[iface_class]
         else:
-            iface_path = iface_class
+            iface_path = ""
 
         return iface_class, iface_path
 
     def _doc_replace(self, match, module_imports):
         iface_name = match.group('iface')
-        iface, iface_path = self._get_iface(iface_name, module_imports)
-        func = match.group('func')
+        function_name = match.group('func')
+
+        interface_class, protocol_path = self._get_iface(iface_name, module_imports)
 
         # annoying corner case from poorly formatted xml
         if iface_name == 'wl_pointer_destroy':
-            iface = iface_name = 'Pointer'
-            iface_path = 'pywayland.protocol.wayland.pointer.Pointer'
-            func = '.destroy'
+            interface_class = iface_name = 'Pointer'
+            protocol_path = 'pywayland.protocol.wayland.Pointer'
+            function_name = '.destroy'
 
-        if func:
-            if iface_name == self.iface_name:
-                return ':func:`{}{}`'.format(iface, func)
+        base_path = "pywayland.protocol"
+        if function_name:
+            if iface_name == self.iface_name or protocol_path == "":
+                return ':func:`{}{}()`'.format(interface_class, function_name)
             else:
-                return ':func:`{class_name}{func}() <{path}{func}>`'.format(
-                    class_name=iface, func=func, path=iface_path
+                return ':func:`{class_name}{func}() <{base_path}.{iface}.{class_name}{func}>`'.format(
+                    class_name=interface_class,
+                    func=function_name,
+                    base_path=base_path,
+                    iface=protocol_path,
                 )
         else:
-            if iface_name == self.iface_name:
-                return ':class:`{}`'.format(iface)
+            if iface_name == self.iface_name or protocol_path == "":
+                return ':class:`{}`'.format(interface_class)
             else:
-                return ':class:`~{}`'.format(iface_path)
+                return ':class:`~{base_path}.{iface}.{class_name}`'.format(
+                    class_name=interface_class,
+                    base_path=base_path,
+                    iface=protocol_path,
+                )
 
     def inc_level(self):
         """Increment the indent level"""

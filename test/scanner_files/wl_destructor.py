@@ -18,7 +18,7 @@
 from pywayland.interface import Interface
 
 
-class Destructor(Interface):
+class WlDestructor(Interface):
     """Destructor object
 
     An interface object with a destructor request.
@@ -29,11 +29,11 @@ class Destructor(Interface):
     version = 1
 
 
-@Destructor.request("niiiiu", [Destructor, None, None, None, None, None])
+@WlDestructor.request("niiiiu", [WlDestructor, None, None, None, None, None])
 def create_interface(self, x, y, width, height, format):
     """Create another interface
 
-    Create a :class:`Destructor` interface object
+    Create a :class:`WlDestructor` interface object
 
     :param x:
     :type x: `int`
@@ -45,13 +45,13 @@ def create_interface(self, x, y, width, height, format):
     :type height: `int`
     :param format:
     :type format: `uint`
-    :returns: :class:`Destructor`
+    :returns: :class:`WlDestructor`
     """
-    id = self._marshal_constructor(0, Destructor, x, y, width, height, format)
+    id = self._marshal_constructor(0, WlDestructor, x, y, width, height, format)
     return id
 
 
-@Destructor.request("", [])
+@WlDestructor.request("", [])
 def destroy(self):
     """Destroy the interface
 
@@ -61,4 +61,4 @@ def destroy(self):
     self._destroy()
 
 
-Destructor._gen_c()
+WlDestructor._gen_c()

@@ -14,12 +14,12 @@
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
-from pywayland.protocol.wayland import Display as _Display
+from pywayland.protocol.wayland import WlDisplay
 
 import weakref
 
 
-class Display(_Display.proxy_class):
+class Display(WlDisplay.proxy_class):
     """Represents a connection to the compositor
 
     A :class:`Display` object represents a client connection to a Wayland

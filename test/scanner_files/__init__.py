@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .core import Core  # noqa
-from .requests import Requests  # noqa
-from .events import Events  # noqa
-from .destructor import Destructor  # noqa
-from .xfail import Xfail  # noqa
+from .wl_core import WlCore  # noqa: F401
+from .wl_destructor import WlDestructor  # noqa: F401
+from .wl_events import WlEvents  # noqa: F401
+from .wl_requests import WlRequests  # noqa: F401
+from .wl_xfail import WlXfail  # noqa: F401

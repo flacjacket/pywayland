@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.scanner.scanner import Scanner
+from pywayland.scanner import Protocol
 
 import os
 import pytest
@@ -23,8 +23,8 @@ this_dir = os.path.split(__file__)[0]
 scanner_dir = os.path.join(this_dir, 'scanner_files')
 input_file = os.path.join(scanner_dir, 'test_scanner_input.xml')
 
-pass_iface = ["__init__.py", "core.py", "events.py", "requests.py", "destructor.py"]
-xfail_iface = ["xfail.py"]
+pass_iface = ["__init__.py", "wl_core.py", "wl_events.py", "wl_requests.py", "wl_destructor.py"]
+xfail_iface = ["wl_xfail.py"]
 
 generated_files = pass_iface + xfail_iface
 
@@ -44,11 +44,16 @@ def check_interface(iface_name, gen_lines):
 
 
 def test_scanner():
-    scanner = Scanner(input_file)
+    scanner = Protocol(input_file)
+
+    imports = {
+        interface.class_name: scanner.name
+        for interface in scanner.interface
+    }
 
     output_dir = tempfile.mkdtemp()
     try:
-        scanner.output(output_dir)
+        scanner.output(output_dir, imports)
         test_dir = os.path.join(output_dir, "scanner_test")
         assert os.path.exists(test_dir)
         assert set(os.listdir(test_dir)) == set(generated_files)
