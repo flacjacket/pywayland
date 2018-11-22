@@ -13,10 +13,12 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.client.eventqueue import EventQueue
 from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import WlDisplay
 
-import weakref
+from typing import Any, Union
+from weakref import WeakSet
 
 
 class Display(WlDisplay.proxy_class):  # type: ignore
@@ -71,18 +73,20 @@ class Display(WlDisplay.proxy_class):  # type: ignore
     is solved using another event queue, so that only the events handled by the
     EGL code are dispatched during the block.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         # Initially, we have no pointer
         super(Display, self).__init__(None)
 
-    def __enter__(self):
+        self._children: WeakSet[Any] = WeakSet()
+
+    def __enter__(self) -> "Display":
         self.connect()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.disconnect()
 
-    def connect(self, name_or_fd=None):
+    def connect(self, name_or_fd: Union[int, str, None] = None) -> None:
         """Connect to a Wayland display
 
         Connect to the Wayland display by name of fd.  An `int` parameter opens
@@ -109,9 +113,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
 
         self._ptr = ffi.gc(self._ptr, lib.wl_display_disconnect)
 
-        self._children = weakref.WeakSet()
-
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Close a connection to a Wayland display
 
         Close the connection to display and free all resources associated with
@@ -129,7 +131,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             self._ptr = None
 
     @ensure_valid
-    def get_fd(self):
+    def get_fd(self) -> int:
         """Get a display context's file descriptor
 
         Return the file descriptor associated with a display so it can be
@@ -138,7 +140,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_get_fd(self._ptr)
 
     @ensure_valid
-    def dispatch(self):
+    def dispatch(self) -> int:
         """Process incoming events
 
         Dispatch the display's default event queue.
@@ -162,7 +164,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_dispatch(self._ptr)
 
     @ensure_valid
-    def dispatch_pending(self):
+    def dispatch_pending(self) -> int:
         """Dispatch default queue events without reading from the display fd
 
         This function dispatches events on the main event queue. It does not
@@ -200,7 +202,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_dispatch_pending(self._ptr)
 
     @ensure_valid
-    def dispatch_queue(self, queue):
+    def dispatch_queue(self, queue: EventQueue) -> int:
         """Dispatch events in an event queue
 
         Dispatch all incoming events for objects assigned to the given event
@@ -239,7 +241,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_dispatch_queue(self._ptr, queue._ptr)
 
     @ensure_valid
-    def flush(self):
+    def flush(self) -> int:
         """Send all buffered requests on the display to the server
 
         Send all buffered data on the client side to the server. Clients
@@ -255,7 +257,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_flush(self._ptr)
 
     @ensure_valid
-    def roundtrip(self):
+    def roundtrip(self) -> int:
         """Block until all pending request are processed by the server
 
         This function blocks until the server has processed all currently
@@ -276,7 +278,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_roundtrip(self._ptr)
 
     @ensure_valid
-    def roundtrip_queue(self, queue):
+    def roundtrip_queue(self, queue) -> int:
         """Block until all pending request are processed by the server
 
         This function blocks until the server has processed all currently
