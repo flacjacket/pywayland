@@ -51,7 +51,9 @@ class Proxy(object):
             dispatcher_to_object[self.dispatcher] = self
 
             self._handle = ffi.new_handle(self.dispatcher)
-            lib.wl_proxy_add_dispatcher(ffi.cast("struct wl_proxy *", self._ptr), lib.dispatcher_func, self._handle, ffi.NULL)
+            lib.wl_proxy_add_dispatcher(
+                ffi.cast("struct wl_proxy *", self._ptr), lib.dispatcher_func, self._handle, ffi.NULL
+            )
 
     def _destroy(self):
         """Frees the pointer associated with the Proxy"""

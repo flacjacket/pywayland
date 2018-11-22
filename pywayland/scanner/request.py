@@ -85,7 +85,7 @@ class Request(Method):
             else:
                 yield arg.name
 
-    def output_doc_params(self, printer, module_imports):
+    def output_doc_params(self, printer):
         """Aguments documented as parameters
 
         Anything that is not a `new_id` is
@@ -101,9 +101,9 @@ class Request(Method):
                 printer(':param {}: Interface version'.format(NO_IFACE_VERSION))
                 printer(':type {}: `int`'.format(NO_IFACE_VERSION))
             else:
-                arg.output_doc_param(printer, module_imports)
+                arg.output_doc_param(printer)
         if ret is not None:
-            ret.output_doc_ret(printer, module_imports)
+            ret.output_doc_ret(printer)
 
     def output_doc_ret(self, printer):
         """Aguments documented as return values

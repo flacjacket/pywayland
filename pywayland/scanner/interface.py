@@ -81,7 +81,7 @@ class Interface(Element):
         # Docstring
         printer.inc_level()
         if self.description:
-            self.description.output(printer, module_imports)
+            self.description.output(printer)
             printer('"""')
 
         # Class attributes

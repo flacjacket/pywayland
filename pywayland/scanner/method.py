@@ -16,7 +16,7 @@ from .argument import Argument
 from .description import Description
 from .element import Child, Element
 
-from typing import List
+from typing import List  # noqa: F401
 
 # For 'new_id' types with no 'interface'
 NO_IFACE = 'interface'
@@ -34,8 +34,8 @@ class Method(Element):
         Child('arg', Argument, False, True),
     ]
 
-    description: List[Description] = []
-    arg: List[Argument] = []
+    description = []  # type: List[Description]
+    arg = []  # type: List[Argument]
 
     def __init__(self, method, iface_name, opcode):
         super(Method, self).__init__(method)
@@ -90,23 +90,19 @@ class Method(Element):
         printer.inc_level()
 
         # Write the documentation
-        self.output_doc(printer, module_imports)
+        self.output_doc(printer)
         # Write out the body of the method
         self.output_body(printer)
         printer.dec_level()
 
-    def output_doc(self, printer, module_imports):
+    def output_doc(self, printer):
         """Output the documentation for the interface"""
         if self.description:
-            self.description.output(printer, module_imports)
+            self.description.output(printer)
         else:
             printer('"""' + self.name)
         # Parameter and returns documentation
         if self.arg:
             printer()
-            self.output_doc_params(printer, module_imports)
+            self.output_doc_params(printer)
         printer('"""')
-
-    def output_doc_param(self, printer, module_imports):
-        # Subclasses must define this to output the parameters
-        raise NotImplementedError()

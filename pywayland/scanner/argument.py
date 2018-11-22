@@ -78,31 +78,31 @@ class Argument(Element):
         elif self.type == 'fd':
             return 'h'
 
-    def output_doc_param(self, printer, module_imports):
+    def output_doc_param(self, printer):
         """Document the argument as a parameter"""
         # Output the parameter and summary
         if self.summary:
-            printer.doc(':param {}: {}'.format(self.name, self.summary), module_imports)
+            printer.doc(':param {}: {}'.format(self.name, self.summary))
         else:
-            printer.doc(':param {}:'.format(self.name), module_imports)
+            printer.doc(':param {}:'.format(self.name))
 
         # Determine the type to be output
         if self.interface:
-            arg_type = self._doc_interface(printer, module_imports)
+            arg_type = self._doc_interface(printer)
         else:
             arg_type = '`{}`'.format(self.type)
 
         # Output the parameter type
         if self.allow_null:
-            printer.doc(':type {}: {} or `None`'.format(self.name, arg_type), module_imports)
+            printer.doc(':type {}: {} or `None`'.format(self.name, arg_type))
         else:
-            printer.doc(':type {}: {}'.format(self.name, arg_type), module_imports)
+            printer.doc(':type {}: {}'.format(self.name, arg_type))
 
-    def output_doc_ret(self, printer, module_imports):
+    def output_doc_ret(self, printer):
         """Document the argument as a return"""
         # Determine the type to be output
         if self.interface:
-            arg_type = self._doc_interface(printer, module_imports)
+            arg_type = self._doc_interface(printer)
         else:
             # Only new_id's are returned, the only corner case here is for
             # wl_registry.bind, so no interface => Proxy
@@ -110,16 +110,16 @@ class Argument(Element):
 
         # Output the type and summary
         if self.summary:
-            printer.doc(':returns: {} -- {}'.format(arg_type, self.summary), module_imports)
+            printer.doc(':returns: {} -- {}'.format(arg_type, self.summary))
         else:
-            printer.doc(':returns: {}'.format(arg_type), module_imports)
+            printer.doc(':returns: {}'.format(arg_type))
 
-    def _doc_interface(self, printer, module_imports):
+    def _doc_interface(self, printer):
         interface_class = ''.join(x.capitalize() for x in self.interface.split('_'))
         if self.interface == printer.iface_name:
             return ':class:`{}`'.format(interface_class)
-        elif interface_class in module_imports:
-            interface_module = module_imports[interface_class]
+        elif interface_class in printer._interface_imports:
+            interface_module = printer._interface_imports[interface_class]
             return ':class:`~pywayland.protocol.{}.{}`'.format(interface_module, interface_class)
         else:
             return ':class:`{}`'.format(interface_class)

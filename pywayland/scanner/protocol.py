@@ -61,15 +61,14 @@ class Protocol(Element):
         :param output_dir: Path of directory to output protocol files to
         :type output_dir: string
         """
-        output_dir = os.path.join(output_dir, self.name.replace('-', '_'))
+        protocol_name = self.name.replace('-', '_')
 
+        output_dir = os.path.join(output_dir, protocol_name)
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
 
         # First, we'll create the __init__.py file
-        printer = Printer(self.name.replace('-', '_'))
-        printer.initialize_file()
-
+        printer = Printer(protocol_name)
         if self.copyright:
             self.copyright.output(printer)
         else:
@@ -87,8 +86,7 @@ class Protocol(Element):
         for iface in self.interface:
             module_path = os.path.join(output_dir, iface.name + ".py")
 
-            printer = Printer(self.name.replace('-', '_'))
-            printer.initialize_file(iface.name)
+            printer = Printer(self.name.replace('-', '_'), iface.name, module_imports)
             if self.copyright:
                 self.copyright.output(printer)
             else:

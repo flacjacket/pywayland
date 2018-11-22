@@ -15,7 +15,7 @@
 import re
 import textwrap
 
-from functools import partial
+from typing import List, Mapping  # noqa: F401
 
 head_msg = """\
 # -*- coding: utf-8 -*-
@@ -24,101 +24,129 @@ head_msg = """\
 # Match function calls wl_inter_face.function and interface names wl_interface
 # while consuming any traling parentheses
 re_doc = re.compile(r'(?P<iface>wl(?:_[a-z]+)+)(?P<func>\.[a-z]+(?:_[a-z]+)*)?(?:\(\))?')
+# Match the start of lists
+RE_DOC_LIST = re.compile(r'^(?P<list_head>\* |- )')
+DOC_WIDTH = 79
 tab_stop = 4
 
 
 class Printer(object):
-    """Base level printer object
+    def __init__(self, protocol: str, interface_name: str = None, interface_imports: Mapping[str, str] = None):
+        """Base level printer object
 
-    Allows for storing of lines to be output from the definition of a
-    protocol.  Lines are added by directly calling the printer object.
-    """
-    def __init__(self, protocol):
-        self.level = 0
-        self.lines = []
-        self.proto_name = protocol
-        self.iface_name = None
+        Allows for storing of lines to be output from the definition of a
+        protocol.  Lines are added by directly calling the printer object.
 
-    def __call__(self, new_line=''):
+        :param protocol:
+            The name of the protocol that is currently being generated, used
+            for determining import resolution.
+        :param interface_name:
+            The name of the interface that is being generated, used for
+            determining import resolution.
+        :param interface_imports:
+            The map from the interface name to the protocol it is defined in,
+            for resolving imports.
+        """
+        self._level = 0
+        self._lines = [
+            head_msg, ''
+        ]
+        self._protocol_name = protocol
+        self._interface_name = interface_name
+        self._interface_imports = interface_imports
+
+    def __call__(self, new_line: str = None):
         """Add the new line to the printer"""
         if new_line:
-            self.lines.append((' ' * tab_stop * self.level) + new_line)
+            self._lines.append((' ' * tab_stop * self._level) + new_line)
         else:
-            self.lines.append('')
+            self._lines.append('')
 
-    def docstring(self, docstring, module_imports):
+    def docstring(self, docstring: str) -> None:
         """Add lines as docstrings
 
         In addition to the operations performed by :meth:`Printer.doc()`, will
         wrap text passed to it to the correct width.
-        """
-        docstring = re_doc.sub(partial(self._doc_replace, module_imports=module_imports), docstring)
 
-        paragraphs = []
+        :param docstring:
+            The docstring line to add to the printer.
+        """
+        docstring = re_doc.sub(self._doc_replace, docstring)
+
+        # create a list of properly indented paragraphs
+        paragraphs = []  # type: List[str]
+
         for paragraph in docstring.split('\n\n'):
             # try to detect and properly output lists
-            for start_block in ('- ', '* '):
-                if paragraph.lstrip().startswith(start_block):
-                    # the list items are not always separated by paragraph
-                    # breaks, so parse each line and see if they start with the
-                    # list block
-                    lines = paragraph.split('\n')
-                    list_items = []
-                    current_list_item = [lines[0][2:]]
-                    for line in lines[1:]:
-                        if line.startswith(start_block):
-                            list_items.append('\n'.join(current_list_item))
-                            current_list_item = [line[2:]]
-                        else:
-                            current_list_item.append(line)
-                    list_items.append('\n'.join(current_list_item))
+            doc_list_match = RE_DOC_LIST.search(paragraph.lstrip())
 
-                    # wrap each list item
-                    lines = []
-                    for list_item in list_items:
-                        list_item = list_item.replace('\n  ', '\n')
-                        list_item_lines = textwrap.fill(list_item, 79 - tab_stop * self.level - 2).split('\n')
-                        lines.append(start_block + list_item_lines[0])
-                        lines.extend('  ' + line for line in list_item_lines[1:])
-                    paragraphs.append('\n'.join(lines))
-                    break
+            base_width = DOC_WIDTH - tab_stop * self._level
+            if doc_list_match is None:
+                # not a list, just create the paragraph
+                paragraphs.append(textwrap.fill(paragraph, width=base_width))
             else:
-                paragraphs.append(
-                    textwrap.fill(paragraph, 79 - tab_stop * self.level)
+                # the list items are not always separated by paragraph breaks,
+                # so parse each line and see if they denote list items
+                start_list = doc_list_match.group("list_head")
+                lines = paragraph.split("\n")
+                current_list_item = [lines[0].strip()]
+                list_items = []  # type: List[str]
+                for line in lines[1:]:
+                    if line.strip().startswith(start_list):
+                        # store the current list item
+                        list_items.append(" ".join(current_list_item))
+                        # start a new list item
+                        current_list_item = [line.strip()]
+                    else:
+                        current_list_item.append(line.strip())
+                # store the last list item
+                list_items.append(" ".join(current_list_item))
+
+                # add each list item as a new paragraph
+                paragraphs.extend(
+                    textwrap.fill(list_item, width=base_width, subsequent_indent=" " * len(start_list))
+                    for list_item in list_items
                 )
 
         wrapped = '\n\n'.join(paragraphs)
         for line in wrapped.split('\n'):
             self(line)
 
-    def doc(self, new_line, module_imports):
+    def doc(self, new_line: str) -> None:
         """Add lines as docstrings
 
         Performs additional massaging of strings, replacing references to other
         protocols and protocol methods with the appropriate Sphinx
         cross-reference.
+
+        :param new_line:
+            The new line to add to the printer output.
         """
-        new_line = re_doc.sub(partial(self._doc_replace, module_imports=module_imports), new_line)
+        new_line = re_doc.sub(self._doc_replace, new_line)
         self(new_line)
 
-    def _get_iface(self, iface_name, module_imports):
+    @property
+    def iface_name(self):
+        return self._interface_name
+
+    def _get_iface(self, iface_name):
         iface_class = ''.join(x.capitalize() for x in iface_name.split('_'))
 
         # the interface is from _this_ protocol:
-        if iface_name == self.iface_name:
+        if iface_name == self._interface_name:
             iface_path = iface_class
-        elif iface_class in module_imports:
-            iface_path = module_imports[iface_class]
+        elif iface_class in self._interface_imports:
+            iface_path = self._interface_imports[iface_class]
         else:
             iface_path = ""
 
         return iface_class, iface_path
 
-    def _doc_replace(self, match, module_imports):
+    def _doc_replace(self, match):
         iface_name = match.group('iface')
         function_name = match.group('func')
 
-        interface_class, protocol_path = self._get_iface(iface_name, module_imports)
+        interface_class, protocol_path = self._get_iface(iface_name)
 
         # annoying corner case from poorly formatted xml
         if iface_name == 'wl_pointer_destroy':
@@ -138,7 +166,7 @@ class Printer(object):
                     iface=protocol_path,
                 )
         else:
-            if iface_name == self.iface_name or protocol_path == "":
+            if iface_name == self._interface_name or protocol_path == "":
                 return ':class:`{}`'.format(interface_class)
             else:
                 return ':class:`~{base_path}.{iface}.{class_name}`'.format(
@@ -147,23 +175,16 @@ class Printer(object):
                     iface=protocol_path,
                 )
 
-    def inc_level(self):
+    def inc_level(self) -> None:
         """Increment the indent level"""
-        self.level += 1
+        self._level += 1
 
-    def dec_level(self):
+    def dec_level(self) -> None:
         """Decrement the indent level"""
-        self.level -= 1
+        self._level -= 1
 
-    def initialize_file(self, iface_name=None):
-        """Initialize the file by writing out the header"""
-        self(head_msg)
-        self()
-
-        self.iface_name = iface_name
-
-    def write(self, f):
+    def write(self, f) -> None:
         """Write the lines added to the printer out to the given file"""
-        for line in self.lines:
+        for line in self._lines:
             f.write(line.encode('utf-8'))
             f.write(b'\n')

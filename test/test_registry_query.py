@@ -70,7 +70,8 @@ def test_get_registry():
     # Add a compositor so we can query for it (and keep it alive)
     compositor = WlCompositor.global_class(s)  # noqa
 
-    # Add a timer to kill the server after 0.5 sec (should be more than enough time, don't know a more deterministic way...)
+    # Add a timer to kill the server after 0.5 sec (should be more than enough
+    # time, don't know a more deterministic way...)
     e = s.get_event_loop()
     source = e.add_timer(_kill_server, data=s)
     source.timer_update(500)

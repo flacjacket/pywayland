@@ -53,13 +53,13 @@ class Event(Method):
             else:
                 yield 'None'
 
-    def output_doc_params(self, printer: Printer, module_imports) -> None:
+    def output_doc_params(self, printer: Printer) -> None:
         """Aguments documented as parameters
 
         All arguments are event parameters.
         """
         for arg in self.arg:
-            arg.output_doc_param(printer, module_imports)
+            arg.output_doc_param(printer)
 
     def output_doc_ret(self, printer: Printer) -> None:
         """Aguments documented as return values

@@ -19,8 +19,8 @@ class Description(Element):
     attributes = [Attribute('summary', True)]
     pcdata = True
 
-    def output(self, printer, module_imports):
-        printer.doc('"""{}'.format(self.summary.capitalize()), module_imports)
+    def output(self, printer):
+        printer.doc('"""{}'.format(self.summary.capitalize()))
         if self.text:
             printer()
-            printer.docstring(self.text, module_imports)
+            printer.docstring(self.text)
