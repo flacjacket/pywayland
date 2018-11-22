@@ -81,10 +81,10 @@ class Argument(Element):
     def output_doc_param(self, printer):
         """Document the argument as a parameter"""
         # Output the parameter and summary
+        printer.doc(':param {}:'.format(self.name))
         if self.summary:
-            printer.doc(':param {}: {}'.format(self.name, self.summary))
-        else:
-            printer.doc(':param {}:'.format(self.name))
+            with printer.indented():
+                printer.docstring(self.summary)
 
         # Determine the type to be output
         if self.interface:
@@ -109,10 +109,12 @@ class Argument(Element):
             arg_type = ':class:`pywayland.client.proxy.Proxy` of specified Interface'
 
         # Output the type and summary
-        if self.summary:
-            printer.doc(':returns: {} -- {}'.format(arg_type, self.summary))
-        else:
-            printer.doc(':returns: {}'.format(arg_type))
+        printer.doc(':returns')
+        with printer.indented():
+            if self.summary:
+                printer.docstring('{} -- {}'.format(arg_type, self.summary))
+            else:
+                printer.docstring('{}'.format(arg_type))
 
     def _doc_interface(self, printer):
         interface_class = ''.join(x.capitalize() for x in self.interface.split('_'))

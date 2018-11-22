@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import contextlib
 import re
 import textwrap
 
@@ -182,6 +183,13 @@ class Printer(object):
     def dec_level(self) -> None:
         """Decrement the indent level"""
         self._level -= 1
+
+    @contextlib.contextmanager
+    def indented(self):
+        """Indent in a level in the context manager block"""
+        self.inc_level()
+        yield
+        self.dec_level()
 
     def write(self, f) -> None:
         """Write the lines added to the printer out to the given file"""
