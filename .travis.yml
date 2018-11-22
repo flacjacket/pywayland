@@ -1,3 +1,5 @@
+dist: xenial
+
 language: python
 cache:
   pip: true
@@ -5,21 +7,18 @@ cache:
     - wayland_dl
 
 python:
-  - 2.7
-  - 3.3
-  - 3.4
   - 3.5
   - 3.6
-  - pypy
+  - 3.7
   - pypy3
   - nightly
 
 matrix:
   include:
-    - python: 2.7
-      env: TEST=pep8 WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
     - python: 3.6
       env: TEST=pep8 WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
+    - python: 3.6
+      env: TEST=mypy WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
     - python: 3.6
       env: TEST=docs WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
   allow_failures:
@@ -66,6 +65,8 @@ install:
   - python -m pywayland.scanner --with-protocols;
   - if [[ $TEST == pep8 ]]; then
         pip install flake8;
+    elif [[ $TEST == mypy ]]; then
+        pip install mypy;
     elif [[ $TEST == docs ]]; then
         pip install -r doc/requirements.txt;
     else
@@ -75,6 +76,8 @@ install:
 script:
   - if [[ $TEST == pep8 ]]; then
         flake8 pywayland example test;
+    elif [[ $TEST == mypy ]]; then
+        mypy -p pywayland;
     elif [[ $TEST == docs ]]; then
         sphinx-build -W -b html doc doc/_build/html;
     else

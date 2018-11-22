@@ -15,9 +15,9 @@
 from pywayland import ffi, lib
 
 import functools
-import weakref
+from weakref import WeakKeyDictionary
 
-weakkeydict = weakref.WeakKeyDictionary()
+weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 
 # void (*wl_global_bind_func_t)(struct wl_client *client, void *data, uint32_t version, uint32_t id)

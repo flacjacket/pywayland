@@ -18,9 +18,9 @@ from .dispatcher import Dispatcher
 from .message import Message
 
 import six
-import weakref
+from weakref import WeakKeyDictionary
 
-weakkeydict = weakref.WeakKeyDictionary()
+weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 
 class InterfaceMeta(type):

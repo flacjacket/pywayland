@@ -16,7 +16,7 @@ from pywayland import ffi, lib
 
 from weakref import WeakValueDictionary
 
-dispatcher_to_object = WeakValueDictionary()
+dispatcher_to_object: WeakValueDictionary = WeakValueDictionary()
 
 
 # int (*wl_dispatcher_func_t)(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *)

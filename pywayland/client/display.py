@@ -19,7 +19,7 @@ from pywayland.protocol.wayland import WlDisplay
 import weakref
 
 
-class Display(WlDisplay.proxy_class):
+class Display(WlDisplay.proxy_class):  # type: ignore
     """Represents a connection to the compositor
 
     A :class:`Display` object represents a client connection to a Wayland

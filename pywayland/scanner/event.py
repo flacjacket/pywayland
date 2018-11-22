@@ -14,6 +14,9 @@
 
 from .element import Attribute
 from .method import Method
+from .printer import Printer
+
+from typing import Iterator
 
 
 class Event(Method):
@@ -42,15 +45,15 @@ class Event(Method):
             yield arg.name
 
     @property
-    def interface_types(self):
+    def interface_types(self) -> Iterator[str]:
         """Generator of the types (for the wl_interface)"""
         for arg in self.arg:
-            if arg.interface:
+            if arg.interface:  # type: ignore
                 yield arg.interface_class
             else:
                 yield 'None'
 
-    def output_doc_params(self, printer, module_imports):
+    def output_doc_params(self, printer: Printer, module_imports) -> None:
         """Aguments documented as parameters
 
         All arguments are event parameters.
@@ -58,14 +61,14 @@ class Event(Method):
         for arg in self.arg:
             arg.output_doc_param(printer, module_imports)
 
-    def output_doc_ret(self, printer):
+    def output_doc_ret(self, printer: Printer) -> None:
         """Aguments documented as return values
 
         Nothing is returned from event calls.
         """
         return
 
-    def output_body(self, printer):
+    def output_body(self, printer: Printer) -> None:
         """Output the body of the event to the printer"""
         args = ', '.join([str(self.opcode)] + list(self.method_args))
         printer('self._post_event({})'.format(args))

@@ -16,6 +16,8 @@ from .argument import Argument
 from .description import Description
 from .element import Child, Element
 
+from typing import List
+
 # For 'new_id' types with no 'interface'
 NO_IFACE = 'interface'
 NO_IFACE_VERSION = 'version'
@@ -31,6 +33,9 @@ class Method(Element):
         Child('description', Description, False, False),
         Child('arg', Argument, False, True),
     ]
+
+    description: List[Description] = []
+    arg: List[Argument] = []
 
     def __init__(self, method, iface_name, opcode):
         super(Method, self).__init__(method)

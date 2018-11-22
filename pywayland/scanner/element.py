@@ -13,15 +13,17 @@
 # limitations under the License.
 
 import textwrap
-from collections import namedtuple
+from typing import NamedTuple, List  # noqa: F401
 
-Attribute = namedtuple('Attribute', ['name', 'required'])
-Child = namedtuple('Child', ['name', 'class_', 'required', 'allow_multiple'])
+
+Attribute = NamedTuple("Attribute", [("name", str), ("required", bool)])
+
+Child = NamedTuple("Child", [("name", str), ("class_", object), ("required", bool), ("allow_multiple", bool)])
 
 
 class Element(object):
-    attributes = []
-    children = []
+    attributes = []  # type: List[Attribute]
+    children = []  # type: List[Child]
     pcdata = False
 
     def __init__(self, element, *args, **kwargs):

@@ -8,6 +8,7 @@
 # Test output
 .coverage
 .cache
+.mypy_cache
 # Build output
 /dist/
 /build/
@@ -18,6 +19,7 @@
 
 # Vim swap files
 *.swp
+.ycm_extra_conf.py
 
 # Doc output
 /doc/_build/
