@@ -20,7 +20,7 @@ from .message import Message
 import six
 from weakref import WeakKeyDictionary
 
-weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
+weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
 
 
 class InterfaceMeta(type):

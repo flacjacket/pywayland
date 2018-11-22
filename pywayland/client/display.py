@@ -17,7 +17,7 @@ from pywayland.client.eventqueue import EventQueue
 from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import WlDisplay
 
-from typing import Any, Union
+from typing import Union
 from weakref import WeakSet
 
 
@@ -77,7 +77,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         # Initially, we have no pointer
         super(Display, self).__init__(None)
 
-        self._children: WeakSet[Any] = WeakSet()
+        self._children = WeakSet()  # type: WeakSet
 
     def __enter__(self) -> "Display":
         self.connect()

@@ -40,7 +40,8 @@ def send_event(self, id, the_int, the_uint, the_fd):
     :type id: :class:`~pywayland.protocol.scanner_test.WlRequests`
     :param the_int:
     :type the_int: `int`
-    :param the_uint: the arg summary
+    :param the_uint:
+        the arg summary
     :type the_uint: `uint`
     :param the_fd:
     :type the_fd: `fd`

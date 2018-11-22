@@ -10,11 +10,14 @@ python:
   - 3.5
   - 3.6
   - 3.7
-  - pypy3
   - nightly
 
 matrix:
   include:
+    # the pypy 3 python is only available on trusty, not on xenial
+    - python: pypy3
+      dist: trusty
+      env: WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
     - python: 3.6
       env: TEST=pep8 WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
     - python: 3.6

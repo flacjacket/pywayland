@@ -37,11 +37,13 @@ def make_request(self, the_int, the_uint, the_fd):
 
     :param the_int:
     :type the_int: `int`
-    :param the_uint: the arg summary
+    :param the_uint:
+        the arg summary
     :type the_uint: `uint`
     :param the_fd:
     :type the_fd: `fd`
-    :returns: :class:`~pywayland.protocol.scanner_test.WlCore`
+    :returns
+        :class:`~pywayland.protocol.scanner_test.WlCore`
     """
     id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fd)
     return id
@@ -62,7 +64,8 @@ def create_id(self):
 
     With a description
 
-    :returns: :class:`~pywayland.protocol.scanner_test.WlCore`
+    :returns
+        :class:`~pywayland.protocol.scanner_test.WlCore`
     """
     id = self._marshal_constructor(2, WlCore)
     return id
@@ -72,7 +75,8 @@ def create_id(self):
 def create_id2(self):
     """Create an id without a description
 
-    :returns: :class:`~pywayland.protocol.scanner_test.WlCore`
+    :returns
+        :class:`~pywayland.protocol.scanner_test.WlCore`
     """
     id = self._marshal_constructor(3, WlCore)
     return id
@@ -101,7 +105,8 @@ def make_import(self, object):
 
     :param object:
     :type object: :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
-    :returns: :class:`~pywayland.protocol.scanner_test.WlEvents`
+    :returns
+        :class:`~pywayland.protocol.scanner_test.WlEvents`
     """
     id = self._marshal_constructor(5, WlEvents, object)
     return id
@@ -129,7 +134,8 @@ def new_id_no_interface(self, name, interface, version):
     :type interface: `string`
     :param version: Interface version
     :type version: `int`
-    :returns: :class:`pywayland.client.proxy.Proxy` of specified Interface
+    :returns
+        :class:`pywayland.client.proxy.Proxy` of specified Interface
     """
     id = self._marshal_constructor(7, interface, name, interface.name, version)
     return id

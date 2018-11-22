@@ -42,13 +42,15 @@ def make_request(self, the_int, the_uint, the_fixed):
 
     The request asks the server for an event.
 
-    :param the_int: the arg summary
+    :param the_int:
+        the arg summary
     :type the_int: `int`
     :param the_uint:
     :type the_uint: `uint`
     :param the_fixed:
     :type the_fixed: `fixed`
-    :returns: :class:`WlCore`
+    :returns
+        :class:`WlCore`
     """
     id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fixed)
     return id
@@ -60,13 +62,15 @@ def make_request2(self, the_int, the_uint, the_fixed):
 
     The request asks the server for an event but move the args around.
 
-    :param the_int: the arg summary
+    :param the_int:
+        the arg summary
     :type the_int: `int`
     :param the_uint:
     :type the_uint: `uint`
     :param the_fixed:
     :type the_fixed: `fixed`
-    :returns: :class:`WlCore` -- a :class:`WlCore` object
+    :returns
+        :class:`WlCore` -- a :class:`WlCore` object
     """
     id = self._marshal_constructor(1, WlCore, the_int, the_uint, the_fixed)
     return id
@@ -80,9 +84,11 @@ def send_event(self, id, object):
     some other interface :class:`WlOther`, a local function call
     :func:`WlCore.func()`, and another function call :func:`WlOther.func()`.
 
-    :param id: a :class:`WlCore` object
+    :param id:
+        a :class:`WlCore` object
     :type id: :class:`WlCore`
-    :param object: a :class:`~pywayland.protocol.scanner_test.WlRequests` object
+    :param object:
+        a :class:`~pywayland.protocol.scanner_test.WlRequests` object
     :type object: :class:`~pywayland.protocol.scanner_test.WlRequests`
     """
     self._post_event(0, id, object)

@@ -17,7 +17,7 @@ from pywayland import ffi, lib
 import re
 from weakref import WeakKeyDictionary
 
-weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
+weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
 
 re_arg = re.compile(r"(\??)([uifsonah])")
 
