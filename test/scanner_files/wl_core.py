@@ -49,7 +49,7 @@ def make_request(self, the_int, the_uint, the_fixed):
     :type the_uint: `uint`
     :param the_fixed:
     :type the_fixed: `fixed`
-    :returns
+    :returns:
         :class:`WlCore`
     """
     id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fixed)
@@ -69,7 +69,7 @@ def make_request2(self, the_int, the_uint, the_fixed):
     :type the_uint: `uint`
     :param the_fixed:
     :type the_fixed: `fixed`
-    :returns
+    :returns:
         :class:`WlCore` -- a :class:`WlCore` object
     """
     id = self._marshal_constructor(1, WlCore, the_int, the_uint, the_fixed)

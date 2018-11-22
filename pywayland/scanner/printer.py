@@ -84,7 +84,7 @@ class Printer(object):
             base_width = DOC_WIDTH - tab_stop * self._level
             if doc_list_match is None:
                 # not a list, just create the paragraph
-                paragraphs.append(textwrap.fill(paragraph, width=base_width))
+                paragraphs.append(textwrap.fill(paragraph, width=base_width, break_long_words=False))
             else:
                 # the list items are not always separated by paragraph breaks,
                 # so parse each line and see if they denote list items
@@ -105,8 +105,12 @@ class Printer(object):
 
                 # add each list item as a new paragraph
                 paragraphs.extend(
-                    textwrap.fill(list_item, width=base_width, subsequent_indent=" " * len(start_list))
-                    for list_item in list_items
+                    textwrap.fill(
+                        list_item,
+                        width=base_width,
+                        subsequent_indent=" " * len(start_list),
+                        break_long_words=False
+                    ) for list_item in list_items
                 )
 
         wrapped = '\n\n'.join(paragraphs)

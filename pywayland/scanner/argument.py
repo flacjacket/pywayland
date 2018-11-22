@@ -109,7 +109,7 @@ class Argument(Element):
             arg_type = ':class:`pywayland.client.proxy.Proxy` of specified Interface'
 
         # Output the type and summary
-        printer.doc(':returns')
+        printer.doc(':returns:')
         with printer.indented():
             if self.summary:
                 printer.docstring('{} -- {}'.format(arg_type, self.summary))

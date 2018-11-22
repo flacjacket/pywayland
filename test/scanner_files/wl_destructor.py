@@ -45,7 +45,7 @@ def create_interface(self, x, y, width, height, format):
     :type height: `int`
     :param format:
     :type format: `uint`
-    :returns
+    :returns:
         :class:`WlDestructor`
     """
     id = self._marshal_constructor(0, WlDestructor, x, y, width, height, format)
