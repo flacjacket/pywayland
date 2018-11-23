@@ -25,7 +25,7 @@ HEAD_MSG = """\
 # Match the start of unordered lists
 RE_DOC_LIST = re.compile(r'^(?P<list_head>\* |- )')
 # Match the interface and function use in the docstrings
-RE_DOC = r"(?P<interface>{})(?P<func>\.[a-z][_a-z]*(?:\(\))?)?(?=[^\w\*']|$)"
+RE_DOC = r"(?<![_\w])(?P<interface>{})(?P<func>\.[a-z][_a-z]*(?:\(\))?)?(?=[^\w\*']|$)"
 # The base import path for sphinx directives in docstrings
 BASE_PATH = "pywayland.protocol"
 # the width of the doc string
