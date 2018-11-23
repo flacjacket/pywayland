@@ -17,7 +17,6 @@ from pywayland import ffi
 from .dispatcher import Dispatcher
 from .message import Message
 
-import six
 from weakref import WeakKeyDictionary
 
 weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
@@ -96,7 +95,7 @@ class InterfaceMeta(type):
         return type(class_name, (Global,), {'_interface': interface})
 
 
-class Interface(six.with_metaclass(InterfaceMeta)):
+class Interface(metaclass=InterfaceMeta):
     """Wrapper class for wl_wayland structs
 
     Base class for interfaces that are defined by the wayland.xml class and

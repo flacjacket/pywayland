@@ -65,17 +65,10 @@ Python Dependencies
 ^^^^^^^^^^^^^^^^^^^
 
 PyWayland depends on a minimal set of dependencies.  All Python version require
-cffi_ (to perform Wayland library calls) and six_ (to facilitate cross-version
-compatibility), both of which can be pip installed.  Note that PyPy platforms
-ship with cffi, however, PyWayland currently requires cffi >= 1.0.0, which will
-not ship in PyPy until 2.6, which is unreleased as of this writing.
-
-Furthermore, versions of Python 2 and Python <=3.3 require enum34_ (for support
-for :pep:`435`-style ``Enum``'s), this can be pip installed.
+cffi_ (to perform Wayland library calls), which can be pip installed for
+non-PyPy installations.  Note that PyPy platforms ship with cffi.
 
 .. _cffi: https://cffi.readthedocs.org/en/latest/
-.. _enum34: https://pypi.python.org/pypi/enum34/
-.. _six: https://pythonhosted.org/six/
 
 Generating the Wayland Protocol
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

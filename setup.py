@@ -132,10 +132,7 @@ if '_cffi_backend' in sys.builtin_module_names:
 else:
     requires_cffi = "cffi>=1.7.0"
 
-dependencies = ["six>=1.4.1", requires_cffi]
-
-if sys.version_info < (3, 4):
-    dependencies.append("enum34")
+dependencies = [requires_cffi]
 
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
@@ -143,13 +140,10 @@ classifiers = [
     'Operating System :: POSIX',
     'Operating System :: POSIX :: Linux',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.3',
-    'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: Implementation :: CPython',
     'Programming Language :: Python :: Implementation :: PyPy',
     'Topic :: Desktop Environment :: Window Managers',
