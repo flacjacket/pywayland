@@ -97,7 +97,7 @@ def main():
     logger.info("Parsed {} input xml files".format(len(protocols)))
 
     protocol_imports = {
-        interface.class_name: protocol.name
+        interface.name: protocol.name
         for protocol in protocols
         for interface in protocol.interface
     }

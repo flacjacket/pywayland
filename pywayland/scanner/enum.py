@@ -39,8 +39,7 @@ class Enum(Element):
     def output(self, printer):
         """Generate the output for the enum to the printer"""
         printer('{0} = enum.Enum("{0}", {{'.format(self.name))
-        printer.inc_level()
-        for entry in self.entry:
-            entry.output(printer)
-        printer.dec_level()
+        with printer.indented():
+            for entry in self.entry:
+                entry.output(printer)
         printer('})')

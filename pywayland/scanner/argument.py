@@ -88,7 +88,7 @@ class Argument(Element):
 
         # Determine the type to be output
         if self.interface:
-            arg_type = self._doc_interface(printer)
+            arg_type = self.interface
         else:
             arg_type = '`{}`'.format(self.type)
 
@@ -102,7 +102,7 @@ class Argument(Element):
         """Document the argument as a return"""
         # Determine the type to be output
         if self.interface:
-            arg_type = self._doc_interface(printer)
+            arg_type = self.interface
         else:
             # Only new_id's are returned, the only corner case here is for
             # wl_registry.bind, so no interface => Proxy
@@ -115,13 +115,3 @@ class Argument(Element):
                 printer.docstring('{} -- {}'.format(arg_type, self.summary))
             else:
                 printer.docstring('{}'.format(arg_type))
-
-    def _doc_interface(self, printer):
-        interface_class = ''.join(x.capitalize() for x in self.interface.split('_'))
-        if self.interface == printer.iface_name:
-            return ':class:`{}`'.format(interface_class)
-        elif interface_class in printer._interface_imports:
-            interface_module = printer._interface_imports[interface_class]
-            return ':class:`~pywayland.protocol.{}.{}`'.format(interface_module, interface_class)
-        else:
-            return ':class:`{}`'.format(interface_class)

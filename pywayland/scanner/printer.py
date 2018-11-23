@@ -16,7 +16,7 @@ import contextlib
 import re
 import textwrap
 
-from typing import List, Mapping  # noqa: F401
+from typing import List, Mapping, Match  # noqa: F401
 
 head_msg = """\
 # -*- coding: utf-8 -*-
@@ -27,12 +27,13 @@ head_msg = """\
 re_doc = re.compile(r'(?P<iface>wl(?:_[a-z]+)+)(?P<func>\.[a-z]+(?:_[a-z]+)*)?(?:\(\))?')
 # Match the start of lists
 RE_DOC_LIST = re.compile(r'^(?P<list_head>\* |- )')
+BASE_PATH = "pywayland.protocol"
 DOC_WIDTH = 79
 tab_stop = 4
 
 
 class Printer(object):
-    def __init__(self, protocol: str, interface_name: str = None, interface_imports: Mapping[str, str] = None):
+    def __init__(self, protocol: str, interface_name: str = None, interface_imports: Mapping[str, str] = None) -> None:
         """Base level printer object
 
         Allows for storing of lines to be output from the definition of a
@@ -56,8 +57,21 @@ class Printer(object):
         self._interface_name = interface_name
         self._interface_imports = interface_imports
 
-    def __call__(self, new_line: str = None):
-        """Add the new line to the printer"""
+        self._re_interface_funcs = None
+        self._re_interface_class = None
+        if interface_imports is not None:
+            interface_names = "|".join(sorted(interface_imports, key=len, reverse=True))
+            self._re_interface_funcs = re.compile(r"(?P<interface>{})\.(?P<func>[a-z]+(?:_[a-z]+)*)(?:\(\))?".format(
+                interface_names
+            ))
+            self._re_interface_class = re.compile(r"(?P<interface>{})".format(interface_names))
+
+    def __call__(self, new_line: str = None) -> None:
+        """Add the new line to the printer
+
+        :param new_line:
+            The new line to add to the file, should be appropriately wrapped.
+        """
         if new_line:
             self._lines.append((' ' * tab_stop * self._level) + new_line)
         else:
@@ -72,11 +86,10 @@ class Printer(object):
         :param docstring:
             The docstring line to add to the printer.
         """
-        docstring = re_doc.sub(self._doc_replace, docstring)
+        docstring = self._parse_doc_line(docstring)
 
         # create a list of properly indented paragraphs
         paragraphs = []  # type: List[str]
-
         for paragraph in docstring.split('\n\n'):
             # try to detect and properly output lists
             doc_list_match = RE_DOC_LIST.search(paragraph.lstrip())
@@ -127,73 +140,69 @@ class Printer(object):
         :param new_line:
             The new line to add to the printer output.
         """
-        new_line = re_doc.sub(self._doc_replace, new_line)
+        new_line = self._parse_doc_line(new_line)
         self(new_line)
 
-    @property
-    def iface_name(self):
-        return self._interface_name
+    def _parse_doc_line(self, line):
+        assert self._re_interface_funcs is not None
+        assert self._re_interface_class is not None
 
-    def _get_iface(self, iface_name):
-        iface_class = ''.join(x.capitalize() for x in iface_name.split('_'))
+        line = self._re_interface_funcs.sub(self._doc_funcs_replace, line)
+        line = self._re_interface_class.sub(self._doc_class_replace, line)
+        return line
 
-        # the interface is from _this_ protocol:
-        if iface_name == self._interface_name:
-            iface_path = iface_class
-        elif iface_class in self._interface_imports:
-            iface_path = self._interface_imports[iface_class]
+    def _doc_class_replace(self, match: Match) -> str:
+        """Build the sphinx doc class import
+
+        :param match:
+            The regex match for the given interface class.
+        :returns:
+            The string corresponding to the sphinx formatted class.
+        """
+        interface_name = match.group("interface")
+        interface_class = "".join(x.capitalize() for x in interface_name.split("_"))
+
+        if interface_name == self._interface_name:
+            return ':class:`{}`'.format(interface_class)
+        elif self._interface_imports is not None and interface_name in self._interface_imports:
+            protocol_path = self._interface_imports[interface_name]
+            return ':class:`~{base_path}.{iface}.{class_name}`'.format(
+                class_name=interface_class,
+                base_path=BASE_PATH,
+                iface=protocol_path,
+            )
         else:
-            iface_path = ""
+            return '`{}`'.format(interface_class)
 
-        return iface_class, iface_path
+    def _doc_funcs_replace(self, match: Match):
+        """Build the sphinx doc function definition
 
-    def _doc_replace(self, match):
-        iface_name = match.group('iface')
-        function_name = match.group('func')
+        :param match:
+            The regex match for the given interface and function.
+        :returns:
+            The string corresponding to the sphinx formatted function.
+        """
+        interface_name = match.group("interface")
+        function_name = match.group("func")
+        interface_class = "".join(x.capitalize() for x in interface_name.split("_"))
 
-        interface_class, protocol_path = self._get_iface(iface_name)
-
-        # annoying corner case from poorly formatted xml
-        if iface_name == 'wl_pointer_destroy':
-            interface_class = iface_name = 'Pointer'
-            protocol_path = 'pywayland.protocol.wayland.Pointer'
-            function_name = '.destroy'
-
-        base_path = "pywayland.protocol"
-        if function_name:
-            if iface_name == self.iface_name or protocol_path == "":
-                return ':func:`{}{}()`'.format(interface_class, function_name)
-            else:
-                return ':func:`{class_name}{func}() <{base_path}.{iface}.{class_name}{func}>`'.format(
-                    class_name=interface_class,
-                    func=function_name,
-                    base_path=base_path,
-                    iface=protocol_path,
-                )
-        else:
-            if iface_name == self._interface_name or protocol_path == "":
-                return ':class:`{}`'.format(interface_class)
-            else:
-                return ':class:`~{base_path}.{iface}.{class_name}`'.format(
-                    class_name=interface_class,
-                    base_path=base_path,
-                    iface=protocol_path,
-                )
-
-    def inc_level(self) -> None:
-        """Increment the indent level"""
-        self._level += 1
-
-    def dec_level(self) -> None:
-        """Decrement the indent level"""
-        self._level -= 1
+        if interface_name == self._interface_name:
+            return ':func:`{}.{}()`'.format(interface_class, function_name)
+        elif self._interface_imports is not None and interface_name in self._interface_imports:
+            protocol_path = self._interface_imports[interface_name]
+            return ':func:`{class_name}.{func}() <{base_path}.{iface}.{class_name}.{func}>`'.format(
+                class_name=interface_class,
+                func=function_name,
+                base_path=BASE_PATH,
+                iface=protocol_path,
+            )
 
     @contextlib.contextmanager
     def indented(self):
         """Indent in a level in the context manager block"""
-        self.inc_level()
+        self._level += 1
         yield
-        self.dec_level()
+        self._level -= 1
 
     def write(self, f) -> None:
         """Write the lines added to the printer out to the given file"""

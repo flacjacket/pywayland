@@ -49,8 +49,7 @@ class Method(Element):
 
     def imports(self, module_imports):
         """Get the imports required for each of the interfaces"""
-        interface_class = ''.join(x.capitalize() for x in self.interface.split('_'))
-        current_protocol = module_imports[interface_class]
+        current_protocol = module_imports[self.interface]
 
         imports = []
         for arg in self.arg:
@@ -61,7 +60,7 @@ class Method(Element):
                 continue
 
             import_class = arg.interface_class
-            import_protocol = module_imports[import_class]
+            import_protocol = module_imports[arg.interface]
 
             if current_protocol == import_protocol:
                 import_path = ".{}".format(arg.interface)
@@ -87,13 +86,12 @@ class Method(Element):
         # Generate the definition of the method and args
         args = ', '.join(['self'] + list(self.method_args))
         printer('def {}({}):'.format(self.name, args))
-        printer.inc_level()
 
-        # Write the documentation
-        self.output_doc(printer)
-        # Write out the body of the method
-        self.output_body(printer)
-        printer.dec_level()
+        with printer.indented():
+            # Write the documentation
+            self.output_doc(printer)
+            # Write out the body of the method
+            self.output_body(printer)
 
     def output_doc(self, printer):
         """Output the documentation for the interface"""

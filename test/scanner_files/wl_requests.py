@@ -126,7 +126,7 @@ def new_id_no_interface(self, name, interface, version):
     """Create a new id, but with no interface
 
     A method with an argument for a new_id, but with no corresponding interface
-    (c.f. :func:`WlRegistry.bind()`).
+    (c.f. wl_registry.bind).
 
     :param name:
     :type name: `uint`

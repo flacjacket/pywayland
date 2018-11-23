@@ -47,7 +47,7 @@ def test_scanner():
     scanner = Protocol(input_file)
 
     imports = {
-        interface.class_name: scanner.name
+        interface.name: scanner.name
         for interface in scanner.interface
     }
 

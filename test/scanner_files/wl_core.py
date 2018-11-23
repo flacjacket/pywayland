@@ -81,8 +81,8 @@ def send_event(self, id, object):
     """A :class:`WlCore` event
 
     Send an event, but also put in some docs for our interface :class:`WlCore`,
-    some other interface :class:`WlOther`, a local function call
-    :func:`WlCore.func()`, and another function call :func:`WlOther.func()`.
+    some other interface wl_other, a local function call :func:`WlCore.func()`,
+    and another function call wl_other.func.
 
     :param id:
         a :class:`WlCore` object

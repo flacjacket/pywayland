@@ -78,21 +78,20 @@ class Interface(Element):
 
         # Class definition
         printer('class {}(Interface):'.format(self.class_name))
-        # Docstring
-        printer.inc_level()
-        if self.description:
-            self.description.output(printer)
-            printer('"""')
+        with printer.indented():
+            # Docstring
+            if self.description:
+                self.description.output(printer)
+                printer('"""')
 
-        # Class attributes
-        printer('name = "{}"'.format(self.name))
-        printer('version = {}'.format(self.version))
+            # Class attributes
+            printer('name = "{}"'.format(self.name))
+            printer('version = {}'.format(self.version))
 
-        # Enums
-        for enum in self.enum:
-            printer()
-            enum.output(printer)
-        printer.dec_level()
+            # Enums
+            for enum in self.enum:
+                printer()
+                enum.output(printer)
 
         # Events and requests
         for method in itertools.chain(self.request, self.event):
