@@ -10,20 +10,17 @@ python:
   - 3.5
   - 3.6
   - 3.7
+  - pypy3
   - nightly
 
 matrix:
   include:
-    # the pypy 3 python is only available on trusty, not on xenial
-    - python: pypy3
-      dist: trusty
-      env: WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
-    - python: 3.6
-      env: TEST=pep8 WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
-    - python: 3.6
-      env: TEST=mypy WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
-    - python: 3.6
-      env: TEST=docs WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
+    - python: 3.7
+      env: TEST=pep8 WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
+    - python: 3.7
+      env: TEST=mypy WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
+    - python: 3.7
+      env: TEST=docs WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
   allow_failures:
     - python: nightly
 
@@ -37,7 +34,7 @@ env:
     - WAYLAND_URL='http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz'
     - WAYLAND_PROTOCOLS_URL='http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz'
   matrix:
-    - WAYLAND_VERSION=1.16.0 WAYLAND_PROTOCOLS=1.17
+    - WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
 
 install:
   - WAYLAND_URL=`echo $WAYLAND_URL | envsubst`
