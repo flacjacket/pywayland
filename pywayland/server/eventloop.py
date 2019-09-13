@@ -69,7 +69,7 @@ def event_loop_idle_func(data_ptr):
     callback_info.callback(callback_info.data)
 
 
-class EventLoop(object):
+class EventLoop:
     """An event loop to add events too
 
     Returns an event loop.  Either returns the event loop of a given display
@@ -259,7 +259,7 @@ class EventLoop(object):
         lib.wl_event_loop_dispatch_idle(self._ptr)
 
 
-class EventSource(object):
+class EventSource:
     """Parameters for the EventLoop callbacks
 
     :param cdata: The struct corresponding to the EventSource

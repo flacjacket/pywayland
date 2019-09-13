@@ -34,7 +34,7 @@ DOC_WIDTH = 79
 TAB_STOP = 4
 
 
-class Printer(object):
+class Printer:
     def __init__(self, protocol: str, interface_name: str = None, interface_imports: Mapping[str, str] = None) -> None:
         """Base level printer object
 

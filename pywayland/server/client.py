@@ -26,7 +26,7 @@ def _client_destroy(display, cdata):
     lib.wl_client_destroy(cdata)
 
 
-class Client(object):
+class Client:
     """Create a client for the given file descriptor
 
     Given a file descriptor corresponding to one end of a socket, create a

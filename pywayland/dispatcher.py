@@ -74,7 +74,7 @@ def resource_destroy_func(res_ptr):
         func(self)
 
 
-class Dispatcher(object):
+class Dispatcher:
     """Dispatches events or requests from an interface
 
     Handles the dispatching of callbacks from events (for

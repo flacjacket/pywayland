@@ -29,7 +29,7 @@ def ensure_valid(func):
     return wrapper
 
 
-class AnonymousFile(object):
+class AnonymousFile:
     """Anonymous file object
 
     Provides access to anonymous file objects that can be used by Wayland

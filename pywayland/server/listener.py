@@ -30,7 +30,7 @@ def notify_func(listener_ptr, data):
     callback(listener["link"])
 
 
-class Listener(object):
+class Listener:
     """A single listener for Wayland signals
 
     Provides the means to listen for `wl_listener` signal notifications.  Many
@@ -76,7 +76,7 @@ class Listener(object):
             self.link = None
 
 
-class Signal(object):
+class Signal:
     """A source of a type of observable event
 
     Signals are recognized points where significant events can be observed.

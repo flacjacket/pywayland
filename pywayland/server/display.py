@@ -17,7 +17,7 @@ from pywayland.utils import ensure_valid
 from .eventloop import EventLoop
 
 
-class Display(object):
+class Display:
     """Create a Wayland Display object"""
     def __init__(self, ptr=None):
         if ptr is None:

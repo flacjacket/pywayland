@@ -42,7 +42,7 @@ def _global_destroy(display, cdata):
         pass
 
 
-class Global(object):
+class Global:
     """A server-side Interface object for the server
 
     Not created directly, created from the

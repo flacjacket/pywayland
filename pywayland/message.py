@@ -22,7 +22,7 @@ weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
 re_arg = re.compile(r"(\??)([uifsonah])")
 
 
-class Message(object):
+class Message:
     """Wrapper class for `wl_message` structs
 
     Base class that correspond to the methods defined on an interface in the

@@ -27,7 +27,7 @@ def _event_queue_destroy(display, cdata):
     lib.wl_event_queue_destroy(cdata)
 
 
-class EventQueue(object):
+class EventQueue:
     """A queue for wl_proxy object events.
 
     Event queues allows the events on a display to be handled in a thread-safe

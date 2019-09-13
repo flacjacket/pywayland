@@ -21,7 +21,7 @@ Attribute = NamedTuple("Attribute", [("name", str), ("required", bool)])
 Child = NamedTuple("Child", [("name", str), ("class_", object), ("required", bool), ("allow_multiple", bool)])
 
 
-class Element(object):
+class Element:
     attributes = []  # type: List[Attribute]
     children = []  # type: List[Child]
     pcdata = False

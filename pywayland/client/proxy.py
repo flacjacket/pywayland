@@ -21,7 +21,7 @@ import re
 re_args = re.compile(r'(\??)([fsoanuih])')
 
 
-class Proxy(object):
+class Proxy:
     """Represents a protocol object on the client side.
 
     A :class:`Proxy` acts as a client side proxy to an object existing in the

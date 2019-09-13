@@ -18,7 +18,7 @@ from pywayland.utils import ensure_valid
 from .client import Client
 
 
-class Resource(object):
+class Resource:
     """A server-side Interface object for the client
 
     Not created directly, created from the
