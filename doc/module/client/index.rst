@@ -1,3 +1,5 @@
+.. module:: pywayland.client
+
 .. _client:
 
 Client Modules
@@ -12,6 +14,16 @@ by making request calls.
 .. toctree::
    :maxdepth: 2
 
-   display
-   eventqueue
    proxy
+
+Display
+-------
+
+.. autoclass:: Display
+   :members:
+
+EventQueue
+----------
+
+.. autoclass:: pywayland.client.EventQueue
+   :members:

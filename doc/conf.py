@@ -6,29 +6,18 @@ import os
 import shutil
 import sys
 
-# -- Monkey patch to remove external image warning ------------------------
-
-import sphinx.environment
-from docutils.utils import get_source_line
-
-
-def _warn_node(self, msg, node, **kwargs):
-    if not msg.startswith('nonlocal image URI found:'):
-        self._warnfunc(msg, '%s:%s' % get_source_line(node))
-
-sphinx.environment.BuildEnvironment.warn_node = _warn_node
+import sphinx_rtd_theme
 
 
 # -- Mock necessary classes -----------------------------------------------
 
 from unittest.mock import MagicMock
 
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))  # noqa: F402
+sys.path.insert(0, os.path.abspath('..'))  # noqa: F402
 
-
-MOCK_MODULES = ['pywayland._ffi']
-sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)
+MOCK_MODULES = ['pywayland._ffi']  # noqa: F402
+sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)  # noqa: F402
 
 from pywayland import __version__
 
@@ -56,57 +45,67 @@ protocol_header = """\
 .. module:: pywayland.protocol.{module}
 
 {module} Module
-{empty:=^{len}}=======
-
-.. toctree::
-   :maxdepth: 2
-
-"""
+{empty:=^{len}}======="""
 
 protocol_rst = """\
-.. module:: pywayland.protocol.{module}
+{protocol}
+{empty:-^{len}}
 
-{protocol_upper}
-{empty:=^{len}}
-
-.. wl_protocol:: pywayland.protocol.{module}.{protocol} {protocol_upper}
-"""
+.. wl_protocol:: pywayland.protocol.{module} {protocol}"""
 
 
 # There is probably a better way to do this in Sphinx, templating or something
 # ... but this works
 def protocol_doc(input_dir, output_dir):
-    _, modules, _ = next(os.walk(input_dir))
-    modules = [x for x in modules if not x.startswith('__')]
+    modules = os.listdir(input_dir)
+    modules = [
+        module for module in modules
+        if os.path.isdir(os.path.join(input_dir, module)) and module != '__pycache__'
+    ]
+
+    existing_files = [
+        filename for filename in os.listdir(output_dir) if filename != "index.rst"
+    ]
+    rm_files = [
+        filename for filename in existing_files if os.path.splitext(filename)[0] not in modules
+    ]
+    for rm_file in rm_files:
+        if os.path.isdir(rm_file):
+            shutil.rmtree(os.path.join(output_dir, rm_file))
+        else:
+            os.remove(os.path.join(output_dir, rm_file))
 
     # Write out the index file
     index_file = os.path.join(output_dir, 'index.rst')
-    with open(index_file, 'w') as f:
-        f.write(index_header)
-        for m in sorted(modules):
-            f.write('   {}/index\n'.format(m))
+    if os.path.exists(index_file):
+        with open(index_file) as f:
+            existing_index = f.read()
+    else:
+        existing_index = ""
+
+    generated_index = index_header + "".join('   {}\n'.format(m) for m in sorted(modules))
+
+    if existing_index != generated_index:
+        with open(index_file, 'w') as f:
+            f.write(generated_index)
 
     for module in modules:
-        module_dir = os.path.join(output_dir, module)
-        os.makedirs(module_dir)
-
-        # get all the python files that we want to document
-        _, _, doc_files = next(os.walk(os.path.join(input_dir, module)))
-        doc_files = [os.path.splitext(doc_file)[0] for doc_file in doc_files
-                     if doc_file != '__init__.py' and os.path.splitext(doc_file)[1] == '.py']
-
-        # build the index.rst for the module
-        index_file = os.path.join(module_dir, 'index.rst')
-        with open(index_file, 'w') as f:
-            f.write(protocol_header.format(
+        output = [
+            protocol_header.format(
                 module=module,
                 len=len(module),
                 empty=''
-            ))
-            for d in sorted(doc_files):
-                f.write('   {}\n'.format(d))
+            )
+        ]
 
-        # build the .rst files for each protocol
+        # get all the python files that we want to document
+        doc_files = os.listdir(os.path.join(input_dir, module))
+        doc_files = [
+            os.path.splitext(doc_file)[0] for doc_file in doc_files
+            if doc_file != '__init__.py' and os.path.splitext(doc_file)[1] == '.py'
+        ]
+
+        # build the rst for each protocol
         for doc_file in doc_files:
             mod = importlib.import_module('pywayland.protocol.{}.{}'.format(module, doc_file))
             # Get out the name of the class in the module
@@ -117,16 +116,27 @@ def protocol_doc(input_dir, output_dir):
             else:
                 raise RuntimeError("Unable to find module: {}, {}".format(doc_file, mod))
 
-            protocol_len = len(doc_file)
-            doc = os.path.join(module_dir, '{}.rst'.format(doc_file))
-            with open(doc, 'w') as f:
-                f.write(protocol_rst.format(
-                    module=module,
-                    protocol=doc_file,
-                    protocol_upper=mod_upper,
-                    len=protocol_len,
-                    empty=''
-                ))
+            output.append(protocol_rst.format(
+                module=module,
+                protocol=mod_upper,
+                len=len(mod_upper),
+                empty=''
+            ))
+
+        # build the index.rst for the module
+        module_file = os.path.join(output_dir, '{}.rst'.format(module))
+        protocol_output = "\n\n".join(output)
+
+        # if file exists and is unchanged, skip
+        if os.path.exists(module_file):
+            with open(module_file) as f:
+                existing_output = f.read()
+
+            if existing_output == protocol_output:
+                continue
+
+        with open(module_file, 'w') as f:
+            f.write("\n\n".join(output))
 
 
 # Build the protocol directory on RTD
@@ -135,9 +145,8 @@ if os.environ.get('READTHEDOCS', None):
     protocols_build(protocol_build_dir)
 
 # Re-build the protocol documentation directory
-if os.path.exists(protocol_doc_dir):
-    shutil.rmtree(protocol_doc_dir)
-os.makedirs(protocol_doc_dir)
+if not os.path.exists(protocol_doc_dir):
+    os.makedirs(protocol_doc_dir)
 
 protocol_doc(protocol_build_dir, protocol_doc_dir)
 
@@ -176,10 +185,8 @@ pygments_style = 'sphinx'
 # -- Options for HTML output ----------------------------------------------
 
 # Set the html_theme when building locally
-if not os.environ.get('READTHEDOCS', None):
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pywaylanddoc'
