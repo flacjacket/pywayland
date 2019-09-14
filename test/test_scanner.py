@@ -16,23 +16,56 @@ from pywayland.scanner import Protocol
 
 import os
 import pytest
-import shutil
 import tempfile
 
 this_dir = os.path.split(__file__)[0]
 scanner_dir = os.path.join(this_dir, 'scanner_files')
 input_file = os.path.join(scanner_dir, 'test_scanner_input.xml')
 
-pass_iface = ["__init__.py", "wl_core.py", "wl_events.py", "wl_requests.py", "wl_destructor.py"]
-xfail_iface = ["wl_xfail.py"]
+interface_tests = [
+    "__init__.py",
+    "wl_core.py",
+    "wl_events.py",
+    "wl_requests.py",
+    "wl_destructor.py",
+    pytest.param("wl_xfail.py", marks=pytest.mark.xfail),
+]
 
-generated_files = pass_iface + xfail_iface
+
+@pytest.fixture(scope="session")
+def protocol_directory():
+    scanner = Protocol(input_file)
+
+    imports = {
+        interface.name: scanner.name
+        for interface in scanner.interface
+    }
+
+    generated_files = [
+        iface if isinstance(iface, str) else iface.values[0]
+        for iface in interface_tests
+    ]
+
+    with tempfile.TemporaryDirectory() as output_dir:
+        scanner.output(output_dir, imports)
+
+        test_dir = os.path.join(output_dir, "scanner_test")
+        assert os.path.exists(test_dir)
+        assert set(os.listdir(test_dir)) == set(generated_files)
+
+        yield test_dir
 
 
-def check_interface(iface_name, gen_lines):
+@pytest.mark.parametrize("iface_name", interface_tests)
+def test_interface(protocol_directory, iface_name):
+    # Get the generated file output
+    generated_file = os.path.join(protocol_directory, iface_name)
+    with open(generated_file) as f:
+        gen_lines = [line.strip('\n') for line in f.readlines()]
+
     # Get output to check against
-    check = os.path.join(scanner_dir, iface_name)
-    with open(check, 'r') as f:
+    check_file = os.path.join(scanner_dir, iface_name)
+    with open(check_file) as f:
         check_lines = [line.strip('\n') for line in f.readlines()]
 
     # Run through both files, checking each line
@@ -41,35 +74,3 @@ def check_interface(iface_name, gen_lines):
 
     # Should both be the same length
     assert len(gen_lines) == len(check_lines)
-
-
-def test_scanner():
-    scanner = Protocol(input_file)
-
-    imports = {
-        interface.name: scanner.name
-        for interface in scanner.interface
-    }
-
-    output_dir = tempfile.mkdtemp()
-    try:
-        scanner.output(output_dir, imports)
-        test_dir = os.path.join(output_dir, "scanner_test")
-        assert os.path.exists(test_dir)
-        assert set(os.listdir(test_dir)) == set(generated_files)
-
-        for interface in pass_iface:
-            # Read in the generated file
-            gen = os.path.join(test_dir, interface)
-            with open(gen, 'r') as f:
-                gen_lines = [line.strip('\n') for line in f.readlines()]
-            # Pass it to the yielded test
-            yield check_interface, interface, gen_lines
-
-        for interface in xfail_iface:
-            gen = os.path.join(test_dir, interface)
-            with open(gen, 'r') as f:
-                gen_lines = [line.strip('\n') for line in f.readlines()]
-            yield pytest.mark.xfail(check_interface), interface, gen_lines
-    finally:
-        shutil.rmtree(output_dir)

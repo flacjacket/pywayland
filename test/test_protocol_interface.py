@@ -15,6 +15,8 @@
 from cffi import FFI
 import re
 
+import pytest
+
 from pywayland.protocol.wayland import (
     WlBuffer,
     WlCallback,
@@ -136,7 +138,8 @@ def verify_wl_message(py_ptr, wl_ptr):
             assert ffi.string(wl_type.name) == ffi.string(py_type.name)
 
 
-def verify_wl_interface(py_cls, wl_ptr):
+@pytest.mark.parametrize("py_cls,wl_ptr", interfaces)
+def test_wl_interface(py_cls, wl_ptr):
     """ Verify that the wl_interface of the Python class
 
     Check the wl_interface associated with the given Python class against the
@@ -155,8 +158,3 @@ def verify_wl_interface(py_cls, wl_ptr):
     assert wl_ptr.event_count == py_ptr.event_count
     for i in range(wl_ptr.event_count):
         verify_wl_message(py_ptr.events[i], wl_ptr.events[i])
-
-
-def test_display():
-    for wl_cls, py_ptr in interfaces:
-        yield verify_wl_interface, wl_cls, py_ptr
