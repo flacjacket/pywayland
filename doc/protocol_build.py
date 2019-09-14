@@ -23,7 +23,7 @@ def protocols_build(output_dir):
         f.extractall()
 
     # walk the directory and generate all the protocols
-    protocol_files = [
+    protocol_files = [wayland_file] + [
         os.path.join(dirpath, filename)
         for dirpath, _, filenames in os.walk(protocol_dest)
         for filename in filenames
