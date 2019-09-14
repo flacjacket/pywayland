@@ -31,8 +31,8 @@ class Display(WlDisplay.proxy_class):  # type: ignore
     :func:`Display.disconnect`.
 
     A :class:`Display` is also used as the
-    :class:`~pywayland.client.proxy.Proxy` for the (similarly named)
-    :class:`pywayland.protocol.display.Display` protocol object on the
+    :class:`~pywayland.client.proxy.Proxy` for the
+    :class:`pywayland.protocol.wayland.WlDisplay` protocol object on the
     compositor side.
 
     A :class:`Display` object handles all the data sent from and to the
@@ -73,11 +73,12 @@ class Display(WlDisplay.proxy_class):  # type: ignore
     is solved using another event queue, so that only the events handled by the
     EGL code are dispatched during the block.
     """
-    def __init__(self) -> None:
+    def __init__(self, name_or_fd: Union[int, str, None] = None) -> None:
         # Initially, we have no pointer
-        super(Display, self).__init__(None)
+        super().__init__(None)
 
         self._children = WeakSet()  # type: WeakSet
+        self._name_or_fd = name_or_fd
 
     def __enter__(self) -> "Display":
         self.connect()
@@ -86,7 +87,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.disconnect()
 
-    def connect(self, name_or_fd: Union[int, str, None] = None) -> None:
+    def connect(self) -> None:
         """Connect to a Wayland display
 
         Connect to the Wayland display by name of fd.  An `int` parameter opens
@@ -97,15 +98,15 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         replaced with the ``WAYLAND_DISPLAY`` environment variable if it is
         set, otherwise display ``"wayland-0"`` will be used.
         """
-        if isinstance(name_or_fd, int):
+        if isinstance(self._name_or_fd, int):
             # argument passed is a file descriptor
-            self._ptr = lib.wl_display_connect_to_fd(name_or_fd)
+            self._ptr = lib.wl_display_connect_to_fd(self._name_or_fd)
         else:
             # connect using string by name, or use default
-            if name_or_fd is None:
+            if self._name_or_fd is None:
                 name = ffi.NULL
             else:
-                name = name_or_fd.encode()
+                name = self._name_or_fd.encode()
             self._ptr = lib.wl_display_connect(name)
 
         if self._ptr == ffi.NULL:
