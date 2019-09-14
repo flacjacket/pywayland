@@ -1,6 +1,8 @@
 [run]
 source = pywayland
-omit = pywayland/protocol/*
+omit =
+    pywayland/protocol/*
+    pywayland/ffi_build.py
 
 [paths]
 source =
