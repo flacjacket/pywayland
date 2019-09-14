@@ -17,8 +17,6 @@ from weakref import WeakKeyDictionary
 from typing import List  # noqa: F401
 
 from pywayland import ffi
-from pywayland.client.proxy import Proxy
-from pywayland.server.resource import Resource
 
 from .dispatcher import Dispatcher
 from .message import Message
@@ -34,7 +32,17 @@ class classproperty:
         return self.f(owner)
 
 
-class Interface:
+class InterfaceMeta(type):
+    """Metaclass for Interfaces
+
+    Initializes empty lists for events and requests for the given class.
+    """
+    def __init__(self, name, bases, dct):
+        self.events = []
+        self.requests = []
+
+
+class Interface(metaclass=InterfaceMeta):
     """Wrapper class for wl_wayland structs
 
     Base class for interfaces that are defined by the wayland.xml class and
@@ -45,8 +53,6 @@ class Interface:
     :func:`Interface.request` decorators.
     """
 
-    events = []  # type: List[Message]
-    requests = []  # type: List[Message]
     _ptr = None
     name = None  # type: str
     version = None  # type: int
@@ -58,6 +64,8 @@ class Interface:
         :returns: :class:`~pywayland.client.proxy.Proxy` class for the given
                   interface
         """
+        from pywayland.client.proxy import Proxy
+
         # Use the name of the interface to construct the class name
         class_name = '{}Proxy'.format(interface.__name__)
         # Extract the requests
@@ -79,6 +87,8 @@ class Interface:
         :returns: :class:`~pywayland.server.resource.Resource` class for the
                   given interface
         """
+        from pywayland.server.resource import Resource
+
         # Use the name of the interface to construct the class name
         class_name = '{}Resource'.format(interface.__name__)
         # Extract the events

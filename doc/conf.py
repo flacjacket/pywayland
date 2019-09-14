@@ -23,7 +23,7 @@ from pywayland import __version__
 
 # -- Build pywayland.protocol w/docs --------------------------------------
 
-from protocol_build import wayland_version, wayland_build, protocols_version, protocols_build
+from protocol_build import wayland_version, protocols_version, protocols_build
 
 protocol_build_dir = '../pywayland/protocol/'
 protocol_doc_dir = 'module/protocol'
@@ -141,7 +141,6 @@ def protocol_doc(input_dir, output_dir):
 
 # Build the protocol directory on RTD
 if os.environ.get('READTHEDOCS', None):
-    wayland_build(protocol_build_dir)
     protocols_build(protocol_build_dir)
 
 # Re-build the protocol documentation directory
