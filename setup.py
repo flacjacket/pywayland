@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
 import os
 import subprocess
 import sys
@@ -27,7 +25,7 @@ from setuptools.command.sdist import sdist
 # build the protocol before the cffi module has been compiled
 sys.path.insert(0, 'pywayland')
 
-from version import __version__ as pywayland_version  # noqa
+from version import __version__ as pywayland_version
 
 default_xml_file = '/usr/share/wayland/wayland.xml'
 
@@ -68,7 +66,7 @@ def get_protocol_command(klass):
             klass.finalize_options(self)
 
         def run(self):
-            from scanner.scanner import Scanner
+            from scanner.scanner import Protocol
             from scanner.__main__ import get_wayland_protocols
 
             # Generate the wayland interface by default
@@ -91,9 +89,15 @@ def get_protocol_command(klass):
                 os.makedirs(self.output_dir, 0o775)
 
             # Run and scan all the above found xml files
-            for input_xml in input_files:
-                scanner = Scanner(input_xml)
-                scanner.output(self.output_dir)
+            protocols = [Protocol(input_xml) for input_xml in input_files]
+            protocol_imports = {
+                interface.name: protocol.name
+                for protocol in protocols
+                for interface in protocol.interface
+            }
+
+            for protocol in protocols:
+                protocol.output(self.output_dir, protocol_imports)
 
             # if we're building or installing, add the modules we generated
             if hasattr(self, 'distribution'):
