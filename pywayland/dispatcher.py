@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, lib
-
 from weakref import WeakValueDictionary
+import traceback
+
+from pywayland import ffi, lib
 
 dispatcher_to_object = WeakValueDictionary()  # type: WeakValueDictionary
 
@@ -46,8 +47,8 @@ def dispatcher_func(data, target, opcode, message, c_args):
     try:
         ret = func(self, *args)
     except Exception:
-        # TODO: log this
-        ret = None
+        traceback.print_exc()
+        return 0
 
     if ret is None:
         return 0
