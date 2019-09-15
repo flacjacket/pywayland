@@ -113,13 +113,19 @@ struct wl_display* wl_display_connect_to_fd(int fd);
 void wl_display_disconnect(struct wl_display *display);
 int wl_display_get_fd(struct wl_display *display);
 int wl_display_dispatch(struct wl_display *display);
+int wl_display_dispatch_pending(struct wl_display *display);
 int wl_display_dispatch_queue(struct wl_display *display,
                               struct wl_event_queue *queue);
-int wl_display_dispatch_pending(struct wl_display *display);
-int wl_display_flush(struct wl_display *display);
+int wl_display_dispatch_queue_pending(struct wl_display *display,
+                                      struct wl_event_queue *queue);
 int wl_display_roundtrip(struct wl_display *display);
 int wl_display_roundtrip_queue(struct wl_display *display,
                                struct wl_event_queue *queue);
+int wl_display_read_events(struct wl_display *display);
+int wl_display_prepare_read(struct wl_display *display);
+int wl_display_prepare_read_queue(struct wl_display *display,
+                                  struct wl_event_queue *queue);
+int wl_display_flush(struct wl_display *display);
 struct wl_event_queue *wl_display_create_queue(struct wl_display *display);
 """
 
