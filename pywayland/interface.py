@@ -41,6 +41,9 @@ class InterfaceMeta(type):
         self.events = []
         self.requests = []
 
+        # Initialize the interface cdata
+        self._ptr = ffi.new("struct wl_interface *")
+
 
 class Interface(metaclass=InterfaceMeta):
     """Wrapper class for wl_wayland structs
@@ -69,6 +72,7 @@ class Interface(metaclass=InterfaceMeta):
         # Use the name of the interface to construct the class name
         class_name = '{}Proxy'.format(interface.__name__)
         # Extract the requests
+        # TODO: add the enums to the class as well
         dct = {msg.name: msg.py_func for msg in interface.requests}
         # Construct a dispatcher
         dispacter_name = '{}Dispatcher'.format(interface.__name__)
@@ -163,8 +167,6 @@ class Interface(metaclass=InterfaceMeta):
         Generates the CFFI cdata for the wl_interface struct given by the
         interface.
         """
-        # Initialize the interface cdata
-        cls._ptr = ffi.new("struct wl_interface *")
         cls._ptr.name = name = ffi.new('char[]', cls.name.encode())
         cls._ptr.version = cls.version
 
