@@ -127,8 +127,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
                 obj.destroy()
 
             # run destructor and remove it
-            lib.wl_display_disconnect(self._ptr)
-            ffi.gc(self._ptr, None)
+            ffi.release(self._ptr)
             self._ptr = None
 
     @ensure_valid

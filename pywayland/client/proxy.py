@@ -41,6 +41,8 @@ class Proxy:
         if self._ptr is None:
             return
 
+        self._ptr = ffi.gc(self._ptr, lib.wl_proxy_destroy)
+
         # parent display is the root-most client Display object, all proxies
         # should keep the display alive
         if display is None:
@@ -55,12 +57,13 @@ class Proxy:
                 ffi.cast("struct wl_proxy *", self._ptr), lib.dispatcher_func, self._handle, ffi.NULL
             )
 
+    def __del__(self):
+        self._destroy()
+
     def _destroy(self):
         """Frees the pointer associated with the Proxy"""
         if self._ptr:
-            # TODO: figure out how to destroy the proxy in the right order
-            # _ptr = ffi.cast('struct wl_proxy *', self._ptr)
-            # lib.wl_proxy_destroy(_ptr)
+            ffi.release(self._ptr)
             self._ptr = None
 
     @ensure_valid
