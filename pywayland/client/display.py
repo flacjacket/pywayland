@@ -202,6 +202,34 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             return lib.wl_display_roundtrip_queue(self._ptr, queue._ptr)
 
     @ensure_valid
+    def read(self, *, queue: EventQueue = None) -> None:
+        """Read events from display file descriptor
+
+        Calling this function will result in data available on the display file
+        descriptor being read and read events will be queued on their
+        corresponding event queues.
+
+        :param queue: If specified, queue the events onto the given event
+                      queue, otherwise the default display queue will be used.
+        """
+        while True:
+            if queue is None:
+                prepared = lib.wl_display_prepare_read(self._ptr)
+            else:
+                prepared = lib.wl_display_prepare_read_queue(self._ptr, queue._ptr)
+
+            if prepared == 0:
+                break
+
+            # TODO: add a blocking/non-blocking condition here
+
+            self.dispatch(block=False, queue=queue)
+
+        status = lib.wl_display_read_events(self._ptr)
+        if status != 0:
+            raise RuntimeError("Failed to read events")
+
+    @ensure_valid
     def flush(self) -> int:
         """Send all buffered requests on the display to the server
 
