@@ -41,7 +41,7 @@ class Proxy:
         if self._ptr is None:
             return
 
-        self._ptr = ffi.gc(self._ptr, lib.wl_proxy_destroy)
+        self._ptr = ffi.gc(self._ptr, lambda ptr: lib.wl_proxy_destroy(ffi.cast("struct wl_proxy *", ptr)))
 
         # parent display is the root-most client Display object, all proxies
         # should keep the display alive
