@@ -66,7 +66,7 @@ def get_protocol_command(klass):
             klass.finalize_options(self)
 
         def run(self):
-            from scanner.scanner import Protocol
+            from scanner import Protocol
             from scanner.__main__ import get_wayland_protocols
 
             # Generate the wayland interface by default
@@ -113,8 +113,6 @@ BuildCommand = get_protocol_command(build)
 InstallCommand = get_protocol_command(install)
 SdistCommand = get_protocol_command(sdist)
 
-description = 'Python bindings for the libwayland library written in pure Python'
-
 # For the purposes of uploading to PyPI, we'll get the version of Wayland here
 try:
     from pywayland import __wayland_version__
@@ -127,60 +125,9 @@ else:
 
     long_description = '\n' + '\n'.join(rst_input)
 
-# Check if we're running PyPy, cffi can't be updated
-if '_cffi_backend' in sys.builtin_module_names:
-    import _cffi_backend
-    if _cffi_backend.__version__ < "1.7.0":
-        raise ValueError("PyPy version is too old, must support cffi>=1.7.0 (PyPy >= 5.3.0)")
-    requires_cffi = 'cffi==' + _cffi_backend.__version__
-else:
-    requires_cffi = "cffi>=1.7.0"
-
-dependencies = [requires_cffi]
-
-classifiers = [
-    'Development Status :: 2 - Pre-Alpha',
-    'License :: OSI Approved :: Apache Software License',
-    'Operating System :: POSIX',
-    'Operating System :: POSIX :: Linux',
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: Implementation :: CPython',
-    'Programming Language :: Python :: Implementation :: PyPy',
-    'Topic :: Desktop Environment :: Window Managers',
-    'Topic :: Software Development :: Libraries'
-]
-
-modules = [
-    'pywayland',
-    'pywayland.client',
-    'pywayland.protocol',
-    'pywayland.scanner',
-    'pywayland.server'
-]
-
 setup(
-    name='pywayland',
     version=pywayland_version,
-    author='Sean Vig',
-    author_email='sean.v.775@gmail.com',
-    url='http://github.com/flacjacket/pywayland',
-    description=description,
     long_description=long_description,
-    license='Apache License 2.0',
-    classifiers=classifiers,
-    install_requires=dependencies,
-    setup_requires=dependencies,
-    packages=modules,
-    entry_points={
-        'console_scripts': [
-            'pywayland-scanner = pywayland.pywayland_scanner:main'
-        ]
-    },
-    zip_safe=False,
     cmdclass={
         'build': BuildCommand,
         'install': InstallCommand,
