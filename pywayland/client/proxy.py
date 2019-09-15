@@ -57,6 +57,14 @@ class Proxy:
                 ffi.cast("struct wl_proxy *", self._ptr), lib.dispatcher_func, self._handle, ffi.NULL
             )
 
+    @property
+    def destroyed(self):
+        """Determine if proxy has been destroyed
+
+        Returns true if the proxy has been destroyed.
+        """
+        return self._ptr is None
+
     def __del__(self):
         self._destroy()
 
