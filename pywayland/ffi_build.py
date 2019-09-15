@@ -62,6 +62,15 @@ union wl_argument {
 };
 """
 
+# wl_array methods
+CDEF += """
+struct wl_array {
+    size_t size;
+    size_t alloc;
+    void *data;
+};
+"""
+
 # wl_list methods
 CDEF += """
 struct wl_list {

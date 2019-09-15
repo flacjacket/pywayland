@@ -109,8 +109,8 @@ class Message:
                 raise NotImplementedError
             # Array (i.e. buffer of bytes)
             elif sig == 'a':
-                raise NotImplementedError
-                # TODO
+                array = arg_ptr.a
+                args.append(ffi.buffer(array.data, array.size)[:])
 
         return args
 
