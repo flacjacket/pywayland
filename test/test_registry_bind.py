@@ -41,7 +41,7 @@ def _run_client():
     reg = c.get_registry()
     reg.dispatcher['global'] = _get_registry_callback
 
-    c.dispatch()
+    c.dispatch(block=True)
     c.roundtrip()
 
     c.disconnect()
@@ -94,4 +94,4 @@ def test_get_registry():
     assert compositor.create_surface
 
     # Check that the server got the bind and ran the handler
-    assert bound
+    assert bound is not None
