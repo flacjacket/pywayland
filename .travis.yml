@@ -21,6 +21,8 @@ matrix:
       env: TEST=mypy WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
     - python: 3.7
       env: TEST=docs WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
+    - python: 3.7
+      env: TEST=packaging WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
   allow_failures:
     - python: nightly
 
@@ -69,6 +71,12 @@ install:
         pip install mypy;
     elif [[ $TEST == docs ]]; then
         pip install -r doc/requirements.txt;
+    elif [[ $TEST == packaging ]]; then
+        pip install check-manifest twine;
+        check-manifest;
+        python setup.py check -m -s;
+        python setup.py sdist;
+        twine check dist/*;
     else
         pip install -r requirements-dev.txt;
     fi
