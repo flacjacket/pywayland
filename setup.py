@@ -128,6 +128,7 @@ else:
 setup(
     version=pywayland_version,
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     cmdclass={
         'build': BuildCommand,
         'install': InstallCommand,

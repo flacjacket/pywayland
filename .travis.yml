@@ -73,10 +73,6 @@ install:
         pip install -r doc/requirements.txt;
     elif [[ $TEST == packaging ]]; then
         pip install check-manifest twine;
-        check-manifest;
-        python setup.py check -m -s;
-        python setup.py sdist;
-        twine check dist/*;
     else
         pip install -r requirements-dev.txt;
     fi
@@ -88,6 +84,11 @@ script:
         mypy -p pywayland;
     elif [[ $TEST == docs ]]; then
         sphinx-build -W -b html doc doc/_build/html;
+    elif [[ $TEST == packaging ]]; then
+        check-manifest;
+        python setup.py check -m -s;
+        python setup.py sdist;
+        twine check dist/*;
     else
         py.test --cov pywayland --cov-report term-missing;
     fi
