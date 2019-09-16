@@ -72,11 +72,11 @@ tests can be run through ``py.test``.  Be sure you build the protocol files
 (see `Building Wayland protocols`_) before running the tests.
 
 .. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch=master
-    :alt: Build Coverage
     :target: https://coveralls.io/r/flacjacket/pywayland
+    :alt: Build Coverage
 .. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version=latest
     :target: https://readthedocs.org/projects/pywayland/?badge=latest
     :alt: Documentation Status
 .. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch=master
+    :target: https://pywayland.readthedocs.io/en/latest/
     :alt: Build Status
-    :target: https://travis-ci.org/flacjacket/pywayland
