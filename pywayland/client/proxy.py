@@ -22,40 +22,48 @@ re_args = re.compile(r'(\??)([fsoanuih])')
 
 
 class Proxy:
-    """Represents a protocol object on the client side.
-
-    A :class:`Proxy` acts as a client side proxy to an object existing in the
-    compositor.  Events coming from the compositor are also handled by the
-    proxy, which will in turn call the handler set with
-    :func:`Proxy.add_listener`.
-    """
     dispatcher = None
 
     def __init__(self, ptr, display=None):
-        self._ptr = ptr
-        self._display = display
+        """Represents a protocol object on the client side.
+
+        A :class:`Proxy` acts as a client side proxy to an object existing in
+        the compositor.  Events coming from the compositor are also handled by
+        the proxy, which will in turn call the handler set with
+        :func:`Proxy.add_listener`.
+        """
         self.user_data = None
 
         # This should only be true for wl_display proxies, as they will
         # initialize its pointer on a `.connect()` call
-        if self._ptr is None:
+        if ptr is None:
+            self._ptr = ptr
+            self._display = self
             return
 
-        self._ptr = ffi.gc(self._ptr, lambda ptr: lib.wl_proxy_destroy(ffi.cast("struct wl_proxy *", ptr)))
+        self._display = display
 
         # parent display is the root-most client Display object, all proxies
         # should keep the display alive
         if display is None:
             raise ValueError("Non-Display Proxy objects must be associated to a Display")
+        display._children.add(self)
 
-        if self.dispatcher is not None:
-            # associate our dispatcher to ourself
-            dispatcher_to_object[self.dispatcher] = self
+        if ptr == ffi.NULL:
+            raise RuntimeError("Got a null pointer for the proxy")
 
-            self._handle = ffi.new_handle(self.dispatcher)
-            lib.wl_proxy_add_dispatcher(
-                ffi.cast("struct wl_proxy *", self._ptr), lib.dispatcher_func, self._handle, ffi.NULL
-            )
+        # note that even though we cast to a proxy here, the ptr may be a
+        # wl_display, so the methods must still cast to 'struct wl_proxy *'
+        ptr = ffi.cast('struct wl_proxy *', ptr)
+        self._ptr = ffi.gc(ptr, lib.wl_proxy_destroy)
+
+        # associate our dispatcher to ourself
+        dispatcher_to_object[self.dispatcher] = self
+
+        self._handle = ffi.new_handle(self.dispatcher)
+        lib.wl_proxy_add_dispatcher(self._ptr, lib.dispatcher_func, self._handle, ffi.NULL)
+
+        self.registry[self._ptr] = self
 
     @property
     def destroyed(self):
@@ -74,32 +82,26 @@ class Proxy:
             ffi.release(self._ptr)
             self._ptr = None
 
+    destroy = _destroy
+
     @ensure_valid
     def _marshal(self, opcode, *args):
         """Marshal the given arguments into the Wayland wire format"""
         # Create a wl_argument array
         args_ptr = self._interface.requests[opcode].arguments_to_c(*args)
-        # Make the cast to a wl_proxy
-        proxy = ffi.cast('struct wl_proxy *', self._ptr)
 
+        # Write the event into the connection queue
+        proxy = ffi.cast('struct wl_proxy *', self._ptr)
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
     @ensure_valid
     def _marshal_constructor(self, opcode, interface, *args):
         """Marshal the given arguments into the Wayland wire format for a constructor"""
-        from .display import Display
-
-        # figure out what the display is, if _display is None, then this object is a Display
-        display = self._display or self
-        if not isinstance(display, Display):
-            ValueError("Display not correctly set")
-
         # Create a wl_argument array
         args_ptr = self._interface.requests[opcode].arguments_to_c(*args)
-        # Make the cast to a wl_proxy
-        proxy = ffi.cast('struct wl_proxy *', self._ptr)
 
-        proxy_ptr = lib.wl_proxy_marshal_array_constructor(
-            proxy, opcode, args_ptr, interface._ptr
-        )
-        return interface.proxy_class(proxy_ptr, display)
+        # Write the event into the connection queue and build a new proxy from the given args
+        proxy = ffi.cast('struct wl_proxy *', self._ptr)
+        proxy_ptr = lib.wl_proxy_marshal_array_constructor(proxy, opcode, args_ptr, interface._ptr)
+
+        return interface.proxy_class(proxy_ptr, self._display)

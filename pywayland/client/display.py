@@ -125,7 +125,8 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             # we need to be sure the event queues and proxies are destroyed
             # before we disconnect the client
             for obj in self._children:
-                obj.destroy()
+                if not obj.destroyed:
+                    obj.destroy()
 
             # run destructor and remove it
             ffi.release(self._ptr)

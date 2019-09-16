@@ -32,9 +32,6 @@ def dispatcher_func(data, target, opcode, message, c_args):
     dispatcher = ffi.from_handle(data)
     # get the callback
     func = dispatcher[opcode]
-    # rebuild the args into python objects
-    args = dispatcher.messages[opcode].c_to_arguments(c_args)
-
     if func is None:
         return 0
 
@@ -43,6 +40,9 @@ def dispatcher_func(data, target, opcode, message, c_args):
     if self is None:
         # TODO: log this
         return 0
+
+    # rebuild the args into python objects
+    args = dispatcher.messages[opcode].c_to_arguments(c_args)
 
     try:
         ret = func(self, *args)

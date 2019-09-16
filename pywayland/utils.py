@@ -23,7 +23,7 @@ def ensure_valid(func):
     def wrapper(self, *args, **kwargs):
         if self._ptr is None:
             raise ValueError("{cls} object has been destroyed".format(
-                self.__class__.__name__
+                cls=self.__class__.__name__
             ))
         return func(self, *args, **kwargs)
     return wrapper

@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from weakref import WeakKeyDictionary
-
+from weakref import WeakKeyDictionary, WeakValueDictionary
 from typing import List  # noqa: F401
 
 from pywayland import ffi
-
 from .dispatcher import Dispatcher
 from .message import Message
 
@@ -80,6 +78,7 @@ class Interface(metaclass=InterfaceMeta):
         # Add the interface and dispacter as a class attribute
         dct['_interface'] = interface
         dct['dispatcher'] = dispacter_class(interface.events)
+        dct['registry'] = interface.registry
 
         # Return the new class
         return type(class_name, (Proxy,), dct)
@@ -167,6 +166,8 @@ class Interface(metaclass=InterfaceMeta):
         Generates the CFFI cdata for the wl_interface struct given by the
         interface.
         """
+        cls.registry = WeakValueDictionary()
+
         cls._ptr.name = name = ffi.new('char[]', cls.name.encode())
         cls._ptr.version = cls.version
 

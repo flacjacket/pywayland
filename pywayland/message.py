@@ -91,26 +91,30 @@ class Message:
                     args.append(None)
                 else:
                     args.append(ffi.string(arg_ptr.s).decode())
-            # Object or new id
-            elif sig in ('o', 'n'):
-                if arg_ptr == ffi.NULL:
+            # Object
+            elif sig == 'o':
+                if arg_ptr.o == ffi.NULL:
                     if not null:
-                        raise Exception
+                        message = "Got null object parsing arguments for '{}' message, may already be destroyed".format(
+                            self.name
+                        )
+                        raise RuntimeError(message)
                     args.append(None)
                 else:
                     iface = self.types[i]
-                    if iface is None:
-                        # TODO: for new_id passed as name/version/id (e.g. registry.bind)
-                        raise NotImplementedError()
-                    else:
-                        args.append(iface.proxy_class(args_ptr.o))
+                    proxy_ptr = ffi.cast('struct wl_proxy *', arg_ptr.o)
+                    obj = iface.proxy_class.registry.get(proxy_ptr)
+                    if obj is None:
+                        raise RuntimeError("Unable to get object for {}, was it garbage collected?".format(proxy_ptr))
+                    args.append(obj)
+            # New id
             elif sig == 'n':
                 # TODO
                 raise NotImplementedError
             # Array (i.e. buffer of bytes)
             elif sig == 'a':
-                array = arg_ptr.a
-                args.append(ffi.buffer(array.data, array.size)[:])
+                array_ptr = arg_ptr.a
+                args.append(ffi.buffer(array_ptr.data, array_ptr.size)[:])
 
         return args
 
