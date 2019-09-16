@@ -103,7 +103,7 @@ that you have everything installed correctly by running the associated
 test-suite (note that you will also need ``pytest`` to run the tests).  Simply
 run::
 
-    $ py.tests
+    $ pytest
 
 from the root directory.
 
