@@ -15,10 +15,10 @@ running.  For more help, see the `full documentation`_.
 Current Release
 ---------------
 
-PyWayland is still in a developmental state.  An initial version ``0.0.1a.dev7``
-is available on the `cheese shop`_.  Current development versions can be
-obtained from the `git repository`_, feedback, as well as any bug reports or
-fixes are highly appreciated.
+PyWayland is still in a developmental state.  An initial version ``0.1.0`` is
+available on the `cheese shop`_.  Current development versions can be obtained
+from the `git repository`_, feedback, as well as any bug reports or fixes are
+highly appreciated.
 
 .. _cheese shop: https://pypi.python.org/pypi/pywayland/
 .. _git repository: https://github.com/flacjacket/pywayland/
