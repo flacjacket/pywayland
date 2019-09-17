@@ -2,6 +2,7 @@
 source = pywayland
 omit =
     pywayland/protocol/*
+    pywayland/ffi_build.py
 
 [paths]
 source =

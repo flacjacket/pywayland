@@ -63,7 +63,7 @@ install:
   - popd
 # install necessary packages
   - pip install -r requirements.txt;
-  - python ffi_build.py;
+  - python pywayland/ffi_build.py;
   - python -m pywayland.scanner --with-protocols;
   - if [[ $TEST == pep8 ]]; then
         pip install flake8;

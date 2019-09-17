@@ -96,7 +96,7 @@ Once the protocol files are created, you can generate the cffi module.  Note:
 this is only required if you want to run from the source in place.  If the
 libwayland header files are correctly installed, you will just need to run::
 
-    $ python ffi_build.py
+    $ python pywaland/ffi_build.py
 
 At this point, you should be able to use the PyWayland library.  You can check
 that you have everything installed correctly by running the associated

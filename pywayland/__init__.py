@@ -19,7 +19,7 @@ from .version import __version__  # noqa
 try:
     from ._ffi import ffi, lib  # noqa
 except ImportError:
-    raise ImportError("No module named pywayland._ffi, be sure to run `python ./ffi_build.py`")
+    raise ImportError("No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`")
 
 __wayland_version__ = '{}.{}.{}'.format(
     lib.WAYLAND_VERSION_MAJOR,
