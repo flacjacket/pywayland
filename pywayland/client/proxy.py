@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
-from pywayland.dispatcher import dispatcher_to_object
 from pywayland.utils import ensure_valid
 
 import re
@@ -57,10 +56,7 @@ class Proxy:
         ptr = ffi.cast('struct wl_proxy *', ptr)
         self._ptr = ffi.gc(ptr, lib.wl_proxy_destroy)
 
-        # associate our dispatcher to ourself
-        dispatcher_to_object[self.dispatcher] = self
-
-        self._handle = ffi.new_handle(self.dispatcher)
+        self._handle = ffi.new_handle(self)
         lib.wl_proxy_add_dispatcher(self._ptr, lib.dispatcher_func, self._handle, ffi.NULL)
 
         self.registry[self._ptr] = self

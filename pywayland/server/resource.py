@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
-from pywayland.dispatcher import dispatcher_to_object
 from pywayland.utils import ensure_valid
 from .client import Client
 
@@ -50,10 +49,7 @@ class Resource:
         self.id = lib.wl_resource_get_id(self._ptr)
 
         if self.dispatcher is not None:
-            # associate the dispatcher to ourself
-            dispatcher_to_object[self.dispatcher] = self
-
-            self._handle = ffi.new_handle(self.dispatcher)
+            self._handle = ffi.new_handle(self)
             lib.wl_resource_set_dispatcher(self._ptr, lib.dispatcher_func, ffi.NULL,
                                            self._handle, lib.resource_destroy_func)
 

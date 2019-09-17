@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
-from pywayland.dispatcher import dispatcher_to_object
 from pywayland.utils import ensure_valid
 
 import functools
@@ -101,7 +100,6 @@ class Client:
         # forgiveness doesn't work, becuase it will seg fault
         if res_ptr == ffi.NULL:
             return
-        # we attach the handle to resources, so first get the dispatcher, then resolve it's corresponding resource
-        dispatcher_handle = lib.wl_resource_get_user_data(res_ptr)
-        dispatcher = ffi.from_handle(dispatcher_handle)
-        return dispatcher_to_object.get(dispatcher)
+
+        resource_handle = lib.wl_resource_get_user_data(res_ptr)
+        return ffi.from_handle(resource_handle)

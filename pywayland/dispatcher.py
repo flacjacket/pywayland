@@ -12,37 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from weakref import WeakValueDictionary
 import traceback
 
 from pywayland import ffi, lib
-
-dispatcher_to_object = WeakValueDictionary()  # type: WeakValueDictionary
 
 
 # int (*wl_dispatcher_func_t)(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *)
 @ffi.def_extern()
 def dispatcher_func(data, target, opcode, message, c_args):
-    # `data` is the handle to Dispatcher
-    # `target` is the wl_proxy/wl_resource for self
+    # `data` is the handle to proxy/resource python object
+    # `target` is the wl_proxy/wl_resource for self, this should be the same as self._ptr
     # `message` is the wl_message for self._interface.events/requests[opcode]
     # TODO: handle any user_data attached to the wl_proxy/wl_resource
 
-    # get the dispatcher object
-    dispatcher = ffi.from_handle(data)
+    # get the proxy/resource object from the user data handle
+    self = ffi.from_handle(data)
+
     # get the callback
-    func = dispatcher[opcode]
+    func = self.dispatcher[opcode]
     if func is None:
         return 0
 
-    # try to get the Proxy/Resource tied to the dispatcher
-    self = dispatcher_to_object.get(dispatcher)
-    if self is None:
-        # TODO: log this
-        return 0
-
     # rebuild the args into python objects
-    args = dispatcher.messages[opcode].c_to_arguments(c_args)
+    args = self.dispatcher.messages[opcode].c_to_arguments(c_args)
 
     try:
         ret = func(self, *args)
@@ -59,20 +51,14 @@ def dispatcher_func(data, target, opcode, message, c_args):
 # void (*wl_resource_destroy_func_t)(struct wl_resource *resource)
 @ffi.def_extern()
 def resource_destroy_func(res_ptr):
-    # the user data to the resource is the handle to the dispatcher
-    dispatcher_handle = lib.wl_resource_get_user_data(res_ptr)
-    dispatcher = ffi.from_handle(dispatcher_handle)
-
-    # try to get the Proxy/Resource tied to the dispatcher
-    self = dispatcher_to_object.get(dispatcher)
-    if self is None:
-        # TODO: log this
-        return
+    # the user data to the resource is the handle to the resource
+    resource_handle = lib.wl_resource_get_user_data(res_ptr)
+    resource = ffi.from_handle(resource_handle)
 
     # if the destructor has been set, run it
-    func = dispatcher.destructor
+    func = resource.dispatcher.destructor
     if func is not None:
-        func(self)
+        func(resource)
 
 
 class Dispatcher:
