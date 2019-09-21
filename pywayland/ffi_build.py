@@ -160,6 +160,14 @@ struct wl_listener {
 };
 """
 
+CDEF += """
+struct wl_signal {
+    struct wl_list listener_list;
+};
+
+void wl_signal_add(struct wl_signal *signal, struct wl_listener *listener);
+"""
+
 # wl_eventloop callbacks and methods
 CDEF += """
 typedef int (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data);
