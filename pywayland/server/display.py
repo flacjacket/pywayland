@@ -70,12 +70,9 @@ class Display:
         """
         if name is None:
             name_ptr = lib.wl_display_add_socket_auto(self._ptr)
+            if name_ptr == ffi.NULL:
+                raise RuntimeError("Unable to create socket")
             name = ffi.string(name_ptr)
-
-            if not name:
-                # TODO: raise better
-                raise Exception()
-
             return name
         else:
             name_ptr = ffi.new('char []', name.encode())
