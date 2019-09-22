@@ -64,7 +64,7 @@ class Listener:
 
     def remove(self):
         """Remove the listener"""
-        if self.link:
+        if self._ptr.link != ffi.NULL:
             lib.wl_list_remove(ffi.addressof(self._ptr.link))
             self.link = None
 

@@ -80,7 +80,6 @@ class Client:
         :type listener: :class:`~pywayland.server.Listener`
         """
         lib.wl_client_add_destroy_listener(self._ptr, listener._ptr)
-        listener.link = self
 
     @ensure_valid
     def get_object(self, id):
