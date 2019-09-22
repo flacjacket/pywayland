@@ -35,6 +35,14 @@ class Entry(Element):
         Child('description', Description, False, False)
     ]
 
-    def output(self, printer):
+    def output(self, enum_name, printer):
         """Generate the output for the entry in the enum"""
-        printer('"{}": {},'.format(self.name, self.value))
+        try:
+            int(self.name)
+            printer('{}_{} = {}'.format(enum_name, self.name, self.value))
+        except ValueError:
+            if self.name == "name":
+                name = "name_"
+            else:
+                name = self.name
+            printer('{} = {}'.format(name, self.value))

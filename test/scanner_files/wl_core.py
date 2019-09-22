@@ -29,11 +29,10 @@ class WlCore(Interface):
     name = "wl_core"
     version = 1
 
-    the_enum = enum.Enum("the_enum", {
-        "zero": 0,
-        "one": 1,
-        "hex_two": 0x2,
-    })
+    class the_enum(enum.IntEnum):
+        zero = 0
+        one = 1
+        hex_two = 0x2
 
 
 @WlCore.request("niuf", [WlCore, None, None, None])
