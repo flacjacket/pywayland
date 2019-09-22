@@ -11,3 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import enum
+import sys
+
+
+# there is not intflag in python 3.5, which is used in bitfield's
+# without a proper flag type, these enums will be less usable, if we need to
+# support this, we can pull in some backport of the necessary functionality
+if sys.version_info < (3, 6):
+    enum.IntFlag = enum.IntEnum
