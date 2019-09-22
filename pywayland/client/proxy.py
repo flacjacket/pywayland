@@ -74,8 +74,11 @@ class Proxy:
 
     def _destroy(self):
         """Frees the pointer associated with the Proxy"""
-        if self._ptr:
-            ffi.release(self._ptr)
+        if self._ptr is not None:
+            if self._display._ptr is not None:
+                ffi.release(self._ptr)
+            else:
+                self._ptr = ffi.gc(self._ptr, None)
             self._ptr = None
 
     destroy = _destroy

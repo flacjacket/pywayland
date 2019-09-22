@@ -132,6 +132,8 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             ffi.release(self._ptr)
             self._ptr = None
 
+    _destroy = disconnect
+
     @ensure_valid
     def get_fd(self) -> int:
         """Get a display context's file descriptor
