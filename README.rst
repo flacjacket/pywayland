@@ -66,8 +66,8 @@ Running Tests
 -------------
 
 PyWayland implements a (currently limited) test-suite in ``./tests``.  The
-tests can be run through ``py.test``.  Be sure you build the protocol files
-(see `Building Wayland protocols`_) before running the tests.
+tests can be run through ``pytest``.  Be sure you build the protocol files (see
+`Building Wayland protocols`_) before running the tests.
 
 .. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch=master
     :target: https://coveralls.io/r/flacjacket/pywayland

@@ -25,8 +25,6 @@ from setuptools.command.sdist import sdist
 # build the protocol before the cffi module has been compiled
 sys.path.insert(0, 'pywayland')
 
-from version import __version__ as pywayland_version
-
 default_xml_file = '/usr/share/wayland/wayland.xml'
 
 
@@ -114,19 +112,18 @@ InstallCommand = get_protocol_command(install)
 SdistCommand = get_protocol_command(sdist)
 
 # For the purposes of uploading to PyPI, we'll get the version of Wayland here
+rst_input = open('README.rst').read().split('\n')
 try:
     from pywayland import __wayland_version__
-    rst_input = open('README.rst').read().split('\n')
 except Exception:
-    long_description = ""
+    pass
 else:
     version = 'Built against Wayland {}\n'.format(__wayland_version__)
     rst_input.insert(3, version)
 
-    long_description = '\n' + '\n'.join(rst_input)
+long_description = '\n'.join(rst_input)
 
 setup(
-    version=pywayland_version,
     long_description=long_description,
     long_description_content_type='text/x-rst',
     cmdclass={
