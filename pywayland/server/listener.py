@@ -26,8 +26,11 @@ def notify_func(listener_ptr, data):
     )
     listener = ffi.from_handle(container.handle)
 
-    callback = listener["notify"]
-    callback(listener["link"])
+    if listener._signal is not None and listener._signal._data_wrapper is not None:
+        data = listener._signal._data_wrapper(data)
+
+    callback = listener._notify
+    callback(listener, data)
 
 
 class Listener:
@@ -46,11 +49,7 @@ class Listener:
     :type function: callable
     """
     def __init__(self, function):
-        self._callback_info = {
-            "notify": function,
-            "link": None
-        }
-        self._handle = ffi.new_handle(self._callback_info)
+        self._handle = ffi.new_handle(self)
 
         # we need a way to get this Python object from the `struct
         # wl_listener*`, so we put the pointer in a container struct that
@@ -60,14 +59,8 @@ class Listener:
 
         self._ptr = ffi.addressof(self.container.destroy_listener)
         self._ptr.notify = lib.notify_func
-
-    @property
-    def link(self):
-        return self._callback_info["link"]
-
-    @link.setter
-    def link(self, value):
-        self._callback_info["link"] = value
+        self._notify = function
+        self._signal = None
 
     def remove(self):
         """Remove the listener"""
@@ -85,10 +78,15 @@ class Signal:
     using #wl_signal_emit, which will invoke all listeners until that listener
     is removed by wl_list_remove() (or whenever the signal is destroyed).
     """
-    def __init__(self):
-        self._ptr = ffi.new("struct wl_listener *")
+    def __init__(self, *, ptr=None, data_wrapper=None):
+        if ptr is None:
+            self._ptr = ffi.new("struct wl_listener *")
+            lib.wl_signal_init(self._ptr)
+        else:
+            self._ptr = ptr
 
-        lib.wl_signal_init(self._ptr)
+        self._data_wrapper = data_wrapper
+        self._link = []
 
     def add(self, listener):
         """Add the specified listener to this signal
@@ -96,6 +94,11 @@ class Signal:
         :param listener: The listener to add
         :type listener: :class:`Listener`
         """
+        # we are creating a reference loop, as the listener resolves the data
+        # wrapper function, and the signal keeps the listener alive
+        listener._signal = self
+        self._link.append(listener)
+
         lib.wl_signal_add(self._ptr, listener._ptr)
 
     def emit(self, data=None):
@@ -103,7 +106,7 @@ class Signal:
 
         :param data: The data that will be emitted with the signal
         """
-        if data:
+        if data is not None:
             data_ptr = ffi.new_handle(data)
         else:
             data_ptr = ffi.NULL

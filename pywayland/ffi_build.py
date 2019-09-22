@@ -79,6 +79,7 @@ struct wl_list {
 };
 
 void wl_list_remove(struct wl_list *elm);
+int wl_list_empty(const struct wl_list *list);
 """
 
 # Dispatcher callback
