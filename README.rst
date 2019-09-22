@@ -73,8 +73,8 @@ tests can be run through ``pytest``.  Be sure you build the protocol files (see
     :target: https://coveralls.io/r/flacjacket/pywayland
     :alt: Build Coverage
 .. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version=latest
-    :target: https://readthedocs.org/projects/pywayland/?badge=latest
+    :target: https://pywayland.readthedocs.io/en/latest/
     :alt: Documentation Status
 .. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch=master
-    :target: https://pywayland.readthedocs.io/en/latest/
+    :target: https://travis-ci.org/flacjacket/pywayland/
     :alt: Build Status
