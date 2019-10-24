@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import xml.etree.ElementTree as ET
+
 from .element import Element
+from .printer import Printer
 
 copyright_default = """\
 # Copyright 2015 Sean Vig
@@ -31,9 +34,13 @@ copyright_default = """\
 
 
 class Copyright(Element):
-    pcdata = True
+    def __init__(self, element: ET.Element) -> None:
+        text = self.parse_pcdata(element)
+        assert text is not None
 
-    def output(self, printer):
+        self.text = text
+
+    def output(self, printer: Printer) -> None:
         for line in self.text.split('\n'):
             if line:
                 printer('# ' + line.rstrip())

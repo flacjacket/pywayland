@@ -12,49 +12,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List, Optional, TypeVar, Type
 import textwrap
-from typing import NamedTuple, List  # noqa: F401
+import xml.etree.ElementTree as ET
 
-
-Attribute = NamedTuple("Attribute", [("name", str), ("required", bool)])
-
-Child = NamedTuple("Child", [("name", str), ("class_", object), ("required", bool), ("allow_multiple", bool)])
+T = TypeVar("T", bound="Element")
 
 
 class Element:
-    attributes = []  # type: List[Attribute]
-    children = []  # type: List[Child]
-    pcdata = False
+    def __init__(self, element: ET.Element) -> None:
+        pass
 
-    def __init__(self, element, *args, **kwargs):
-        for attr in self.attributes:
-            obj = element.attrib.get(attr.name)
+    @staticmethod
+    def parse_attribute(element: ET.Element, name: str) -> str:
+        obj = Element.parse_optional_attribute(element, name)
+        if obj is None:
+            raise ValueError()
 
-            if not attr and attr.required:
-                raise ValueError()
+        return obj
 
-            name = attr.name.replace('-', '_')
-            setattr(self, name, obj)
+    @staticmethod
+    def parse_optional_attribute(element: ET.Element, name) -> Optional[str]:
+        obj = element.attrib.get(name)
+        return obj
 
-        for child in self.children:
-            if child.allow_multiple:
-                obj = [child.class_(elem) for elem in element.findall(child.name)]
-            else:
-                obj = element.find(child.name)
-                if obj is not None:
-                    obj = child.class_(obj)
+    @staticmethod
+    def parse_child(element: ET.Element, child_class: Type[T], name: str) -> T:
+        obj = Element.parse_optional_child(element, child_class, name)
+        if obj is None:
+            raise ValueError()
 
-            if not obj and child.required:
-                raise ValueError(child.name)
+        return obj
 
-            # We need to replace dashes with underscores
-            name = child.name.replace('-', '_')
-            setattr(self, name, obj)
+    @staticmethod
+    def parse_optional_child(element: ET.Element, child_class: Type[T], name: str) -> Optional[T]:
+        obj = element.find(name)
+        if obj is None:
+            return None
 
-        if self.pcdata:
-            text = element.text
+        return child_class(obj)
+
+    @staticmethod
+    def parse_repeated_child(element: ET.Element, child_class: Type[T], name: str) -> List[T]:
+        obj = [child_class(elem) for elem in element.findall(name)]
+        return obj
+
+    @staticmethod
+    def parse_pcdata(element: ET.Element) -> Optional[str]:
+        text = element.text
+        if text:
             # We need to strip each line while keeping paragraph breaks
-            if text:
-                self.text = textwrap.dedent(text.expandtabs(8).rstrip().lstrip('\n'))
-            else:
-                self.text = None
+            return textwrap.dedent(text.expandtabs(8).rstrip().lstrip('\n'))
+
+        return None

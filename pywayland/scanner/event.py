@@ -14,7 +14,6 @@
 
 from typing import Iterator
 
-from .element import Attribute
 from .method import Method
 from .printer import Printer
 
@@ -30,13 +29,8 @@ class Event(Method):
     """
     method_type = 'event'
 
-    attributes = [
-        Attribute('name', True),
-        Attribute('since', False)
-    ]
-
     @property
-    def method_args(self):
+    def method_args(self) -> Iterator[str]:
         """Generator of the arguments to the method
 
         All arguments to be sent to `._post_event` must be passed in
@@ -48,7 +42,7 @@ class Event(Method):
     def interface_types(self) -> Iterator[str]:
         """Generator of the types (for the wl_interface)"""
         for arg in self.arg:
-            if arg.interface:  # type: ignore
+            if arg.interface:
                 yield arg.interface_class
             else:
                 yield 'None'

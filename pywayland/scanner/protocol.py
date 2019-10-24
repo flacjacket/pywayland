@@ -14,8 +14,9 @@
 
 import xml.etree.ElementTree as ET
 import os
+from typing import Dict
 
-from .element import Element, Attribute, Child
+from .element import Element
 from .copyright import Copyright, copyright_default
 from .description import Description
 from .interface import Interface
@@ -23,15 +24,7 @@ from .printer import Printer
 
 
 class Protocol(Element):
-    attributes = [Attribute('name', True)]
-
-    children = [
-        Child('copyright', Copyright, False, False),
-        Child('description', Description, False, False),
-        Child('interface', Interface, True, True)
-    ]
-
-    def __init__(self, input_file):
+    def __init__(self, input_file: str) -> None:
         """Protocol scanner object
 
         Main scanner object that acts on the input xml files to generate
@@ -50,12 +43,16 @@ class Protocol(Element):
         if xmlroot.tag != 'protocol':
             raise ValueError("Input file not a valid Wayland protocol file: {}".format(input_file))
 
-        super(Protocol, self).__init__(xmlroot)
+        self.name = self.parse_attribute(xmlroot, "name")
 
-    def __repr__(self):
+        self.copyright = self.parse_optional_child(xmlroot, Copyright, "copyright")
+        self.description = self.parse_optional_child(xmlroot, Description, "description")
+        self.interface = self.parse_repeated_child(xmlroot, Interface, "interface")
+
+    def __repr__(self) -> str:
         return "Protocol({})".format(self._input_file)
 
-    def output(self, output_dir, module_imports):
+    def output(self, output_dir: str, module_imports: Dict[str, str]) -> None:
         """Output the scanned files to the given directory
 
         :param output_dir: Path of directory to output protocol files to

@@ -12,42 +12,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List  # noqa: F401
+import abc
+import xml.etree.ElementTree as ET
+from typing import Dict, Iterable, List, Tuple
 
 from .argument import Argument
 from .description import Description
-from .element import Child, Element
+from .element import Element
+from .printer import Printer
 
 # For 'new_id' types with no 'interface'
 NO_IFACE = 'interface'
 NO_IFACE_VERSION = 'version'
 
 
-class Method(Element):
+class Method(Element, abc.ABC):
     """Scanner for methods
 
     Corresponds to event and requests defined on an interface
     """
 
-    children = [
-        Child('description', Description, False, False),
-        Child('arg', Argument, False, True),
-    ]
-
-    description = []  # type: List[Description]
-    arg = []  # type: List[Argument]
-
-    def __init__(self, method, iface_name, opcode):
-        super(Method, self).__init__(method)
-
+    def __init__(self, method: ET.Element, iface_name: str, opcode: int) -> None:
         self.opcode = opcode
         self.interface = iface_name
+
+        self.name = self.parse_attribute(method, "name")
+        self.since = self.parse_optional_attribute(method, "since")
+
+        self.description = self.parse_optional_child(method, Description, "description")
+        self.arg = self.parse_repeated_child(method, Argument, "arg")
 
         # some methods are protected names, so append '_'
         if self.name in ('global', 'import'):
             self.name += '_'
 
-    def imports(self, module_imports):
+    def imports(self, module_imports: Dict[str, str]) -> List[Tuple[str, str]]:
         """Get the imports required for each of the interfaces"""
         current_protocol = module_imports[self.interface]
 
@@ -71,7 +70,7 @@ class Method(Element):
 
         return imports
 
-    def output(self, printer, in_class, module_imports):
+    def output(self, printer: Printer, in_class: str, module_imports: Dict[str, str]) -> None:
         """Generate the output for the given method to the printer"""
         # Generate the decorator for the method
         signature = ''.join(arg.signature for arg in self.arg)
@@ -93,7 +92,7 @@ class Method(Element):
             # Write out the body of the method
             self.output_body(printer)
 
-    def output_doc(self, printer):
+    def output_doc(self, printer: Printer) -> None:
         """Output the documentation for the interface"""
         if self.description:
             self.description.output(printer)
@@ -104,3 +103,26 @@ class Method(Element):
             printer()
             self.output_doc_params(printer)
         printer('"""')
+
+    @property
+    @abc.abstractmethod
+    def method_type(self) -> str:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def method_args(self) -> Iterable[str]:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def interface_types(self) -> Iterable[str]:
+        pass
+
+    @abc.abstractmethod
+    def output_doc_params(self, printer: Printer) -> None:
+        pass
+
+    @abc.abstractmethod
+    def output_body(self, printer: Printer) -> None:
+        pass

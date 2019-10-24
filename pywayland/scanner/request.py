@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .element import Attribute
+from typing import Iterable, Optional
+import xml.etree.ElementTree as ET
+
+from .argument import Argument
 from .method import Method
+from .printer import Printer
 
 # For 'new_id' types with no 'interface'
 NO_IFACE = 'interface'
@@ -31,20 +35,20 @@ class Request(Method):
     """
     method_type = 'request'
 
-    attributes = [
-        Attribute('name', True),
-        Attribute('type', False),
-        Attribute('since', False)
-    ]
+    def __init__(self, method: ET.Element, iface_name: str, opcode: int) -> None:
+        super().__init__(method, iface_name, opcode)
+
+        self.type = self.parse_optional_attribute(method, "type")
 
     @property
-    def new_id(self):
+    def new_id(self) -> Optional[Argument]:
         for arg in self.arg:
             if arg.type == 'new_id':
                 return arg
+        return None
 
     @property
-    def method_args(self):
+    def method_args(self) -> Iterable[str]:
         """Generator of the arguments to the method
 
         The `new_id` args are generated in marshaling the args, they do not
@@ -63,7 +67,7 @@ class Request(Method):
                 yield arg.name
 
     @property
-    def interface_types(self):
+    def interface_types(self) -> Iterable[str]:
         """Generator of the types (for the wl_interface)"""
         for arg in self.arg:
             if arg.interface:
@@ -75,7 +79,7 @@ class Request(Method):
                 yield 'None'
 
     @property
-    def marshal_args(self):
+    def marshal_args(self) -> Iterable[str]:
         """Arguments sent to `._marshal`"""
         for arg in self.arg:
             if arg.type == 'new_id':
@@ -85,7 +89,7 @@ class Request(Method):
             else:
                 yield arg.name
 
-    def output_doc_params(self, printer):
+    def output_doc_params(self, printer: Printer) -> None:
         """Aguments documented as parameters
 
         Anything that is not a `new_id` is
@@ -105,7 +109,7 @@ class Request(Method):
         if ret is not None:
             ret.output_doc_ret(printer)
 
-    def output_doc_ret(self, printer):
+    def output_doc_ret(self, printer: Printer) -> None:
         """Aguments documented as return values
 
         Arguments of type `new_id` are returned from requests.
@@ -114,7 +118,7 @@ class Request(Method):
             if arg.type == 'new_id':
                 arg.output_doc_ret(printer)
 
-    def output_body(self, printer):
+    def output_body(self, printer: Printer) -> None:
         """Output the body of the request to the printer"""
         if self.new_id:
             if self.new_id.interface:

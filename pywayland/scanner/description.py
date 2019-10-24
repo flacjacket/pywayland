@@ -12,14 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .element import Element, Attribute
+import xml.etree.ElementTree as ET
+
+from .element import Element
+from .printer import Printer
 
 
 class Description(Element):
-    attributes = [Attribute('summary', True)]
-    pcdata = True
+    def __init__(self, element: ET.Element) -> None:
+        self.summary = self.parse_attribute(element, "summary")
 
-    def output(self, printer):
+        self.text = self.parse_pcdata(element)
+
+    def output(self, printer: Printer) -> None:
         printer.doc('"""{}'.format(self.summary.capitalize()))
         if self.text:
             printer()

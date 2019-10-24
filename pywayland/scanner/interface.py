@@ -13,33 +13,30 @@
 # limitations under the License.
 
 import itertools
-
-from .element import Element, Attribute, Child
+import xml.etree.ElementTree as ET
+from typing import Dict
 
 from .description import Description
+from .element import Element
 from .enum import Enum
 from .event import Event
+from .printer import Printer
 from .request import Request
 
 
 class Interface(Element):
-    attributes = [Attribute('name', True), Attribute('version', True)]
-    children = [
-        Child('description', Description, False, False),
-        Child('enum', Enum, False, True),
-        # Child('request', Request, False, True),
-        # Child('event', Event, False, True)
-    ]
-
-    def __init__(self, iface):
+    def __init__(self, iface: ET.Element) -> None:
         """Scanner for interface objects
 
         Required attributes: `name` and `version`
 
         Child elements: `description`, `request`, `event`, `enum`
         """
-        super(Interface, self).__init__(iface)
+        self.name = self.parse_attribute(iface, "name")
+        self.version = self.parse_attribute(iface, "version")
 
+        self.description = self.parse_optional_child(iface, Description, "description")
+        self.enum = self.parse_repeated_child(iface, Enum, "enum")
         # Requests and events need special handling to get the opcode and
         # interface name
         self.event = [
@@ -52,14 +49,14 @@ class Interface(Element):
         ]
 
     @property
-    def class_name(self):
+    def class_name(self) -> str:
         """Returns the name of the class of the interface
 
         Camel cases the name of the interface, to be used as the class name.
         """
         return ''.join(x.capitalize() for x in self.name.split('_'))
 
-    def output(self, printer, module_imports):
+    def output(self, printer: Printer, module_imports: Dict[str, str]) -> None:
         """Generate the output for the interface to the printer"""
         # Imports
         imports = set(

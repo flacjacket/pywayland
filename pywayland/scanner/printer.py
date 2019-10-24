@@ -15,8 +15,7 @@
 import contextlib
 import re
 import textwrap
-
-from typing import List, Mapping, Match  # noqa: F401
+from typing import Iterator, List, Mapping, Match, Optional  # noqa: F401
 
 HEAD_MSG = """\
 # -*- coding: utf-8 -*-
@@ -182,7 +181,7 @@ class Printer:
         else:
             return '`{}`'.format(interface_class)
 
-    def _doc_funcs_replace(self, match: Match):
+    def _doc_funcs_replace(self, match: Match) -> str:
         """Build the sphinx doc function definition
 
         :param match:
@@ -205,8 +204,10 @@ class Printer:
                 iface=protocol_path,
             )
 
+        return "`{}{}()`".format(interface_class, function_name)
+
     @contextlib.contextmanager
-    def indented(self):
+    def indented(self) -> Iterator[None]:
         """Indent in a level in the context manager block"""
         self._level += 1
         yield

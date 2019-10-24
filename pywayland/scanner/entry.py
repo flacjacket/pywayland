@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .element import Element, Attribute, Child
+import xml.etree.ElementTree as ET
+
+from .element import Element
 from .description import Description
+from .printer import Printer
 
 
 class Entry(Element):
@@ -25,17 +28,16 @@ class Entry(Element):
 
     Child elements: `description`
     """
-    attributes = [
-        Attribute('name', True),
-        Attribute('value', True),
-        Attribute('summary', False),
-        Attribute('since', False)
-    ]
-    children = [
-        Child('description', Description, False, False)
-    ]
 
-    def output(self, enum_name, printer):
+    def __init__(self, element: ET.Element) -> None:
+        self.name = self.parse_attribute(element, "name")
+        self.value = self.parse_attribute(element, "value")
+        self.summary = self.parse_optional_attribute(element, "summary")
+        self.since = self.parse_optional_attribute(element, "since")
+
+        self.description = self.parse_optional_child(element, Description, "description")
+
+    def output(self, enum_name: str, printer: Printer) -> None:
         """Generate the output for the entry in the enum"""
         # keep base 10 ints unchanged, but ensure that hexidecimal ints are
         # formatted 0xABC
