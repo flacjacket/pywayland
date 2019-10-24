@@ -10,18 +10,19 @@ python:
   - 3.5
   - 3.6
   - 3.7
+  - 3.8
   - pypy3
   - nightly
 
 matrix:
   include:
-    - python: 3.7
+    - python: 3.8
       env: TEST=pep8 WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
-    - python: 3.7
+    - python: 3.8
       env: TEST=mypy WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
-    - python: 3.7
+    - python: 3.8
       env: TEST=docs WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
-    - python: 3.7
+    - python: 3.8
       env: TEST=packaging WAYLAND_VERSION=1.17.0 WAYLAND_PROTOCOLS=1.18
   allow_failures:
     - python: nightly
