@@ -15,10 +15,6 @@
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
 
-import re
-
-re_args = re.compile(r'(\??)([fsoanuih])')
-
 
 class Proxy:
     dispatcher = None
