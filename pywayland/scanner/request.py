@@ -123,8 +123,8 @@ class Request(Method):
                 id_class = NO_IFACE
             args = ', '.join([str(self.opcode), id_class] + list(self.marshal_args))
             printer('{} = self._marshal_constructor({})'.format(
-                self.new_id.name, args)
-            )
+                self.new_id.name, args
+            ))
             printer('return {}'.format(self.new_id.name))
         else:
             args = ', '.join([str(self.opcode)] + list(self.marshal_args))

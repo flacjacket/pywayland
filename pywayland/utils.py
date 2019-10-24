@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import lib
-
 import os
 from functools import wraps
+
+from . import lib
 
 
 def ensure_valid(func):

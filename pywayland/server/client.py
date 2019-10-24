@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
-
-import functools
 
 
 def _client_destroy(display, cdata):

@@ -73,7 +73,6 @@ class Display:
             if name_ptr == ffi.NULL:
                 raise RuntimeError("Unable to create socket")
             name = ffi.string(name_ptr)
-            return name
         else:
             name_ptr = ffi.new('char []', name.encode())
             ret = lib.wl_display_add_socket(self._ptr, name_ptr)
@@ -81,6 +80,8 @@ class Display:
             if ret == -1:
                 # TODO: raise better
                 raise Exception()
+
+        return name
 
     @ensure_valid
     def get_serial(self):

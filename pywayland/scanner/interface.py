@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
+
 from .element import Element, Attribute, Child
 
 from .description import Description
 from .enum import Enum
 from .event import Event
 from .request import Request
-
-import itertools
 
 
 class Interface(Element):

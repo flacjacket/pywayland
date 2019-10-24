@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .protocol import Protocol
-
 import argparse
 import logging
 import os
 import shlex
 import subprocess
+
+from .protocol import Protocol
 
 logger = logging.getLogger(__name__)
 

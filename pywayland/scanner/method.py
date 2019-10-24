@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List  # noqa: F401
+
 from .argument import Argument
 from .description import Description
 from .element import Child, Element
-
-from typing import List  # noqa: F401
 
 # For 'new_id' types with no 'interface'
 NO_IFACE = 'interface'

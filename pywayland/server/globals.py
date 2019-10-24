@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, lib
-
 import functools
 from weakref import WeakKeyDictionary
+
+from pywayland import ffi, lib
 
 weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
 

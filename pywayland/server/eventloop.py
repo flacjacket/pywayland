@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland import ffi, lib
-from pywayland.utils import ensure_valid
-
 from weakref import WeakSet
 from collections import namedtuple
 from enum import Enum
 import functools
+
+from pywayland import ffi, lib
+from pywayland.utils import ensure_valid
 
 CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
 

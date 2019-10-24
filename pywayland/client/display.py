@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Union
+from weakref import WeakSet
+
 from pywayland import ffi, lib
 from pywayland.client.eventqueue import EventQueue
 from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import WlDisplay
-
-from typing import Union
-from weakref import WeakSet
 
 
 class Display(WlDisplay.proxy_class):  # type: ignore

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Iterator
+
 from .element import Attribute
 from .method import Method
 from .printer import Printer
-
-from typing import Iterator
 
 
 class Event(Method):
