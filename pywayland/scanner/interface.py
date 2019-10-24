@@ -83,6 +83,7 @@ class Interface(Element):
             if self.description:
                 self.description.output(printer)
                 printer('"""')
+                printer()
 
             # Class attributes
             printer('name = "{}"'.format(self.name))

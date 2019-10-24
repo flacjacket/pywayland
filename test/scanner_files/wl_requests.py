@@ -25,6 +25,7 @@ class WlRequests(Interface):
 
     The interface object with the different types of requests.
     """
+
     name = "wl_requests"
     version = 2
 

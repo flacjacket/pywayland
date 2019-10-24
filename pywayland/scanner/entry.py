@@ -37,12 +37,19 @@ class Entry(Element):
 
     def output(self, enum_name, printer):
         """Generate the output for the entry in the enum"""
+        # keep base 10 ints unchanged, but ensure that hexidecimal ints are
+        # formatted 0xABC
+        if self.value[:2] == "0x":
+            value = "0x{}".format(self.value[2:].upper())
+        else:
+            value = self.value
+
         try:
             int(self.name)
-            printer('{}_{} = {}'.format(enum_name, self.name, self.value))
+            printer('{}_{} = {}'.format(enum_name, self.name, value))
         except ValueError:
             if self.name == "name":
                 name = "name_"
             else:
                 name = self.name
-            printer('{} = {}'.format(name, self.value))
+            printer('{} = {}'.format(name, value))

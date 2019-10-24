@@ -26,6 +26,7 @@ class WlCore(Interface):
 
     The interface object with the most basic content.
     """
+
     name = "wl_core"
     version = 1
 

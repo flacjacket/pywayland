@@ -25,6 +25,7 @@ class WlEvents(Interface):
 
     The interface object with the different types of events.
     """
+
     name = "wl_events"
     version = 2
 

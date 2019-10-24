@@ -24,6 +24,7 @@ class WlXfail(Interface):
     Items that do not really work yet are put in here, they should be moved
     once they shart working.
     """
+
     name = "wl_xfail"
     version = 1
 

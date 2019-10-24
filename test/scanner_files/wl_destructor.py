@@ -25,6 +25,7 @@ class WlDestructor(Interface):
 
     And a multiline description.
     """
+
     name = "wl_destructor"
     version = 1
 
