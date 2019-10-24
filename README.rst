@@ -15,7 +15,7 @@ running.  For more help, see the `full documentation`_.
 Current Release
 ---------------
 
-PyWayland is still in a developmental state.  An initial version ``0.1.0`` is
+PyWayland is still in a developmental state.  An initial version ``0.1.1`` is
 available on the `cheese shop`_.  Current development versions can be obtained
 from the `git repository`_, feedback, as well as any bug reports or fixes are
 highly appreciated.
@@ -29,7 +29,7 @@ Dependencies
 Installing PyWayland requires the Wayland library and the headers to be installed.
 
 PyWayland requires the cffi_ package to be installed.  PyWayland runs and is
-tested against Python 3.5+, including sufficient versions of PyPy3 (see
+tested against Python 3.6+, including sufficient versions of PyPy3 (see
 `Running Tests`_).
 
 See the `installation guide`_ for more information on installing required dependencies

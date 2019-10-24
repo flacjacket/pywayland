@@ -15,7 +15,7 @@
 import contextlib
 import re
 import textwrap
-from typing import Iterator, List, Mapping, Match, Optional  # noqa: F401
+from typing import Iterator, List, Mapping, Match, Optional
 
 HEAD_MSG = """\
 # -*- coding: utf-8 -*-
@@ -86,7 +86,7 @@ class Printer:
         docstring = self._parse_doc_line(docstring)
 
         # create a list of properly indented paragraphs
-        paragraphs = []  # type: List[str]
+        paragraphs: List[str] = []
         for paragraph in docstring.split('\n\n'):
             # try to detect and properly output lists
             doc_list_match = RE_DOC_LIST.search(paragraph.lstrip())
@@ -101,7 +101,7 @@ class Printer:
                 start_list = doc_list_match.group("list_head")
                 lines = paragraph.split("\n")
                 current_list_item = [lines[0].strip()]
-                list_items = []  # type: List[str]
+                list_items: List[str] = []
                 for line in lines[1:]:
                     if line.strip().startswith(start_list):
                         # store the current list item

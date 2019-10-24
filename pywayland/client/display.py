@@ -76,7 +76,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         # Initially, we have no pointer
         super().__init__(None)
 
-        self._children = WeakSet()  # type: WeakSet
+        self._children: WeakSet = WeakSet()
         self._name_or_fd = name_or_fd
 
     def __enter__(self) -> "Display":

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional
 from weakref import WeakKeyDictionary, WeakValueDictionary
-from typing import List  # noqa: F401
 
 from pywayland import ffi
 from .dispatcher import Dispatcher
 from .message import Message
 
-weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
+weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 
 class classproperty:
@@ -55,8 +55,8 @@ class Interface(metaclass=InterfaceMeta):
     """
 
     _ptr = None
-    name = None  # type: str
-    version = None  # type: int
+    name: Optional[str] = None
+    version: Optional[int] = None
 
     @classproperty
     def proxy_class(interface):

@@ -17,7 +17,7 @@ from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
 
-weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
+weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 
 def _event_queue_destroy(display, cdata):
