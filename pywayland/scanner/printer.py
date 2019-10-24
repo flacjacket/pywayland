@@ -198,7 +198,7 @@ class Printer:
             return ':func:`{}{}()`'.format(interface_class, function_name)
         elif self._interface_imports is not None and interface_name in self._interface_imports:
             protocol_path = self._interface_imports[interface_name]
-            return ':func:`{class_name}{func}() <{base_path}.{iface}.{class_name}.{func}>`'.format(
+            return ':func:`{class_name}{func}() <{base_path}.{iface}.{class_name}{func}>`'.format(
                 class_name=interface_class,
                 func=function_name,
                 base_path=BASE_PATH,
