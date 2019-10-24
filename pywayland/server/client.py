@@ -82,19 +82,19 @@ class Client:
         lib.wl_client_add_destroy_listener(self._ptr, listener._ptr)
 
     @ensure_valid
-    def get_object(self, id):
+    def get_object(self, object_id):
         """Look up an object in the client name space
 
         This looks up an object in the client object name space by its object
         ID.
 
-        :param id: The object id
-        :type id: `int`
+        :param object_id: The object id
+        :type object_id: `int`
         :returns: The object, or ``None`` if there is not object for the given
                   ID
         """
 
-        res_ptr = lib.wl_client_get_object(self._ptr, id)
+        res_ptr = lib.wl_client_get_object(self._ptr, object_id)
         # If the object doesn't exist, this returns NULL, and asking for
         # forgiveness doesn't work, becuase it will seg fault
         if res_ptr == ffi.NULL:

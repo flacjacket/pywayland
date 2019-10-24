@@ -109,7 +109,7 @@ class EventLoop:
             self._ptr = None
 
     @ensure_valid
-    def add_fd(self, fd, callback, mask=[fd_mask.WL_EVENT_READABLE], data=None):
+    def add_fd(self, fd, callback, mask=(fd_mask.WL_EVENT_READABLE,), data=None):
         """Add file descriptor callback
 
         Triggers function call when file descriptor state matches the mask.

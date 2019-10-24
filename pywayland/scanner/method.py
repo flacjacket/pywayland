@@ -80,8 +80,8 @@ class Method(Element):
         types = ', '.join(self.interface_types)
 
         printer('@{}.{}("{}", [{}])'.format(
-            in_class, self.method_type, signature, types)
-        )
+            in_class, self.method_type, signature, types
+        ))
 
         # Generate the definition of the method and args
         args = ', '.join(['self'] + list(self.method_args))
