@@ -15,6 +15,7 @@
 from pywayland import ffi, lib
 
 import re
+from typing import Tuple
 from weakref import WeakKeyDictionary
 
 weakkeydict = WeakKeyDictionary()  # type: WeakKeyDictionary
@@ -37,25 +38,33 @@ class Message:
                    list, None if otherwise.
     :type types: `list`
     """
-    def __init__(self, func, signature, types):
+    def __init__(self, func, signature, types) -> None:
         self.py_func = func
 
         self.name = func.__name__.strip('_')
         self.signature = signature
         self.types = types
 
-        self._ptr = ffi.new('struct wl_message *')
-        self._ptr.name = name = ffi.new('char[]', self.name.encode())
-        self._ptr.signature = signature = ffi.new('char[]', self.signature.encode())
+    def build_message_struct(self, wl_message_struct) -> Tuple:
+        """Bulid the wl_message struct for this message
 
-        self._ptr.types = types = ffi.new('struct wl_interface* []', len(self.types))
+        :param wl_message_struct:
+            The wl_message cdata struct to use to build the message struct.
+        :return:
+            A tuple of elements which must be kept alive for the message struct
+            to remain valid.
+        """
+        wl_message_struct.name = name = ffi.new('char[]', self.name.encode())
+        wl_message_struct.signature = signature = ffi.new('char[]', self.signature.encode())
+
+        wl_message_struct.types = types = ffi.new('struct wl_interface* []', len(self.types))
         for i, type_ in enumerate(self.types):
-            if type_:
-                self._ptr.types[i] = type_._ptr
+            if type_ is None:
+                types[i] = ffi.NULL
             else:
-                self._ptr.types[i] = ffi.NULL
+                types[i] = type_._ptr
 
-        weakkeydict[self._ptr] = (name, signature, types)
+        return name, signature, types
 
     def c_to_arguments(self, args_ptr):
         """Create a list of arguments

@@ -171,25 +171,18 @@ class Interface(metaclass=InterfaceMeta):
         cls._ptr.name = name = ffi.new('char[]', cls.name.encode())
         cls._ptr.version = cls.version
 
+        keep_alive = []
         # Determine the number of methods to assign and assign them
         cls._ptr.method_count = len(cls.requests)
         cls._ptr.methods = methods_ptr = ffi.new("struct wl_message[]", len(cls.requests))
         # Iterate over the methods
         for i, message in enumerate(cls.requests):
-            # First, generate the wl_message cdata
-            msg_buf = ffi.buffer(message._ptr)
-            methods_buf = ffi.buffer(methods_ptr + i)
-            # Copy the contents of the cdata into the allocated cdata
-            methods_buf[:] = msg_buf
+            keep_alive.extend(message.build_message_struct(methods_ptr[i]))
 
         cls._ptr.event_count = len(cls.events)
         cls._ptr.events = events_ptr = ffi.new("struct wl_message[]", len(cls.events))
         # Iterate over the methods
         for i, message in enumerate(cls.events):
-            # First, generate the wl_message cdata
-            msg_buf = ffi.buffer(message._ptr)
-            events_buf = ffi.buffer(events_ptr + i)
-            # Copy the contents of the cdata into the allocated cdata
-            events_buf[:] = msg_buf
+            keep_alive.extend(message.build_message_struct(events_ptr[i]))
 
-        weakkeydict[cls._ptr] = (name, methods_ptr, events_ptr)
+        weakkeydict[cls._ptr] = (name, methods_ptr, events_ptr) + tuple(keep_alive)
