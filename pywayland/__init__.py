@@ -14,11 +14,11 @@
 
 from __future__ import absolute_import
 
-from .version import __version__  # noqa
+from .version import __version__  # noqa: F401
 
 try:
-    from ._ffi import ffi, lib  # noqa
-except ImportError:
+    from ._ffi import ffi, lib  # noqa: F401
+except ImportError:  # pragma: no cover
     raise ImportError("No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`")
 
 __wayland_version__ = '{}.{}.{}'.format(
