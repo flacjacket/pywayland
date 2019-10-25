@@ -13,15 +13,19 @@
 # limitations under the License.
 
 import functools
+import logging
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
+from .display import Display
 
 
-def _client_destroy(display, cdata):
+def _client_destroy(display: Display, cdata) -> None:
     # do nothing if the display is already destroyed
-    if display._ptr is None:
+    if display.destroyed:
+        logging.error("Display destroyed before client")
         return
+
     lib.wl_client_destroy(cdata)
 
 
@@ -42,8 +46,9 @@ class Client:
     :param fd: The file descriptor for the socket to the client
     :type fd: `int`
     """
-    def __init__(self, display, fd):
-        if display._ptr is None:
+
+    def __init__(self, display: Display, fd: int) -> None:
+        if display.destroyed:
             raise ValueError("Display has been destroyed")
 
         ptr = lib.wl_client_create(display._ptr, fd)
@@ -55,9 +60,7 @@ class Client:
     def destroy(self):
         """Destroy the client"""
         if self._ptr is not None:
-            # destroy the client and remove the destructor
-            _client_destroy(self._display, self._ptr)
-            ffi.gc(self._ptr, None)
+            ffi.release(self._ptr)
             self._ptr = None
             self._display = None
 
@@ -90,15 +93,15 @@ class Client:
 
         :param object_id: The object id
         :type object_id: `int`
-        :returns: The object, or ``None`` if there is not object for the given
-                  ID
+        :returns:
+            The object, or ``None`` if there is not object for the given ID
         """
 
         res_ptr = lib.wl_client_get_object(self._ptr, object_id)
         # If the object doesn't exist, this returns NULL, and asking for
         # forgiveness doesn't work, becuase it will seg fault
         if res_ptr == ffi.NULL:
-            return
+            return None
 
         resource_handle = lib.wl_resource_get_user_data(res_ptr)
         return ffi.from_handle(resource_handle)

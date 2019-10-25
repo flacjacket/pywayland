@@ -19,7 +19,8 @@ from .eventloop import EventLoop
 
 class Display:
     """Create a Wayland Display object"""
-    def __init__(self, ptr=None):
+
+    def __init__(self, ptr=None) -> None:
         if ptr is None:
             ptr = lib.wl_display_create()
             if ptr == ffi.NULL:
@@ -27,7 +28,12 @@ class Display:
 
         self._ptr = ffi.gc(ptr, lib.wl_display_destroy)
 
-    def destroy(self):
+    @property
+    def destroyed(self) -> bool:
+        """Returns if the display has been destroyed"""
+        return self._ptr is None
+
+    def destroy(self) -> None:
         """Destroy Wayland display object.
 
         This function emits the :class:`Display` destroy signal, releases all
@@ -40,13 +46,11 @@ class Display:
             :meth:`Display.add_destroy_listener()`
         """
         if self._ptr is not None:
-            # clean up cdata and remove destructor
-            lib.wl_display_destroy(self._ptr)
-            ffi.gc(self._ptr, None)
+            ffi.release(self._ptr)
             self._ptr = None
 
     @ensure_valid
-    def add_socket(self, name=None):
+    def add_socket(self, name: str = None) -> str:
         """Add a socket to Wayland display for the clients to connect.
 
         This adds a Unix socket to Wayland display which can be used by clients
@@ -84,7 +88,7 @@ class Display:
         return name
 
     @ensure_valid
-    def get_serial(self):
+    def get_serial(self) -> int:
         """Get the current serial number
 
         This function returns the most recent serial number, but does not
@@ -93,7 +97,7 @@ class Display:
         return lib.wl_display_get_serial(self._ptr)
 
     @ensure_valid
-    def next_serial(self):
+    def next_serial(self) -> int:
         """Get the next serial
 
         This function increments the display serial number and returns the new
@@ -102,7 +106,7 @@ class Display:
         return lib.wl_display_next_serial(self._ptr)
 
     @ensure_valid
-    def get_event_loop(self):
+    def get_event_loop(self) -> EventLoop:
         """Get the event loop for the display
 
         :returns: The :class:`~pywayland.server.EventLoop` for the Display
@@ -110,32 +114,32 @@ class Display:
         return EventLoop(self)
 
     @ensure_valid
-    def terminate(self):
+    def terminate(self) -> None:
         """Stop the display from running"""
         lib.wl_display_terminate(self._ptr)
 
     @ensure_valid
-    def run(self):
+    def run(self) -> None:
         """Run the display"""
         lib.wl_display_run(self._ptr)
 
     @ensure_valid
-    def init_shm(self):
+    def init_shm(self) -> None:
         """Initialize shm for this display"""
         ret = lib.wl_display_init_shm(self._ptr)
         if ret == -1:
             raise MemoryError("Unable to create shm for display")
 
     @ensure_valid
-    def add_shm_format(self, shm_format):
+    def add_shm_format(self, shm_format) -> None:
         """Add support for a Shm pixel format
 
-        Add the specified :attr:`~pywayland.protocol.wayland.shm.Shm.format`
+        Add the specified :class:`~pywayland.protocol.wayland.WlShm.format`
         format to the list of formats the
-        :class:`~pywayland.protocol.wayland.shm.Shm` object advertises when a
+        :class:`~pywayland.protocol.wayland.WlShm` object advertises when a
         client binds to it.  Adding a format to the list means that clients
         will know that the compositor supports this format and may use it for
-        creating :class:`~pywayland.protocol.wayland.shm.Shm` buffers.  The
+        creating :class:`~pywayland.protocol.wayland.WlShm` buffers.  The
         compositor must be able to handle the pixel format when a client
         requests it.
 
@@ -143,6 +147,6 @@ class Display:
         ``WL_SHM_FORMAT_XRGB8888``.
 
         :param shm_format: The shm pixel format to advertise
-        :type shm_format: :attr:`~pywayland.protocol.wayland.shm.Shm.format`
+        :type shm_format: :class:`~pywayland.protocol.wayland.WlShm.format`
         """
         lib.wl_display_add_shm_format(self._ptr, shm_format.value)
