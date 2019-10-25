@@ -15,7 +15,7 @@
 import contextlib
 import re
 import textwrap
-from typing import Iterator, List, Mapping, Match, Optional
+from typing import Iterator, List, Mapping, Match
 
 HEAD_MSG = """\
 # -*- coding: utf-8 -*-

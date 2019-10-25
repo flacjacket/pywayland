@@ -13,12 +13,15 @@
 # limitations under the License.
 
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
+from typing import Optional
 
 from .element import Element
 from .description import Description
 from .printer import Printer
 
 
+@dataclass(frozen=True)
 class Entry(Element):
     """Scanner for enum entries
 
@@ -29,13 +32,21 @@ class Entry(Element):
     Child elements: `description`
     """
 
-    def __init__(self, element: ET.Element) -> None:
-        self.name = self.parse_attribute(element, "name")
-        self.value = self.parse_attribute(element, "value")
-        self.summary = self.parse_optional_attribute(element, "summary")
-        self.since = self.parse_optional_attribute(element, "since")
+    name: str
+    value: str
+    summary: Optional[str]
+    since: Optional[str]
+    description: Optional[Description]
 
-        self.description = self.parse_optional_child(element, Description, "description")
+    @classmethod
+    def parse(cls, element: ET.Element) -> "Entry":
+        return Entry(
+            name=cls.parse_attribute(element, "name"),
+            value=cls.parse_attribute(element, "value"),
+            summary=cls.parse_optional_attribute(element, "summary"),
+            since=cls.parse_optional_attribute(element, "since"),
+            description=cls.parse_optional_child(element, Description, "description"),
+        )
 
     def output(self, enum_name: str, printer: Printer) -> None:
         """Generate the output for the entry in the enum"""

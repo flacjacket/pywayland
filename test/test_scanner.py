@@ -34,7 +34,7 @@ interface_tests = [
 
 @pytest.fixture(scope="session")
 def protocol_directory():
-    scanner = Protocol(input_file)
+    scanner = Protocol.parse_file(input_file)
 
     imports = {
         interface.name: scanner.name

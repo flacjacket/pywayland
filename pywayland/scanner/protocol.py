@@ -14,7 +14,8 @@
 
 import xml.etree.ElementTree as ET
 import os
-from typing import Dict
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 from .element import Element
 from .copyright import Copyright, copyright_default
@@ -23,34 +24,46 @@ from .interface import Interface
 from .printer import Printer
 
 
+@dataclass(frozen=True)
 class Protocol(Element):
-    def __init__(self, input_file: str) -> None:
-        """Protocol scanner object
+    """Protocol scanner object
 
-        Main scanner object that acts on the input xml files to generate
-        protocol files.
+    Main scanner object that acts on the input xml files to generate protocol
+    files.
 
-        Required attributes: `name`
+    Required attributes: `name`
 
-        Child elements: `copyright?`, `description?`, and `interface+`
+    Child elements: `copyright?`, `description?`, and `interface+`
 
-        :param input_file: Name of input XML file
-        """
-        self._input_file = os.path.basename(input_file)
+    :param input_file: Name of input XML file
+    """
+
+    name: str
+    copyright: Optional[Copyright]
+    description: Optional[Description]
+    interface: List[Interface]
+
+    @classmethod
+    def parse_file(cls, input_file: str) -> "Protocol":
         if not os.path.exists(input_file):
             raise ValueError("Input xml file does not exist: {}".format(input_file))
         xmlroot = ET.parse(input_file).getroot()
         if xmlroot.tag != 'protocol':
             raise ValueError("Input file not a valid Wayland protocol file: {}".format(input_file))
 
-        self.name = self.parse_attribute(xmlroot, "name")
+        return cls.parse(xmlroot)
 
-        self.copyright = self.parse_optional_child(xmlroot, Copyright, "copyright")
-        self.description = self.parse_optional_child(xmlroot, Description, "description")
-        self.interface = self.parse_repeated_child(xmlroot, Interface, "interface")
+    @classmethod
+    def parse(cls, element: ET.Element) -> "Protocol":
+        return cls(
+            name=cls.parse_attribute(element, "name"),
+            copyright=cls.parse_optional_child(element, Copyright, "copyright"),
+            description=cls.parse_optional_child(element, Description, "description"),
+            interface=cls.parse_repeated_child(element, Interface, "interface"),
+        )
 
     def __repr__(self) -> str:
-        return "Protocol({})".format(self._input_file)
+        return "Protocol({})".format(self.name)
 
     def output(self, output_dir: str, module_imports: Dict[str, str]) -> None:
         """Output the scanned files to the given directory

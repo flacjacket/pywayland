@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 from typing import Iterable, Optional
 import xml.etree.ElementTree as ET
 
 from .argument import Argument
+from .element import Element
+from .description import Description
 from .method import Method
 from .printer import Printer
 
@@ -24,6 +27,7 @@ NO_IFACE = 'interface'
 NO_IFACE_VERSION = 'version'
 
 
+@dataclass(frozen=True)
 class Request(Method):
     """Scanner for request objects (client-side method)
 
@@ -33,12 +37,26 @@ class Request(Method):
 
     Child elements: `description` and `arg`
     """
+
     method_type = 'request'
 
-    def __init__(self, method: ET.Element, iface_name: str, opcode: int) -> None:
-        super().__init__(method, iface_name, opcode)
+    type: Optional[str]
 
-        self.type = self.parse_optional_attribute(method, "type")
+    @classmethod
+    def parse(cls, element: ET.Element, iface_name: str, opcode: int) -> "Request":
+        name = Element.parse_attribute(element, "name")
+        if name in ("global", "import"):
+            name += "_"
+
+        return cls(
+            interface=iface_name,
+            opcode=opcode,
+            name=name,
+            since=Element.parse_optional_attribute(element, "since"),
+            description=Element.parse_optional_child(element, Description, "description"),
+            arg=Element.parse_repeated_child(element, Argument, "arg"),
+            type=Element.parse_optional_attribute(element, "type"),
+        )
 
     @property
     def new_id(self) -> Optional[Argument]:

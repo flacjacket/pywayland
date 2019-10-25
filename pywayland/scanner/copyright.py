@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
 from .element import Element
@@ -33,12 +34,16 @@ copyright_default = """\
 # limitations under the License."""
 
 
+@dataclass(frozen=True)
 class Copyright(Element):
-    def __init__(self, element: ET.Element) -> None:
-        text = self.parse_pcdata(element)
+    text: str
+
+    @classmethod
+    def parse(cls, element: ET.Element) -> "Copyright":
+        text = cls.parse_pcdata(element)
         assert text is not None
 
-        self.text = text
+        return cls(text=text)
 
     def output(self, printer: Printer) -> None:
         for line in self.text.split('\n'):

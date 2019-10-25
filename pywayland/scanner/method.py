@@ -13,12 +13,11 @@
 # limitations under the License.
 
 import abc
-import xml.etree.ElementTree as ET
-from typing import Dict, Iterable, List, Tuple
+from dataclasses import dataclass
+from typing import Dict, Iterable, List, Optional, Tuple
 
 from .argument import Argument
 from .description import Description
-from .element import Element
 from .printer import Printer
 
 # For 'new_id' types with no 'interface'
@@ -26,25 +25,20 @@ NO_IFACE = 'interface'
 NO_IFACE_VERSION = 'version'
 
 
-class Method(Element, abc.ABC):
+@dataclass(frozen=True)  # type: ignore
+class Method(abc.ABC):
     """Scanner for methods
 
     Corresponds to event and requests defined on an interface
     """
 
-    def __init__(self, method: ET.Element, iface_name: str, opcode: int) -> None:
-        self.opcode = opcode
-        self.interface = iface_name
+    opcode: int
+    interface: str
 
-        self.name = self.parse_attribute(method, "name")
-        self.since = self.parse_optional_attribute(method, "since")
-
-        self.description = self.parse_optional_child(method, Description, "description")
-        self.arg = self.parse_repeated_child(method, Argument, "arg")
-
-        # some methods are protected names, so append '_'
-        if self.name in ('global', 'import'):
-            self.name += '_'
+    name: str
+    since: Optional[str]
+    description: Optional[Description]
+    arg: List[Argument]
 
     def imports(self, module_imports: Dict[str, str]) -> List[Tuple[str, str]]:
         """Get the imports required for each of the interfaces"""

@@ -12,17 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
+from typing import Optional
 import xml.etree.ElementTree as ET
 
 from .element import Element
 from .printer import Printer
 
 
+@dataclass(frozen=True)
 class Description(Element):
-    def __init__(self, element: ET.Element) -> None:
-        self.summary = self.parse_attribute(element, "summary")
+    summary: str
+    text: Optional[str]
 
-        self.text = self.parse_pcdata(element)
+    @classmethod
+    def parse(cls, element: ET.Element) -> "Description":
+        return cls(
+            summary=cls.parse_attribute(element, "summary"),
+            text=cls.parse_pcdata(element),
+        )
 
     def output(self, printer: Printer) -> None:
         printer.doc('"""{}'.format(self.summary.capitalize()))

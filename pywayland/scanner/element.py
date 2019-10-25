@@ -13,14 +13,17 @@
 # limitations under the License.
 
 from typing import List, Optional, TypeVar, Type
+import abc
 import textwrap
 import xml.etree.ElementTree as ET
 
 T = TypeVar("T", bound="Element")
 
 
-class Element:
-    def __init__(self, element: ET.Element) -> None:
+class Element(abc.ABC):
+    @classmethod
+    @abc.abstractmethod
+    def parse(cls: Type[T], element: ET.Element) -> T:
         pass
 
     @staticmethod
@@ -50,11 +53,11 @@ class Element:
         if obj is None:
             return None
 
-        return child_class(obj)
+        return child_class.parse(obj)
 
     @staticmethod
     def parse_repeated_child(element: ET.Element, child_class: Type[T], name: str) -> List[T]:
-        obj = [child_class(elem) for elem in element.findall(name)]
+        obj = [child_class.parse(elem) for elem in element.findall(name)]
         return obj
 
     @staticmethod

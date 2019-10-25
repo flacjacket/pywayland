@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
+from typing import List, Optional
 import xml.etree.ElementTree as ET
 
 from .description import Description
@@ -20,6 +22,7 @@ from .element import Element
 from .printer import Printer
 
 
+@dataclass(frozen=True)
 class Enum(Element):
     """Scanner for enum objects
 
@@ -28,13 +31,21 @@ class Enum(Element):
     Child elements: `description` and `entry`
     """
 
-    def __init__(self, element: ET.Element) -> None:
-        self.name = self.parse_attribute(element, "name")
-        self.since = self.parse_optional_attribute(element, "since")
-        self.bitfield = self.parse_optional_attribute(element, "bitfield")
+    name: str
+    since: Optional[str]
+    bitfield: Optional[str]
+    description: Optional[Description]
+    entry: List[Entry]
 
-        self.description = self.parse_optional_child(element, Description, "description")
-        self.entry = self.parse_repeated_child(element, Entry, "entry")
+    @classmethod
+    def parse(cls, element: ET.Element) -> "Enum":
+        return Enum(
+            name=cls.parse_attribute(element, "name"),
+            since=cls.parse_optional_attribute(element, "since"),
+            bitfield=cls.parse_optional_attribute(element, "bitfield"),
+            description=cls.parse_optional_child(element, Description, "description"),
+            entry=cls.parse_repeated_child(element, Entry, "entry"),
+        )
 
     def output(self, printer: Printer) -> None:
         """Generate the output for the enum to the printer"""

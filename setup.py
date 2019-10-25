@@ -87,7 +87,7 @@ def get_protocol_command(klass):
                 os.makedirs(self.output_dir, 0o775)
 
             # Run and scan all the above found xml files
-            protocols = [Protocol(input_xml) for input_xml in input_files]
+            protocols = [Protocol.parse_file(input_xml) for input_xml in input_files]
             protocol_imports = {
                 interface.name: protocol.name
                 for protocol in protocols

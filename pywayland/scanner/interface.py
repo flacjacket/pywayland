@@ -14,7 +14,8 @@
 
 import itertools
 import xml.etree.ElementTree as ET
-from typing import Dict
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 from .description import Description
 from .element import Element
@@ -24,29 +25,34 @@ from .printer import Printer
 from .request import Request
 
 
+@dataclass(frozen=True)
 class Interface(Element):
-    def __init__(self, iface: ET.Element) -> None:
+    name: str
+    version: str
+    description: Optional[Description]
+    enum: List[Enum]
+    event: List[Event]
+    request: List[Request]
+
+    @classmethod
+    def parse(cls, element: ET.Element) -> "Interface":
         """Scanner for interface objects
 
         Required attributes: `name` and `version`
 
         Child elements: `description`, `request`, `event`, `enum`
         """
-        self.name = self.parse_attribute(iface, "name")
-        self.version = self.parse_attribute(iface, "version")
-
-        self.description = self.parse_optional_child(iface, Description, "description")
-        self.enum = self.parse_repeated_child(iface, Enum, "enum")
-        # Requests and events need special handling to get the opcode and
-        # interface name
-        self.event = [
-            Event(event, self.name, i)
-            for i, event in enumerate(iface.findall('event'))
-        ]
-        self.request = [
-            Request(request, self.name, i)
-            for i, request in enumerate(iface.findall('request'))
-        ]
+        name = cls.parse_attribute(element, "name")
+        return cls(
+            name=name,
+            version=cls.parse_attribute(element, "version"),
+            description=cls.parse_optional_child(element, Description, "description"),
+            enum=cls.parse_repeated_child(element, Enum, "enum"),
+            # Requests and events need special handling to get the opcode and
+            # interface name
+            event=[Event.parse(event, name, i) for i, event in enumerate(element.findall('event'))],
+            request=[Request.parse(request, name, i) for i, request in enumerate(element.findall('request'))],
+        )
 
     @property
     def class_name(self) -> str:

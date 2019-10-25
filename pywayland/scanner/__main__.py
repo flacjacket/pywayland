@@ -90,7 +90,7 @@ def main():
         input_files += protocols_files
 
     protocols = [
-        Protocol(input_file) for input_file in input_files
+        Protocol.parse_file(input_file) for input_file in input_files
     ]
     logger.info("Parsed {} input xml files".format(len(protocols)))
 

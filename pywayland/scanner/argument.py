@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from dataclasses import dataclass
+from typing import Optional
 import xml.etree.ElementTree as ET
 
 from .element import Element
@@ -20,6 +22,7 @@ from .printer import Printer
 NO_IFACE_NAME = 'interface'
 
 
+@dataclass(frozen=True)
 class Argument(Element):
     """Argument to a request or event method
 
@@ -30,13 +33,23 @@ class Argument(Element):
     Child elements: `description`
     """
 
-    def __init__(self, element: ET.Element) -> None:
-        self.name = self.parse_attribute(element, "name")
-        self.type = self.parse_attribute(element, "type")
-        self.summary = self.parse_optional_attribute(element, "summary")
-        self.interface = self.parse_optional_attribute(element, "interface")
-        self.allow_null = self.parse_optional_attribute(element, "allow-null")
-        self.enum = self.parse_optional_attribute(element, "enum")
+    name: str
+    type: str
+    summary: Optional[str]
+    interface: Optional[str]
+    allow_null: Optional[str]
+    enum: Optional[str]
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Argument":
+        return Argument(
+            name=Argument.parse_attribute(element, "name"),
+            type=Argument.parse_attribute(element, "type"),
+            summary=Argument.parse_optional_attribute(element, "summary"),
+            interface=Argument.parse_optional_attribute(element, "interface"),
+            allow_null=Argument.parse_optional_attribute(element, "allow-null"),
+            enum=Argument.parse_optional_attribute(element, "enum"),
+        )
 
     @property
     def interface_class(self) -> str:
@@ -57,29 +70,27 @@ class Argument(Element):
         """
         if self.allow_null:
             return '?' + self.type_to_string()
-        else:
-            return self.type_to_string()
+        return self.type_to_string()
 
     def type_to_string(self) -> str:
         """Translate type to signature string"""
         if self.type == 'int':
             return 'i'
-        elif self.type == 'uint':
+        if self.type == 'uint':
             return 'u'
-        elif self.type == 'fixed':
+        if self.type == 'fixed':
             return 'f'
-        elif self.type == 'string':
+        if self.type == 'string':
             return 's'
-        elif self.type == 'object':
+        if self.type == 'object':
             return 'o'
-        elif self.type == 'new_id':
-            if self.interface:
-                return 'n'
-            else:
+        if self.type == 'new_id':
+            if self.interface is None:
                 return 'sun'
-        elif self.type == 'array':
+            return 'n'
+        if self.type == 'array':
             return 'a'
-        elif self.type == 'fd':
+        if self.type == 'fd':
             return 'h'
 
         raise RuntimeError("Invalid argument type: {}".format(self.type))
