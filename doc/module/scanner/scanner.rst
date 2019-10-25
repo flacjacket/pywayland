@@ -15,9 +15,8 @@ directory.  These steps are done as:
 
 .. code-block:: python
 
-    Protocol(path_to_xml_file)
-    Protocol.scan()
-    Protocol.output(path_to_output_dir)
+    Protocol.parse_file(path_to_xml_file)
+    Protocol.output(path_to_output_dir, {})
 
 See the definitions below for more information on using Protocol objects.
 

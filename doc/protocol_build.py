@@ -30,7 +30,7 @@ def protocols_build(output_dir):
         if os.path.splitext(filename)[1] == ".xml"
     ]
 
-    protocols = [Protocol(protocol_file) for protocol_file in protocol_files]
+    protocols = [Protocol.parse_file(protocol_file) for protocol_file in protocol_files]
     protocol_imports = {
         interface.name: protocol.name
         for protocol in protocols
