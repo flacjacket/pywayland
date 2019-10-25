@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
 from weakref import WeakSet
 from collections import namedtuple
-from enum import Enum
-import functools
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
@@ -70,7 +69,7 @@ def event_loop_idle_func(data_ptr):
 
 
 class EventLoop:
-    """An event loop to add events too
+    """An event loop to add events to
 
     Returns an event loop.  Either returns the event loop of a given display
     (which will trigger when the Display is run), or creates a new event loop
@@ -80,12 +79,11 @@ class EventLoop:
     :type display: :class:`~pywayland.server.Display`
     """
 
-    fd_mask = Enum('fd_mask', {
-        'WL_EVENT_READABLE': lib.WL_EVENT_READABLE,
-        'WL_EVENT_WRITABLE': lib.WL_EVENT_WRITABLE,
-        'WL_EVENT_HANGUP': lib.WL_EVENT_HANGUP,
-        'WL_EVENT_ERROR': lib.WL_EVENT_ERROR
-    })
+    class FdMask(enum.IntFlag):
+        WL_EVENT_READABLE = lib.WL_EVENT_READABLE
+        WL_EVENT_WRITABLE = lib.WL_EVENT_WRITABLE
+        WL_EVENT_HANGUP = lib.WL_EVENT_HANGUP
+        WL_EVENT_ERROR = lib.WL_EVENT_ERROR
 
     def __init__(self, display=None):
         if display:
@@ -109,7 +107,7 @@ class EventLoop:
             self._ptr = None
 
     @ensure_valid
-    def add_fd(self, fd, callback, mask=(fd_mask.WL_EVENT_READABLE,), data=None):
+    def add_fd(self, fd, callback, mask=FdMask.WL_EVENT_READABLE, data=None):
         """Add file descriptor callback
 
         Triggers function call when file descriptor state matches the mask.
@@ -142,10 +140,7 @@ class EventLoop:
         handle = ffi.new_handle(callback)
         self.callbacks.append(handle)
 
-        mask = [m.value for m in mask]
-        mask = functools.reduce(lambda x, y: x | y, mask)
-
-        event_source_cdata = lib.wl_event_loop_add_fd(self._ptr, fd, mask, lib.event_loop_fd_func, handle)
+        event_source_cdata = lib.wl_event_loop_add_fd(self._ptr, fd, mask.value, lib.event_loop_fd_func, handle)
         event_source = EventSource(self, event_source_cdata)
         self.event_sources.add(event_source)
 

@@ -50,7 +50,7 @@ def test_event_loop_post_dispatch_check():
     r, w = os.pipe()
 
     try:
-        source = event_loop.add_fd(r, _fd_callback, [EventLoop.fd_mask.WL_EVENT_READABLE], callback)
+        source = event_loop.add_fd(r, _fd_callback, EventLoop.FdMask.WL_EVENT_READABLE, callback)
         source.check()
 
         event_loop.dispatch(0)
