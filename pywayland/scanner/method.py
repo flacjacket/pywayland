@@ -18,38 +18,32 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 from .argument import Argument
 from .description import Description
+from .element import Element
 from .printer import Printer
-
-# For 'new_id' types with no 'interface'
-NO_IFACE = 'interface'
-NO_IFACE_VERSION = 'version'
 
 
 @dataclass(frozen=True)  # type: ignore
-class Method(abc.ABC):
+class Method(Element, abc.ABC):
     """Scanner for methods
 
     Corresponds to event and requests defined on an interface
     """
-
-    opcode: int
-    interface: str
 
     name: str
     since: Optional[str]
     description: Optional[Description]
     arg: List[Argument]
 
-    def imports(self, module_imports: Dict[str, str]) -> List[Tuple[str, str]]:
+    def imports(self, interface: str, module_imports: Dict[str, str]) -> List[Tuple[str, str]]:
         """Get the imports required for each of the interfaces"""
-        current_protocol = module_imports[self.interface]
+        current_protocol = module_imports[interface]
 
         imports = []
         for arg in self.arg:
             if arg.interface is None:
                 continue
 
-            if arg.interface == self.interface:
+            if arg.interface == interface:
                 continue
 
             import_class = arg.interface_class
@@ -64,7 +58,7 @@ class Method(abc.ABC):
 
         return imports
 
-    def output(self, printer: Printer, in_class: str, module_imports: Dict[str, str]) -> None:
+    def output(self, printer: Printer, opcode: int, in_class: str, module_imports: Dict[str, str]) -> None:
         """Generate the output for the given method to the printer"""
         # Generate the decorator for the method
         signature = ''.join(arg.signature for arg in self.arg)
@@ -84,7 +78,7 @@ class Method(abc.ABC):
             # Write the documentation
             self.output_doc(printer)
             # Write out the body of the method
-            self.output_body(printer)
+            self.output_body(printer, opcode)
 
     def output_doc(self, printer: Printer) -> None:
         """Output the documentation for the interface"""
@@ -118,5 +112,5 @@ class Method(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def output_body(self, printer: Printer) -> None:
+    def output_body(self, printer: Printer, opcode: int) -> None:
         pass

@@ -18,7 +18,6 @@ import xml.etree.ElementTree as ET
 
 from .argument import Argument
 from .description import Description
-from .element import Element
 from .method import Method
 from .printer import Printer
 
@@ -37,18 +36,16 @@ class Event(Method):
     method_type = 'event'
 
     @classmethod
-    def parse(cls, element: ET.Element, iface_name: str, opcode: int) -> "Event":
-        name = Element.parse_attribute(element, "name")
+    def parse(cls, element: ET.Element) -> "Event":
+        name = cls.parse_attribute(element, "name")
         if name in ("global", "import"):
             name += "_"
 
         return cls(
-            interface=iface_name,
-            opcode=opcode,
             name=name,
-            since=Element.parse_optional_attribute(element, "since"),
-            description=Element.parse_optional_child(element, Description, "description"),
-            arg=Element.parse_repeated_child(element, Argument, "arg"),
+            since=cls.parse_optional_attribute(element, "since"),
+            description=cls.parse_optional_child(element, Description, "description"),
+            arg=cls.parse_repeated_child(element, Argument, "arg"),
         )
 
     @property
@@ -84,7 +81,7 @@ class Event(Method):
         """
         return
 
-    def output_body(self, printer: Printer) -> None:
+    def output_body(self, printer: Printer, opcode: int) -> None:
         """Output the body of the event to the printer"""
-        args = ', '.join([str(self.opcode)] + list(self.method_args))
+        args = ', '.join([str(opcode)] + list(self.method_args))
         printer('self._post_event({})'.format(args))

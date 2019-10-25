@@ -17,7 +17,6 @@ from typing import Iterable, Optional
 import xml.etree.ElementTree as ET
 
 from .argument import Argument
-from .element import Element
 from .description import Description
 from .method import Method
 from .printer import Printer
@@ -43,19 +42,17 @@ class Request(Method):
     type: Optional[str]
 
     @classmethod
-    def parse(cls, element: ET.Element, iface_name: str, opcode: int) -> "Request":
-        name = Element.parse_attribute(element, "name")
+    def parse(cls, element: ET.Element) -> "Request":
+        name = cls.parse_attribute(element, "name")
         if name in ("global", "import"):
             name += "_"
 
         return cls(
-            interface=iface_name,
-            opcode=opcode,
             name=name,
-            since=Element.parse_optional_attribute(element, "since"),
-            description=Element.parse_optional_child(element, Description, "description"),
-            arg=Element.parse_repeated_child(element, Argument, "arg"),
-            type=Element.parse_optional_attribute(element, "type"),
+            since=cls.parse_optional_attribute(element, "since"),
+            description=cls.parse_optional_child(element, Description, "description"),
+            arg=cls.parse_repeated_child(element, Argument, "arg"),
+            type=cls.parse_optional_attribute(element, "type"),
         )
 
     @property
@@ -136,20 +133,20 @@ class Request(Method):
             if arg.type == 'new_id':
                 arg.output_doc_ret(printer)
 
-    def output_body(self, printer: Printer) -> None:
+    def output_body(self, printer: Printer, opcode: int) -> None:
         """Output the body of the request to the printer"""
         if self.new_id:
             if self.new_id.interface:
                 id_class = self.new_id.interface_class
             else:
                 id_class = NO_IFACE
-            args = ', '.join([str(self.opcode), id_class] + list(self.marshal_args))
+            args = ', '.join([str(opcode), id_class] + list(self.marshal_args))
             printer('{} = self._marshal_constructor({})'.format(
                 self.new_id.name, args
             ))
             printer('return {}'.format(self.new_id.name))
         else:
-            args = ', '.join([str(self.opcode)] + list(self.marshal_args))
+            args = ', '.join([str(opcode)] + list(self.marshal_args))
             printer('self._marshal({})'.format(args))
             if self.type == 'destructor':
                 printer('self._destroy()')

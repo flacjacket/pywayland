@@ -48,10 +48,8 @@ class Interface(Element):
             version=cls.parse_attribute(element, "version"),
             description=cls.parse_optional_child(element, Description, "description"),
             enum=cls.parse_repeated_child(element, Enum, "enum"),
-            # Requests and events need special handling to get the opcode and
-            # interface name
-            event=[Event.parse(event, name, i) for i, event in enumerate(element.findall('event'))],
-            request=[Request.parse(request, name, i) for i, request in enumerate(element.findall('request'))],
+            event=cls.parse_repeated_child(element, Event, "event"),
+            request=cls.parse_repeated_child(element, Request, "request"),
         )
 
     @property
@@ -68,7 +66,7 @@ class Interface(Element):
         imports = set(
             _import
             for method in itertools.chain(self.request, self.event)
-            for _import in method.imports(module_imports)
+            for _import in method.imports(self.name, module_imports)
         )
         printer('from pywayland.interface import Interface')
         for module, import_ in sorted(imports):
@@ -98,10 +96,15 @@ class Interface(Element):
                 enum.output(printer)
 
         # Events and requests
-        for method in itertools.chain(self.request, self.event):
+        for opcode, request in enumerate(self.request):
             printer()
             printer()
-            method.output(printer, self.class_name, module_imports)
+            request.output(printer, opcode, self.class_name, module_imports)
+
+        for opcode, event in enumerate(self.event):
+            printer()
+            printer()
+            event.output(printer, opcode, self.class_name, module_imports)
 
         printer()
         printer()
