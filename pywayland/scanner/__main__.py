@@ -25,10 +25,8 @@ logger = logging.getLogger(__name__)
 
 def pkgconfig(package, variable):
     """pkg-config"""
-    pkgconfig = os.environ.get("PKG_CONFIG", "pkg-config")
-    cmd = "{pkgconfig} --variable={var} {package}".format(
-        pkgconfig=pkgconfig, var=variable, package=package
-    )
+    pkgconfig_env = os.environ.get("PKG_CONFIG", "pkg-config")
+    cmd = f"{pkgconfig_env} --variable={variable} {package}"
     cmd = shlex.split(cmd)
     return subprocess.check_output(cmd).decode().strip()
 

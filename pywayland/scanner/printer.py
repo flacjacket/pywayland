@@ -155,8 +155,7 @@ class Printer:
         """Perform interface and function name replacement on the given match"""
         if match.group("func") is None:
             return self._doc_class_replace(match)
-        else:
-            return self._doc_funcs_replace(match)
+        return self._doc_funcs_replace(match)
 
     def _doc_class_replace(self, match: Match) -> str:
         """Build the sphinx doc class import
@@ -171,15 +170,16 @@ class Printer:
 
         if interface_name == self._interface_name:
             return ':class:`{}`'.format(interface_class)
-        elif self._interface_imports is not None and interface_name in self._interface_imports:
+
+        if self._interface_imports is not None and interface_name in self._interface_imports:
             protocol_path = self._interface_imports[interface_name]
             return ':class:`~{base_path}.{iface}.{class_name}`'.format(
                 class_name=interface_class,
                 base_path=BASE_PATH,
                 iface=protocol_path,
             )
-        else:
-            return '`{}`'.format(interface_class)
+
+        return '`{}`'.format(interface_class)
 
     def _doc_funcs_replace(self, match: Match) -> str:
         """Build the sphinx doc function definition
@@ -195,7 +195,8 @@ class Printer:
 
         if interface_name == self._interface_name:
             return ':func:`{}{}()`'.format(interface_class, function_name)
-        elif self._interface_imports is not None and interface_name in self._interface_imports:
+
+        if self._interface_imports is not None and interface_name in self._interface_imports:
             protocol_path = self._interface_imports[interface_name]
             return ':func:`{class_name}{func}() <{base_path}.{iface}.{class_name}{func}>`'.format(
                 class_name=interface_class,
