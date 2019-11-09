@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 import xml.etree.ElementTree as ET
 
+from pywayland.interface import ArgumentType
 from .argument import Argument
 from .description import Description
 from .method import Method
@@ -58,7 +59,7 @@ class Request(Method):
     @property
     def new_id(self) -> Optional[Argument]:
         for arg in self.arg:
-            if arg.type == 'new_id':
+            if arg.type == ArgumentType.NewId:
                 return arg
         return None
 
@@ -70,7 +71,7 @@ class Request(Method):
         appear in the args of the method.
         """
         for arg in self.arg:
-            if arg.type == 'new_id':
+            if arg.type == ArgumentType.NewId:
                 # An interface of known type is created for us
                 if arg.interface:
                     continue
@@ -82,22 +83,10 @@ class Request(Method):
                 yield arg.name
 
     @property
-    def interface_types(self) -> Iterable[str]:
-        """Generator of the types (for the wl_interface)"""
-        for arg in self.arg:
-            if arg.interface:
-                yield arg.interface_class
-            else:
-                if arg.type == 'new_id':
-                    yield 'None'
-                    yield 'None'
-                yield 'None'
-
-    @property
     def marshal_args(self) -> Iterable[str]:
         """Arguments sent to `._marshal`"""
         for arg in self.arg:
-            if arg.type == 'new_id':
+            if arg.type == ArgumentType.NewId:
                 if not arg.interface:
                     yield '{}.name'.format(NO_IFACE)
                     yield NO_IFACE_VERSION
@@ -111,7 +100,7 @@ class Request(Method):
         """
         ret = None
         for arg in self.arg:
-            if arg.type == 'new_id':
+            if arg.type == ArgumentType.NewId:
                 ret = arg
                 if arg.interface:
                     continue
@@ -130,7 +119,7 @@ class Request(Method):
         Arguments of type `new_id` are returned from requests.
         """
         for arg in self.arg:
-            if arg.type == 'new_id':
+            if arg.type == ArgumentType.NewId:
                 arg.output_doc_ret(printer)
 
     def output_body(self, printer: Printer, opcode: int) -> None:

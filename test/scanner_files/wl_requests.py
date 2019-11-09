@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Interface
+from pywayland.interface import Argument, ArgumentType, Interface
 from .wl_core import WlCore
 from .wl_events import WlEvents
 
@@ -30,19 +30,24 @@ class WlRequests(Interface):
     version = 2
 
 
-@WlRequests.request("niuh", [WlCore, None, None, None])
+@WlRequests.request(
+    Argument(ArgumentType.NewId, interface=WlCore),
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Uint),
+    Argument(ArgumentType.FileDescriptor),
+)
 def make_request(self, the_int, the_uint, the_fd):
     """A request
 
     The request asks the server for an event.
 
     :param the_int:
-    :type the_int: `int`
+    :type the_int: `ArgumentType.Int`
     :param the_uint:
         the arg summary
-    :type the_uint: `uint`
+    :type the_uint: `ArgumentType.Uint`
     :param the_fd:
-    :type the_fd: `fd`
+    :type the_fd: `ArgumentType.FileDescriptor`
     :returns:
         :class:`~pywayland.protocol.scanner_test.WlCore`
     """
@@ -50,7 +55,7 @@ def make_request(self, the_int, the_uint, the_fd):
     return id
 
 
-@WlRequests.request("", [])
+@WlRequests.request()
 def no_args(self):
     """Request with no args
 
@@ -59,7 +64,9 @@ def no_args(self):
     self._marshal(1)
 
 
-@WlRequests.request("n", [WlCore])
+@WlRequests.request(
+    Argument(ArgumentType.NewId, interface=WlCore),
+)
 def create_id(self):
     """Create an id
 
@@ -72,7 +79,9 @@ def create_id(self):
     return id
 
 
-@WlRequests.request("n", [WlCore])
+@WlRequests.request(
+    Argument(ArgumentType.NewId, interface=WlCore),
+)
 def create_id2(self):
     """Create an id without a description
 
@@ -83,21 +92,27 @@ def create_id2(self):
     return id
 
 
-@WlRequests.request("u?s", [None, None])
+@WlRequests.request(
+    Argument(ArgumentType.Uint),
+    Argument(ArgumentType.String, nullable=True),
+)
 def allow_null(self, serial, mime_type):
     """Request that allows for null arguments
 
     A request where one of the arguments is allowed to be null.
 
     :param serial:
-    :type serial: `uint`
+    :type serial: `ArgumentType.Uint`
     :param mime_type:
-    :type mime_type: `string` or `None`
+    :type mime_type: `ArgumentType.String` or `None`
     """
     self._marshal(4, serial, mime_type)
 
 
-@WlRequests.request("n?o", [WlEvents, WlCore])
+@WlRequests.request(
+    Argument(ArgumentType.NewId, interface=WlEvents),
+    Argument(ArgumentType.Object, interface=WlCore, nullable=True),
+)
 def make_import(self, object):
     """Request that causes an import
 
@@ -113,7 +128,7 @@ def make_import(self, object):
     return id
 
 
-@WlRequests.request("2", [])
+@WlRequests.request(version=2)
 def versioned(self):
     """A versioned request
 
@@ -122,7 +137,10 @@ def versioned(self):
     self._marshal(6)
 
 
-@WlRequests.request("usun", [None, None, None, None])
+@WlRequests.request(
+    Argument(ArgumentType.Uint),
+    Argument(ArgumentType.NewId),
+)
 def new_id_no_interface(self, name, interface, version):
     """Create a new id, but with no interface
 
@@ -130,7 +148,7 @@ def new_id_no_interface(self, name, interface, version):
     (c.f. wl_registry.bind).
 
     :param name:
-    :type name: `uint`
+    :type name: `ArgumentType.Uint`
     :param interface: Interface name
     :type interface: `string`
     :param version: Interface version

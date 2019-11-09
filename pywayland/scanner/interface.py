@@ -68,7 +68,7 @@ class Interface(Element):
             for method in itertools.chain(self.request, self.event)
             for _import in method.imports(self.name, module_imports)
         )
-        printer('from pywayland.interface import Interface')
+        printer('from pywayland.interface import Argument, ArgumentType, Interface')
         for module, import_ in sorted(imports):
             printer('from {} import {}'.format(module, import_))
         if self.enum:

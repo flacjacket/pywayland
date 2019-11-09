@@ -33,16 +33,17 @@ class Enum(Element):
 
     name: str
     since: Optional[str]
-    bitfield: Optional[str]
+    is_bitfield: bool
     description: Optional[Description]
     entry: List[Entry]
 
     @classmethod
     def parse(cls, element: ET.Element) -> "Enum":
+        is_bitfield = cls.parse_optional_attribute(element, "bitfield") == "true"
         return Enum(
             name=cls.parse_attribute(element, "name"),
             since=cls.parse_optional_attribute(element, "since"),
-            bitfield=cls.parse_optional_attribute(element, "bitfield"),
+            is_bitfield=is_bitfield,
             description=cls.parse_optional_child(element, Description, "description"),
             entry=cls.parse_repeated_child(element, Entry, "entry"),
         )
@@ -50,7 +51,7 @@ class Enum(Element):
     def output(self, printer: Printer) -> None:
         """Generate the output for the enum to the printer"""
         name = self.name if self.name != "version" else "version_"
-        if self.bitfield:
+        if self.is_bitfield:
             printer('class {0}(enum.IntFlag):'.format(name))
         else:
             printer('class {0}(enum.IntEnum):'.format(name))

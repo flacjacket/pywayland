@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Interface
+from pywayland.interface import Argument, ArgumentType, Interface
 from .wl_requests import WlRequests
 
 import enum
@@ -36,7 +36,12 @@ class WlCore(Interface):
         hex_two = 0x2
 
 
-@WlCore.request("niuf", [WlCore, None, None, None])
+@WlCore.request(
+    Argument(ArgumentType.NewId, interface=WlCore),
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Uint),
+    Argument(ArgumentType.Fixed),
+)
 def make_request(self, the_int, the_uint, the_fixed):
     """A request
 
@@ -44,11 +49,11 @@ def make_request(self, the_int, the_uint, the_fixed):
 
     :param the_int:
         the arg summary
-    :type the_int: `int`
+    :type the_int: `ArgumentType.Int`
     :param the_uint:
-    :type the_uint: `uint`
+    :type the_uint: `ArgumentType.Uint`
     :param the_fixed:
-    :type the_fixed: `fixed`
+    :type the_fixed: `ArgumentType.Fixed`
     :returns:
         :class:`WlCore`
     """
@@ -56,7 +61,12 @@ def make_request(self, the_int, the_uint, the_fixed):
     return id
 
 
-@WlCore.request("iufn", [None, None, None, WlCore])
+@WlCore.request(
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Uint),
+    Argument(ArgumentType.Fixed),
+    Argument(ArgumentType.NewId, interface=WlCore),
+)
 def make_request2(self, the_int, the_uint, the_fixed):
     """A request
 
@@ -64,11 +74,11 @@ def make_request2(self, the_int, the_uint, the_fixed):
 
     :param the_int:
         the arg summary
-    :type the_int: `int`
+    :type the_int: `ArgumentType.Int`
     :param the_uint:
-    :type the_uint: `uint`
+    :type the_uint: `ArgumentType.Uint`
     :param the_fixed:
-    :type the_fixed: `fixed`
+    :type the_fixed: `ArgumentType.Fixed`
     :returns:
         :class:`WlCore` -- a :class:`WlCore` object
     """
@@ -76,7 +86,10 @@ def make_request2(self, the_int, the_uint, the_fixed):
     return id
 
 
-@WlCore.event("no", [WlCore, WlRequests])
+@WlCore.event(
+    Argument(ArgumentType.NewId, interface=WlCore),
+    Argument(ArgumentType.Object, interface=WlRequests),
+)
 def send_event(self, id, object):
     """A :class:`WlCore` event
 

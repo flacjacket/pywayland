@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Interface
+from pywayland.interface import Argument, ArgumentType, Interface
 from .wl_core import WlCore
 from .wl_requests import WlRequests
 
@@ -30,7 +30,12 @@ class WlEvents(Interface):
     version = 2
 
 
-@WlEvents.event("niuh", [WlRequests, None, None, None])
+@WlEvents.event(
+    Argument(ArgumentType.NewId, interface=WlRequests),
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Uint),
+    Argument(ArgumentType.FileDescriptor),
+)
 def send_event(self, id, the_int, the_uint, the_fd):
     """Send the data
 
@@ -40,17 +45,17 @@ def send_event(self, id, the_int, the_uint, the_fd):
     :param id:
     :type id: :class:`~pywayland.protocol.scanner_test.WlRequests`
     :param the_int:
-    :type the_int: `int`
+    :type the_int: `ArgumentType.Int`
     :param the_uint:
         the arg summary
-    :type the_uint: `uint`
+    :type the_uint: `ArgumentType.Uint`
     :param the_fd:
-    :type the_fd: `fd`
+    :type the_fd: `ArgumentType.FileDescriptor`
     """
     self._post_event(0, id, the_int, the_uint, the_fd)
 
 
-@WlEvents.event("", [])
+@WlEvents.event()
 def no_args(self):
     """Event with no args
 
@@ -59,7 +64,9 @@ def no_args(self):
     self._post_event(1)
 
 
-@WlEvents.event("n", [WlCore])
+@WlEvents.event(
+    Argument(ArgumentType.NewId, interface=WlCore),
+)
 def create_id(self, id):
     """Create an id
 
@@ -71,7 +78,9 @@ def create_id(self, id):
     self._post_event(2, id)
 
 
-@WlEvents.event("n", [WlCore])
+@WlEvents.event(
+    Argument(ArgumentType.NewId, interface=WlCore),
+)
 def create_id2(self, id):
     """Create an id without a description
 
@@ -81,19 +90,24 @@ def create_id2(self, id):
     self._post_event(3, id)
 
 
-@WlEvents.event("?s", [None])
+@WlEvents.event(
+    Argument(ArgumentType.String, nullable=True),
+)
 def allow_null_event(self, null_string):
     """A event with an allowed null argument
 
     An event where one of the arguments is allowed to be null.
 
     :param null_string:
-    :type null_string: `string` or `None`
+    :type null_string: `ArgumentType.String` or `None`
     """
     self._post_event(4, null_string)
 
 
-@WlEvents.event("n?o", [WlRequests, WlCore])
+@WlEvents.event(
+    Argument(ArgumentType.NewId, interface=WlRequests),
+    Argument(ArgumentType.Object, interface=WlCore, nullable=True),
+)
 def make_import(self, id, object):
     """Event that causes an import
 
@@ -107,7 +121,7 @@ def make_import(self, id, object):
     self._post_event(5, id, object)
 
 
-@WlEvents.event("2", [])
+@WlEvents.event(version=2)
 def versioned(self):
     """A versioned event
 

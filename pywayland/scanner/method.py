@@ -60,15 +60,19 @@ class Method(Element, abc.ABC):
 
     def output(self, printer: Printer, opcode: int, in_class: str, module_imports: Dict[str, str]) -> None:
         """Generate the output for the given method to the printer"""
-        # Generate the decorator for the method
-        signature = ''.join(arg.signature for arg in self.arg)
-        if self.since and int(self.since) > 1:
-            signature = self.since + signature
-        types = ', '.join(self.interface_types)
-
-        printer('@{}.{}("{}", [{}])'.format(
-            in_class, self.method_type, signature, types
-        ))
+        if len(self.arg) > 0:
+            printer(f"@{in_class}.{self.method_type}(")
+            with printer.indented():
+                for arg in self.arg:
+                    arg.output(printer)
+                if self.since:
+                    printer(f"version={self.since},")
+            printer(")")
+        else:
+            if self.since:
+                printer(f"@{in_class}.{self.method_type}(version={self.since})")
+            else:
+                printer(f"@{in_class}.{self.method_type}()")
 
         # Generate the definition of the method and args
         args = ', '.join(['self'] + list(self.method_args))
@@ -100,11 +104,6 @@ class Method(Element, abc.ABC):
     @property
     @abc.abstractmethod
     def method_args(self) -> Iterable[str]:
-        pass
-
-    @property
-    @abc.abstractmethod
-    def interface_types(self) -> Iterable[str]:
         pass
 
     @abc.abstractmethod

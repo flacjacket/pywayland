@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Interface
+from pywayland.interface import Argument, ArgumentType, Interface
 
 
 class WlDestructor(Interface):
@@ -30,22 +30,29 @@ class WlDestructor(Interface):
     version = 1
 
 
-@WlDestructor.request("niiiiu", [WlDestructor, None, None, None, None, None])
+@WlDestructor.request(
+    Argument(ArgumentType.NewId, interface=WlDestructor),
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Int),
+    Argument(ArgumentType.Uint),
+)
 def create_interface(self, x, y, width, height, format):
     """Create another interface
 
     Create a :class:`WlDestructor` interface object
 
     :param x:
-    :type x: `int`
+    :type x: `ArgumentType.Int`
     :param y:
-    :type y: `int`
+    :type y: `ArgumentType.Int`
     :param width:
-    :type width: `int`
+    :type width: `ArgumentType.Int`
     :param height:
-    :type height: `int`
+    :type height: `ArgumentType.Int`
     :param format:
-    :type format: `uint`
+    :type format: `ArgumentType.Uint`
     :returns:
         :class:`WlDestructor`
     """
@@ -53,7 +60,7 @@ def create_interface(self, x, y, width, height, format):
     return id
 
 
-@WlDestructor.request("", [])
+@WlDestructor.request()
 def destroy(self):
     """Destroy the interface
 

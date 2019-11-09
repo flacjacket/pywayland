@@ -57,15 +57,6 @@ class Event(Method):
         for arg in self.arg:
             yield arg.name
 
-    @property
-    def interface_types(self) -> Iterator[str]:
-        """Generator of the types (for the wl_interface)"""
-        for arg in self.arg:
-            if arg.interface:
-                yield arg.interface_class
-            else:
-                yield 'None'
-
     def output_doc_params(self, printer: Printer) -> None:
         """Aguments documented as parameters
 

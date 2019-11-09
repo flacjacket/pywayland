@@ -132,7 +132,7 @@ def verify_wl_message(py_ptr, wl_ptr):
         wl_type = wl_ptr.types[j]
         py_type = py_ptr.types[j]
         if wl_type == ffi.NULL:
-            assert py_type == ffi.NULL
+            assert py_type == ffi.NULL, j
         else:
             assert py_type != ffi.NULL
             assert ffi.string(wl_type.name) == ffi.string(py_type.name)

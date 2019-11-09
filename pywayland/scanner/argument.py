@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from typing import Optional
 import xml.etree.ElementTree as ET
 
+from pywayland.interface import ArgumentType
+from .description import Description
 from .element import Element
 from .printer import Printer
 
@@ -34,21 +36,44 @@ class Argument(Element):
     """
 
     name: str
-    type: str
+    type: ArgumentType
     summary: Optional[str]
     interface: Optional[str]
-    allow_null: Optional[str]
+    allow_null: bool
     enum: Optional[str]
+    description: Optional[Description]
 
-    @staticmethod
-    def parse(element: ET.Element) -> "Argument":
-        return Argument(
-            name=Argument.parse_attribute(element, "name"),
-            type=Argument.parse_attribute(element, "type"),
-            summary=Argument.parse_optional_attribute(element, "summary"),
-            interface=Argument.parse_optional_attribute(element, "interface"),
-            allow_null=Argument.parse_optional_attribute(element, "allow-null"),
-            enum=Argument.parse_optional_attribute(element, "enum"),
+    @classmethod
+    def parse(cls, element: ET.Element) -> "Argument":
+        arg_type_str = cls.parse_attribute(element, "type")
+        if arg_type_str == "int":
+            argument_type = ArgumentType.Int
+        elif arg_type_str == "uint":
+            argument_type = ArgumentType.Uint
+        elif arg_type_str == "fixed":
+            argument_type = ArgumentType.Fixed
+        elif arg_type_str == "string":
+            argument_type = ArgumentType.String
+        elif arg_type_str == "object":
+            argument_type = ArgumentType.Object
+        elif arg_type_str == "new_id":
+            argument_type = ArgumentType.NewId
+        elif arg_type_str == "array":
+            argument_type = ArgumentType.Array
+        elif arg_type_str == "fd":
+            argument_type = ArgumentType.FileDescriptor
+        else:
+            raise ValueError(f"Invalid argument type: {argument_type}")
+
+        allow_null = cls.parse_optional_attribute(element, "allow-null") == "true"
+        return cls(
+            name=cls.parse_attribute(element, "name"),
+            type=argument_type,
+            summary=cls.parse_optional_attribute(element, "summary"),
+            interface=cls.parse_optional_attribute(element, "interface"),
+            allow_null=allow_null,
+            enum=cls.parse_optional_attribute(element, "enum"),
+            description=cls.parse_optional_child(element, Description, "description"),
         )
 
     @property
@@ -61,39 +86,14 @@ class Argument(Element):
         assert self.interface is not None
         return ''.join(x.capitalize() for x in self.interface.split('_'))
 
-    @property
-    def signature(self) -> str:
-        """Return the signature of the argument
-
-        Return the string corresponding to the signature of the argument as it
-        appears in the signature of the wl_message struct.
-        """
+    def output(self, printer: Printer) -> None:
+        args = [f"ArgumentType.{self.type.name}"]
+        if self.interface is not None:
+            args.append(f"interface={self.interface_class}")
         if self.allow_null:
-            return '?' + self.type_to_string()
-        return self.type_to_string()
+            args.append("nullable=True")
 
-    def type_to_string(self) -> str:
-        """Translate type to signature string"""
-        if self.type == 'int':
-            return 'i'
-        if self.type == 'uint':
-            return 'u'
-        if self.type == 'fixed':
-            return 'f'
-        if self.type == 'string':
-            return 's'
-        if self.type == 'object':
-            return 'o'
-        if self.type == 'new_id':
-            if self.interface is None:
-                return 'sun'
-            return 'n'
-        if self.type == 'array':
-            return 'a'
-        if self.type == 'fd':
-            return 'h'
-
-        raise RuntimeError("Invalid argument type: {}".format(self.type))
+        printer(f"Argument({', '.join(args)}),")
 
     def output_doc_param(self, printer: Printer) -> None:
         """Document the argument as a parameter"""

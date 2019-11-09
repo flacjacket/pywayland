@@ -217,5 +217,5 @@ class Printer:
     def write(self, f) -> None:
         """Write the lines added to the printer out to the given file"""
         for line in self._lines:
-            f.write(line.encode('utf-8'))
-            f.write(b'\n')
+            f.write(line.encode())
+            f.write(b"\n")
