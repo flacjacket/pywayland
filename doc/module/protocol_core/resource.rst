@@ -1,4 +1,4 @@
-.. module:: pywayland.server.resource
+.. module:: pywayland.protocol_core.resource
 
 .. _server-resource:
 

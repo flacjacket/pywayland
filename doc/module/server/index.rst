@@ -11,7 +11,6 @@ The base set of objects used by Wayland servers.
    :maxdepth: 2
 
    globals
-   resource
 
 Client
 ------

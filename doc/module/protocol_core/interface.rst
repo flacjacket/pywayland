@@ -1,4 +1,4 @@
-.. module:: pywayland.interface
+.. module:: pywayland.protocol_core.interface
 
 .. _interface:
 
@@ -14,7 +14,7 @@ parameters for the Interface and provide decorators for defining
 :class:`~pywayland.interface.Message` objects on the interface.  See
 :ref:`protocol` for more on the Wayland protocol objects.
 
-.. autoclass:: pywayland.interface.Interface
+.. autoclass:: pywayland.protocol_core.interface.Interface
    :members:
 
 Interface Metaclass
@@ -23,7 +23,7 @@ Interface Metaclass
 This metaclass initializes lists for the requests and events on an interface
 and initializes a cdata struct for the class.
 
-.. autoclass:: pywayland.interface.InterfaceMeta
+.. autoclass:: pywayland.protocol_core.interface.InterfaceMeta
    :members:
 
 Message Module
@@ -35,5 +35,5 @@ on the protocol objects.  The Message objects are added to the
 functions) or events (server-side functions).  See :ref:`protocol` for more
 information.
 
-.. automodule:: pywayland.interface.Message
+.. automodule:: pywayland.protocol_core.interface.Message
     :members:

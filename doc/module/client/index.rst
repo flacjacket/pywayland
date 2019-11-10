@@ -11,11 +11,6 @@ directly creating :class:`~pywayland.client.Display` and
 :class:`~pywayland.client.proxy.Proxy` objects to interfaces should be returned
 by making request calls.
 
-.. toctree::
-   :maxdepth: 2
-
-   proxy
-
 Display
 -------
 

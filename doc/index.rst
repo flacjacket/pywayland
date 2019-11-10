@@ -26,14 +26,6 @@ Documentation
 Module Reference
 ----------------
 
-Core Modules
-^^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-
-   module/interface
-
 Client Modules
 ^^^^^^^^^^^^^^
 
@@ -49,6 +41,16 @@ Server Modules
    :maxdepth: 2
 
    module/server/index
+
+Protocol Core Modules
+^^^^^^^^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 2
+
+   module/protocol_core/interface
+   module/protocol_core/proxy
+   module/protocol_core/resource
 
 Scanner and Protocol Modules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
