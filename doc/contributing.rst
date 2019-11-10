@@ -13,16 +13,19 @@ If you wish to develop PyWayland, it is recommended that you follow the outline
 given in :ref:`install-source`.  A few things to be aware of when writing code:
 
 - Continuous integration testing in done with Travis_, and tests are run
-  against all supported Python versions (currently 2.7, 3.2+, PyPy, and PyPy
-  3).  You can check that your changes pass locally by running ``py.test`` from
-  the root directory (this requires installing pytest_).  Currently, the tests
-  also run with nose_, however, they may not always in the future.
+  against all supported Python versions (currently 3.6+ and PyPy 3).  You can
+  check that your changes pass locally by running ``py.test`` from the root
+  directory (this requires installing pytest_).  Currently, the tests also run
+  with nose_, however, they may not always in the future.
 
 - Code coverage is assessed using Coveralls_.  Currently, coverage is fairly
   low, any work to help this would be greatly appreciated.
 
 - Code quality is assessed in the tests with flake8_, be sure any new code
   meets Python standards.
+
+- Type annotations are included in much of the codebase and checked with mypy.
+  Additional checks using other type checkers are appreciated.
 
 .. _Coveralls: https://coveralls.io/r/flacjacket/pywayland
 .. _GitHub: http://github.com/flacjacket/pywayland/
