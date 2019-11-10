@@ -65,13 +65,6 @@ class Event(Method):
         for arg in self.arg:
             arg.output_doc_param(printer)
 
-    def output_doc_ret(self, printer: Printer) -> None:
-        """Aguments documented as return values
-
-        Nothing is returned from event calls.
-        """
-        return
-
     def output_body(self, printer: Printer, opcode: int) -> None:
         """Output the body of the event to the printer"""
         args = ', '.join([str(opcode)] + list(self.method_args))

@@ -35,7 +35,17 @@ class Method(Element, abc.ABC):
     arg: List[Argument]
 
     def imports(self, interface: str, module_imports: Dict[str, str]) -> List[Tuple[str, str]]:
-        """Get the imports required for each of the interfaces"""
+        """Get the imports required for each of the interfaces
+
+        :param interface:
+            The name of the interface that the method is a part of.
+        :param module_imports:
+            A mapping from the name of an interface in the associated
+            module that the interface comes from.
+        :return:
+            A list of 2-tuples, each specifying the path to an imported
+            module and the imported class.
+        """
         current_protocol = module_imports[interface]
 
         imports = []
@@ -57,6 +67,24 @@ class Method(Element, abc.ABC):
             imports.append((import_path, import_class))
 
         return imports
+
+    @property
+    @abc.abstractmethod
+    def method_type(self) -> str:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def method_args(self) -> Iterable[str]:
+        pass
+
+    @abc.abstractmethod
+    def output_doc_params(self, printer: Printer) -> None:
+        pass
+
+    @abc.abstractmethod
+    def output_body(self, printer: Printer, opcode: int) -> None:
+        pass
 
     def output(self, printer: Printer, opcode: int, in_class: str, module_imports: Dict[str, str]) -> None:
         """Generate the output for the given method to the printer"""
@@ -95,21 +123,3 @@ class Method(Element, abc.ABC):
             printer()
             self.output_doc_params(printer)
         printer('"""')
-
-    @property
-    @abc.abstractmethod
-    def method_type(self) -> str:
-        pass
-
-    @property
-    @abc.abstractmethod
-    def method_args(self) -> Iterable[str]:
-        pass
-
-    @abc.abstractmethod
-    def output_doc_params(self, printer: Printer) -> None:
-        pass
-
-    @abc.abstractmethod
-    def output_body(self, printer: Printer, opcode: int) -> None:
-        pass
