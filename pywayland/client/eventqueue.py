@@ -14,8 +14,12 @@
 
 import functools
 from weakref import WeakKeyDictionary
+from typing import TYPE_CHECKING, Optional
 
 from pywayland import ffi, lib
+
+if TYPE_CHECKING:
+    from pywayland.client import Display  # noqa: F401
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
@@ -32,9 +36,15 @@ class EventQueue:
 
     Event queues allows the events on a display to be handled in a thread-safe
     manner. See :class:`~pywayland.client.Display` for details.
+
+    :param display:
+        The display object that the event queue is connected to.
+    :type display:
+        :class:`~pywayland.client.Display`
     """
-    def __init__(self, display):
-        # lets check that we attach to an ok display
+    def __init__(self, display: "Display") -> None:
+        """Constructor for the EventQueue object"""
+        # check that we attach to a valid display
         if display._ptr is None or display._ptr == ffi.NULL:
             raise ValueError("Display object not connected")
 
@@ -43,13 +53,13 @@ class EventQueue:
         # create a destructor, save data and display
         destructor = functools.partial(_event_queue_destroy, display)
         self._ptr = ffi.gc(ptr, destructor)
-        self._display = display
+        self._display: Optional["Display"] = display
 
         display._children.add(self)
 
         weakkeydict[self._ptr] = display
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy an event queue
 
         Destroy the given event queue. Any pending event on that queue is
@@ -60,9 +70,7 @@ class EventQueue:
         function.
         """
         if self._ptr is not None and self._display is not None:
-            # run destroyer and remove it from the _ffi object
-            _event_queue_destroy(self._display, self._ptr)
-            ffi.gc(self._ptr, None)
+            ffi.release(self._ptr)
 
             # delete the pointer and the reference to the display
             self._ptr = None
