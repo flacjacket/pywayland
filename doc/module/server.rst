@@ -30,9 +30,3 @@ Listener
 
 .. autoclass:: Listener
    :members:
-
-Global
-------
-
-.. autoclass:: pywayland.server.globals.Global
-   :members:

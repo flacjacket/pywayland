@@ -16,7 +16,7 @@ Interface class wraps the protocol objects, and serves to initialize a set of
 parameters for the Interface and provide decorators for defining
 :class:`~pywayland.interface.Message` objects on the interface.
 
-.. autoclass:: pywayland.protocol_core.interface.Interface
+.. autoclass:: Interface
    :members:
 
 Interface Metaclass
@@ -28,17 +28,6 @@ and initializes a cdata struct for the class.
 .. autoclass:: pywayland.protocol_core.interface.InterfaceMeta
    :members:
 
-Message
--------
-
-:class:`~pywayland.interface.Message` objects are used to wrap the method calls
-on the protocol objects.  The Message objects are added to the
-:class:`~pywayland.interface.Interface`'s as either requests (client-side
-functions) or events (server-side functions).
-
-.. autoclass:: pywayland.protocol_core.interface.Message
-    :members:
-
 Proxy
 -----
 
@@ -47,11 +36,40 @@ create a proxy class on their own.  Proxy classes give client side access to
 the interfaces defined by the Wayland protocol.  Proxies are returned from the
 server after calling protocol methods which return ``new_id``'s.
 
-.. autoclass:: pywayland.protocol_core.proxy.Proxy
+.. autoclass:: Proxy
    :members:
 
 Resource
 --------
 
-.. autoclass:: pywayland.protocol_core.resource.Resource
+.. autoclass:: Resource
+   :members:
+
+Global
+------
+
+.. autoclass:: Global
+   :members:
+
+Message
+-------
+
+:class:`~pywayland.interface.Message` objects are used to wrap the method calls
+on the protocol objects.  The Message objects are added to the
+:class:`~pywayland.interface.Interface`'s as either requests (client-side
+functions) or events (server-side functions).
+
+.. autoclass:: pywayland.protocol_core.message.Message
+   :members:
+
+Argument
+--------
+
+.. autoclass:: pywayland.protocol_core.argument.Argument
+   :members:
+
+ArgumentType
+------------
+
+.. autoclass:: pywayland.protocol_core.argument.ArgumentType
    :members:
