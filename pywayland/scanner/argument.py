@@ -14,14 +14,26 @@
 
 from dataclasses import dataclass
 from typing import Optional
+import enum
 import xml.etree.ElementTree as ET
 
-from pywayland.protocol_core import ArgumentType
 from .description import Description
 from .element import Element
 from .printer import Printer
 
 NO_IFACE_NAME = 'interface'
+
+
+@enum.unique
+class ArgumentType(enum.Enum):
+    Int = enum.auto()
+    Uint = enum.auto()
+    Fixed = enum.auto()
+    String = enum.auto()
+    Object = enum.auto()
+    NewId = enum.auto()
+    Array = enum.auto()
+    FileDescriptor = enum.auto()
 
 
 @dataclass(frozen=True)

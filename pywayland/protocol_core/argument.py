@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import enum
 from dataclasses import dataclass
 from typing import Optional, Type, TYPE_CHECKING
+
+from pywayland.scanner.argument import ArgumentType
 
 if TYPE_CHECKING:
     from .interface import Interface  # noqa: F401
@@ -26,18 +27,6 @@ class classproperty:
 
     def __get__(self, obj, owner):
         return self.f(owner)
-
-
-@enum.unique
-class ArgumentType(enum.Enum):
-    Int = enum.auto()
-    Uint = enum.auto()
-    Fixed = enum.auto()
-    String = enum.auto()
-    Object = enum.auto()
-    NewId = enum.auto()
-    Array = enum.auto()
-    FileDescriptor = enum.auto()
 
 
 @dataclass(frozen=True)
