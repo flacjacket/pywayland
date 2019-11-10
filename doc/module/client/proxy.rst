@@ -1,4 +1,4 @@
-.. module:: pywayland.client.proxy
+.. module:: pywayland.proxy
 
 .. _client-proxy:
 
@@ -11,5 +11,5 @@ the interfaces defined by the Wayland protocol (see :ref:`protocol`).  Proxies
 are returned from the server after calling protocol methods which return
 ``new_id``'s.
 
-.. autoclass:: pywayland.client.proxy.Proxy
+.. autoclass:: pywayland.proxy.Proxy
    :members:

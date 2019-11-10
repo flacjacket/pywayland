@@ -18,7 +18,6 @@ from typing import Callable, Iterable, List, Optional, Tuple, Type
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi, lib
-from .dispatcher import Dispatcher
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
@@ -103,54 +102,6 @@ class Interface(metaclass=InterfaceMeta):
     _ptr = None
     name: Optional[str] = None
     version: Optional[int] = None
-
-    @classproperty
-    def proxy_class(interface):
-        """Return a proxy class for the given interface
-
-        :returns: :class:`~pywayland.client.proxy.Proxy` class for the given
-                  interface
-        """
-        from pywayland.client.proxy import Proxy
-
-        # Use the name of the interface to construct the class name
-        class_name = '{}Proxy'.format(interface.__name__)
-        # Extract the requests
-        # TODO: add the enums to the class as well
-        dct = {msg.name: msg.py_func for msg in interface.requests}
-        # Construct a dispatcher
-        dispacter_name = '{}Dispatcher'.format(interface.__name__)
-        dispacter_class = type(dispacter_name, (Dispatcher,), {})
-        # Add the interface and dispacter as a class attribute
-        dct['_interface'] = interface
-        dct['dispatcher'] = dispacter_class(interface.events)
-        dct['registry'] = interface.registry
-
-        # Return the new class
-        return type(class_name, (Proxy,), dct)
-
-    @classproperty
-    def resource_class(interface):
-        """Return a resource class for the given interface
-
-        :returns: :class:`~pywayland.server.resource.Resource` class for the
-                  given interface
-        """
-        from pywayland.server.resource import Resource
-
-        # Use the name of the interface to construct the class name
-        class_name = '{}Resource'.format(interface.__name__)
-        # Extract the events
-        dct = {msg.name: msg.py_func for msg in interface.events}
-        # Construct a dispacter
-        dispacter_name = '{}Dispatcher'.format(interface.__name__)
-        dispacter_class = type(dispacter_name, (Dispatcher,), {})
-        # Add the interface and dispacter as a class attribute
-        dct['_interface'] = interface
-        dct['dispatcher'] = dispacter_class(interface.requests, destructor=True)
-
-        # Return the new class
-        return type(class_name, (Resource,), dct)
 
     @classproperty
     def global_class(interface):

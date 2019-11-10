@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.dispatcher import Dispatcher
 from pywayland.utils import ensure_valid
 from .client import Client
 
@@ -32,20 +33,19 @@ class Resource:
     :param id: The id for the item
     :type id: `int`
     """
-    dispatcher = None
-
     def __init__(self, client, version=None, id=0):
         if version is None:
-            version = self._interface.version
+            version = self.interface.version
 
         self.version = version
+        self.dispatcher = Dispatcher(self.interface.requests, destructor=True)
 
         if isinstance(client, Client):
             client_ptr = client._ptr
         else:
             client_ptr = client
 
-        self._ptr = lib.wl_resource_create(client_ptr, self._interface._ptr, version, id)
+        self._ptr = lib.wl_resource_create(client_ptr, self.interface._ptr, version, id)
         self.id = lib.wl_resource_get_id(self._ptr)
 
         if self.dispatcher is not None:

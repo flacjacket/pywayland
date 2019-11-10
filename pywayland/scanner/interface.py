@@ -71,16 +71,19 @@ class Interface(Element):
 
         needs_argument_type = any(len(method.arg) > 0 for method in self.request) \
             or any(len(method.arg) > 0 for method in self.event)
+
+        if self.enum:
+            printer('import enum')
+            printer()
         if needs_argument_type:
             printer('from pywayland.interface import Argument, ArgumentType, Interface')
         else:
             printer('from pywayland.interface import Interface')
+        printer("from pywayland.proxy import Proxy")
+        printer("from pywayland.server.resource import Resource")
 
         for module, import_ in sorted(imports):
             printer('from {} import {}'.format(module, import_))
-        if self.enum:
-            printer()
-            printer('import enum')
         printer()
         printer()
 
@@ -102,17 +105,29 @@ class Interface(Element):
                 printer()
                 enum.output(printer)
 
-        # Events and requests
-        for opcode, request in enumerate(self.request):
-            printer()
-            printer()
-            request.output(printer, opcode, self.class_name, module_imports)
+        proxy_class_name = f"{self.class_name}Proxy"
+        resource_class_name = f"{self.class_name}Resource"
 
-        for opcode, event in enumerate(self.event):
-            printer()
-            printer()
-            event.output(printer, opcode, self.class_name, module_imports)
+        printer()
+        printer()
+        printer(f"class {proxy_class_name}(Proxy):")
+        with printer.indented():
+            printer(f"interface = {self.class_name}")
+            for opcode, request in enumerate(self.request):
+                printer()
+                request.output(printer, opcode, self.class_name, module_imports)
+
+        printer()
+        printer()
+        printer(f"class {resource_class_name}(Resource):")
+        with printer.indented():
+            printer(f"interface = {self.class_name}")
+            for opcode, event in enumerate(self.event):
+                printer()
+                event.output(printer, opcode, self.class_name, module_imports)
 
         printer()
         printer()
         printer('{}._gen_c()'.format(self.class_name))
+        printer(f"{self.class_name}.proxy_class = {proxy_class_name}")
+        printer(f"{self.class_name}.resource_class = {resource_class_name}")

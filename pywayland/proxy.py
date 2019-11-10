@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import abc
+
 from pywayland import ffi, lib
+from pywayland.dispatcher import Dispatcher
+from pywayland.interface import Interface
 from pywayland.utils import ensure_valid
 
 
 class Proxy:
-    dispatcher = None
-
     def __init__(self, ptr, display=None):
         """Represents a protocol object on the client side.
 
@@ -28,6 +30,7 @@ class Proxy:
         :func:`Proxy.add_listener`.
         """
         self.user_data = None
+        self.dispatcher = Dispatcher(self.interface.events)
 
         # This should only be true for wl_display proxies, as they will
         # initialize its pointer on a `.connect()` call
@@ -55,7 +58,12 @@ class Proxy:
         self._handle = ffi.new_handle(self)
         lib.wl_proxy_add_dispatcher(self._ptr, lib.dispatcher_func, self._handle, ffi.NULL)
 
-        self.registry[self._ptr] = self
+        self.interface.registry[self._ptr] = self
+
+    @property
+    @abc.abstractmethod
+    def interface(self) -> Interface:
+        pass
 
     @property
     def destroyed(self):
@@ -83,7 +91,7 @@ class Proxy:
     def _marshal(self, opcode, *args):
         """Marshal the given arguments into the Wayland wire format"""
         # Create a wl_argument array
-        args_ptr = self._interface.requests[opcode].arguments_to_c(*args)
+        args_ptr = self.interface.requests[opcode].arguments_to_c(*args)
 
         # Write the event into the connection queue
         proxy = ffi.cast('struct wl_proxy *', self._ptr)
@@ -93,7 +101,7 @@ class Proxy:
     def _marshal_constructor(self, opcode, interface, *args):
         """Marshal the given arguments into the Wayland wire format for a constructor"""
         # Create a wl_argument array
-        args_ptr = self._interface.requests[opcode].arguments_to_c(*args)
+        args_ptr = self.interface.requests[opcode].arguments_to_c(*args)
 
         # Write the event into the connection queue and build a new proxy from the given args
         proxy = ffi.cast('struct wl_proxy *', self._ptr)
