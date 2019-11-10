@@ -33,7 +33,6 @@ Core Modules
    :maxdepth: 2
 
    module/interface
-   module/message
 
 Client Modules
 ^^^^^^^^^^^^^^
