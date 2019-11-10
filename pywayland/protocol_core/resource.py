@@ -20,7 +20,7 @@ from pywayland.utils import ensure_valid
 from pywayland.server.client import Client
 
 if TYPE_CHECKING:
-    from pywayland.protocol_core.interface import Interface  # noqa: F401
+    from .interface import Interface  # noqa: F401
 
 
 class Resource:

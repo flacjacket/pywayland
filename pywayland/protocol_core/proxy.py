@@ -19,7 +19,7 @@ from pywayland.dispatcher import Dispatcher
 from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
-    from pywayland.protocol_core.interface import Interface  # noqa: F401
+    from .interface import Interface  # noqa: F401
 
 
 class Proxy:

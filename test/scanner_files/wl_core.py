@@ -16,9 +16,7 @@
 
 import enum
 
-from pywayland.protocol_core.interface import Argument, ArgumentType, Interface
-from pywayland.protocol_core.proxy import Proxy
-from pywayland.protocol_core.resource import Resource
+from pywayland.protocol_core import Argument, ArgumentType, Interface, Proxy, Resource
 from .wl_requests import WlRequests
 
 

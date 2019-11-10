@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 import xml.etree.ElementTree as ET
 
-from pywayland.protocol_core.interface import ArgumentType
+from pywayland.protocol_core import ArgumentType
 from .argument import Argument
 from .description import Description
 from .method import Method

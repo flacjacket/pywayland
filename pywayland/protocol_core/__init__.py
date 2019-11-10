@@ -19,3 +19,8 @@ interfaces.  Each interface has a set of requests and events that are
 associated with it.  These functions are invoked from the corresponding proxy
 and resource instances.
 """
+
+from .argument import Argument, ArgumentType  # noqa: F401
+from .interface import Interface  # noqa: F401
+from .proxy import Proxy  # noqa: F401
+from .resource import Resource  # noqa: F401

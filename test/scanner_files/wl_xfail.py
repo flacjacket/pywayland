@@ -14,9 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.protocol_core.interface import Interface
-from pywayland.protocol_core.proxy import Proxy
-from pywayland.protocol_core.resource import Resource
+from pywayland.protocol_core import Interface, Proxy, Resource
 
 
 class WlXfail(Interface):

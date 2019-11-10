@@ -70,10 +70,14 @@ class Dispatcher:
     message can be set and retrieved by indexing the dispatcher with either the
     opcode or the name of the message.
 
-    :param messages: List of messages (events or requests)
-    :type messages: `list`
-    :param destructor: Create destructor dispatcher (for Resources)
-    :type destructor: `bool`
+    :param messages:
+        List of messages (events or requests)
+    :type messages:
+        `list`
+    :param destructor:
+        Create destructor dispatcher (for Resources)
+    :type destructor:
+        `bool`
     """
     def __init__(self, messages, destructor=False):
         self.messages = messages

@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Optional
 import xml.etree.ElementTree as ET
 
-from pywayland.protocol_core.interface import ArgumentType
+from pywayland.protocol_core import ArgumentType
 from .description import Description
 from .element import Element
 from .printer import Printer
