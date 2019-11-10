@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Argument, ArgumentType, Interface
-from pywayland.proxy import Proxy
-from pywayland.server.resource import Resource
+from pywayland.protocol_core.interface import Argument, ArgumentType, Interface
+from pywayland.protocol_core.proxy import Proxy
+from pywayland.protocol_core.resource import Resource
 from .wl_core import WlCore
 from .wl_events import WlEvents
 
@@ -46,12 +46,15 @@ class WlRequestsProxy(Proxy):
         The request asks the server for an event.
 
         :param the_int:
-        :type the_int: `ArgumentType.Int`
+        :type the_int:
+            `ArgumentType.Int`
         :param the_uint:
             the arg summary
-        :type the_uint: `ArgumentType.Uint`
+        :type the_uint:
+            `ArgumentType.Uint`
         :param the_fd:
-        :type the_fd: `ArgumentType.FileDescriptor`
+        :type the_fd:
+            `ArgumentType.FileDescriptor`
         :returns:
             :class:`~pywayland.protocol.scanner_test.WlCore`
         """
@@ -102,9 +105,11 @@ class WlRequestsProxy(Proxy):
         A request where one of the arguments is allowed to be null.
 
         :param serial:
-        :type serial: `ArgumentType.Uint`
+        :type serial:
+            `ArgumentType.Uint`
         :param mime_type:
-        :type mime_type: `ArgumentType.String` or `None`
+        :type mime_type:
+            `ArgumentType.String` or `None`
         """
         self._marshal(4, serial, mime_type)
 
@@ -119,7 +124,8 @@ class WlRequestsProxy(Proxy):
         new_id and as an object.
 
         :param object:
-        :type object: :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
+        :type object:
+            :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
         :returns:
             :class:`~pywayland.protocol.scanner_test.WlEvents`
         """
@@ -145,11 +151,16 @@ class WlRequestsProxy(Proxy):
         interface (c.f. wl_registry.bind).
 
         :param name:
-        :type name: `ArgumentType.Uint`
-        :param interface: Interface name
-        :type interface: `string`
-        :param version: Interface version
-        :type version: `int`
+        :type name:
+            `ArgumentType.Uint`
+        :param interface:
+            Interface name
+        :type interface:
+            `string`
+        :param version:
+            Interface version
+        :type version:
+            `int`
         :returns:
             :class:`pywayland.client.proxy.Proxy` of specified Interface
         """

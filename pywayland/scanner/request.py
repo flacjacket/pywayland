@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 import xml.etree.ElementTree as ET
 
-from pywayland.interface import ArgumentType
+from pywayland.protocol_core.interface import ArgumentType
 from .argument import Argument
 from .description import Description
 from .method import Method
@@ -104,10 +104,14 @@ class Request(Method):
                 ret = arg
                 if arg.interface:
                     continue
-                printer(':param {}: Interface name'.format(NO_IFACE))
-                printer(':type {}: `string`'.format(NO_IFACE))
-                printer(':param {}: Interface version'.format(NO_IFACE_VERSION))
-                printer(':type {}: `int`'.format(NO_IFACE_VERSION))
+                printer(f":param {NO_IFACE}:")
+                printer("    Interface name")
+                printer(f":type {NO_IFACE}:")
+                printer("    `string`")
+                printer(f":param {NO_IFACE_VERSION}:")
+                printer("    Interface version")
+                printer(f":type {NO_IFACE_VERSION}:")
+                printer("    `int`")
             else:
                 arg.output_doc_param(printer)
         if ret is not None:

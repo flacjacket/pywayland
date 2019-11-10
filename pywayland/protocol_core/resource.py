@@ -12,10 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Type, TYPE_CHECKING
+
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
 from pywayland.utils import ensure_valid
-from .client import Client
+from pywayland.server.client import Client
+
+if TYPE_CHECKING:
+    from pywayland.protocol_core.interface import Interface  # noqa: F401
 
 
 class Resource:
@@ -33,6 +38,8 @@ class Resource:
     :param id: The id for the item
     :type id: `int`
     """
+    interface: Type["Interface"]
+
     def __init__(self, client, version=None, id=0):
         if version is None:
             version = self.interface.version

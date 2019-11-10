@@ -16,9 +16,9 @@
 
 import enum
 
-from pywayland.interface import Argument, ArgumentType, Interface
-from pywayland.proxy import Proxy
-from pywayland.server.resource import Resource
+from pywayland.protocol_core.interface import Argument, ArgumentType, Interface
+from pywayland.protocol_core.proxy import Proxy
+from pywayland.protocol_core.resource import Resource
 from .wl_requests import WlRequests
 
 
@@ -53,11 +53,14 @@ class WlCoreProxy(Proxy):
 
         :param the_int:
             the arg summary
-        :type the_int: `ArgumentType.Int`
+        :type the_int:
+            `ArgumentType.Int`
         :param the_uint:
-        :type the_uint: `ArgumentType.Uint`
+        :type the_uint:
+            `ArgumentType.Uint`
         :param the_fixed:
-        :type the_fixed: `ArgumentType.Fixed`
+        :type the_fixed:
+            `ArgumentType.Fixed`
         :returns:
             :class:`WlCore`
         """
@@ -77,11 +80,14 @@ class WlCoreProxy(Proxy):
 
         :param the_int:
             the arg summary
-        :type the_int: `ArgumentType.Int`
+        :type the_int:
+            `ArgumentType.Int`
         :param the_uint:
-        :type the_uint: `ArgumentType.Uint`
+        :type the_uint:
+            `ArgumentType.Uint`
         :param the_fixed:
-        :type the_fixed: `ArgumentType.Fixed`
+        :type the_fixed:
+            `ArgumentType.Fixed`
         :returns:
             :class:`WlCore` -- a :class:`WlCore` object
         """
@@ -105,10 +111,12 @@ class WlCoreResource(Resource):
 
         :param id:
             a :class:`WlCore` object
-        :type id: :class:`WlCore`
+        :type id:
+            :class:`WlCore`
         :param object:
             a :class:`~pywayland.protocol.scanner_test.WlRequests` object
-        :type object: :class:`~pywayland.protocol.scanner_test.WlRequests`
+        :type object:
+            :class:`~pywayland.protocol.scanner_test.WlRequests`
         """
         self._post_event(0, id, object)
 

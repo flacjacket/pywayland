@@ -18,6 +18,8 @@ from typing import Callable, Iterable, List, Optional, Tuple, Type
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi, lib
+from pywayland.protocol_core.proxy import Proxy
+from pywayland.protocol_core.resource import Resource
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
@@ -100,8 +102,10 @@ class Interface(metaclass=InterfaceMeta):
     """
 
     _ptr = None
-    name: Optional[str] = None
-    version: Optional[int] = None
+    name: str
+    version: int
+    proxy_class: Type[Proxy]
+    resource_class: Type[Resource]
 
     @classproperty
     def global_class(interface):

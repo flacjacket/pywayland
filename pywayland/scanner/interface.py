@@ -76,11 +76,11 @@ class Interface(Element):
             printer('import enum')
             printer()
         if needs_argument_type:
-            printer('from pywayland.interface import Argument, ArgumentType, Interface')
+            printer('from pywayland.protocol_core.interface import Argument, ArgumentType, Interface')
         else:
-            printer('from pywayland.interface import Interface')
-        printer("from pywayland.proxy import Proxy")
-        printer("from pywayland.server.resource import Resource")
+            printer('from pywayland.protocol_core.interface import Interface')
+        printer("from pywayland.protocol_core.proxy import Proxy")
+        printer("from pywayland.protocol_core.resource import Resource")
 
         for module, import_ in sorted(imports):
             printer('from {} import {}'.format(module, import_))

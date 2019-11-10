@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import abc
+from typing import Type, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
-from pywayland.interface import Interface
 from pywayland.utils import ensure_valid
+
+if TYPE_CHECKING:
+    from pywayland.protocol_core.interface import Interface  # noqa: F401
 
 
 class Proxy:
+    interface: Type["Interface"]
+
     def __init__(self, ptr, display=None):
         """Represents a protocol object on the client side.
 
@@ -59,11 +63,6 @@ class Proxy:
         lib.wl_proxy_add_dispatcher(self._ptr, lib.dispatcher_func, self._handle, ffi.NULL)
 
         self.interface.registry[self._ptr] = self
-
-    @property
-    @abc.abstractmethod
-    def interface(self) -> Interface:
-        pass
 
     @property
     def destroyed(self):

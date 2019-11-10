@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Optional
 import xml.etree.ElementTree as ET
 
-from pywayland.interface import ArgumentType
+from pywayland.protocol_core.interface import ArgumentType
 from .description import Description
 from .element import Element
 from .printer import Printer
@@ -110,10 +110,12 @@ class Argument(Element):
             arg_type = '`{}`'.format(self.type)
 
         # Output the parameter type
-        if self.allow_null:
-            printer.doc(':type {}: {} or `None`'.format(self.name, arg_type))
-        else:
-            printer.doc(':type {}: {}'.format(self.name, arg_type))
+        printer.doc(f":type {self.name}:")
+        with printer.indented():
+            if self.allow_null:
+                printer.doc(f"{arg_type} or `None`")
+            else:
+                printer.doc(f"{arg_type}")
 
     def output_doc_ret(self, printer: Printer) -> None:
         """Document the argument as a return"""

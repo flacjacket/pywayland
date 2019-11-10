@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Argument, ArgumentType, Interface
-from pywayland.proxy import Proxy
-from pywayland.server.resource import Resource
+from pywayland.protocol_core.interface import Argument, ArgumentType, Interface
+from pywayland.protocol_core.proxy import Proxy
+from pywayland.protocol_core.resource import Resource
 from .wl_core import WlCore
 from .wl_requests import WlRequests
 
@@ -51,14 +51,18 @@ class WlEventsResource(Resource):
         type over the passed file descriptor, then close it.
 
         :param id:
-        :type id: :class:`~pywayland.protocol.scanner_test.WlRequests`
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlRequests`
         :param the_int:
-        :type the_int: `ArgumentType.Int`
+        :type the_int:
+            `ArgumentType.Int`
         :param the_uint:
             the arg summary
-        :type the_uint: `ArgumentType.Uint`
+        :type the_uint:
+            `ArgumentType.Uint`
         :param the_fd:
-        :type the_fd: `ArgumentType.FileDescriptor`
+        :type the_fd:
+            `ArgumentType.FileDescriptor`
         """
         self._post_event(0, id, the_int, the_uint, the_fd)
 
@@ -79,7 +83,8 @@ class WlEventsResource(Resource):
         With a description
 
         :param id:
-        :type id: :class:`~pywayland.protocol.scanner_test.WlCore`
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlCore`
         """
         self._post_event(2, id)
 
@@ -90,7 +95,8 @@ class WlEventsResource(Resource):
         """Create an id without a description
 
         :param id:
-        :type id: :class:`~pywayland.protocol.scanner_test.WlCore`
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlCore`
         """
         self._post_event(3, id)
 
@@ -103,7 +109,8 @@ class WlEventsResource(Resource):
         An event where one of the arguments is allowed to be null.
 
         :param null_string:
-        :type null_string: `ArgumentType.String` or `None`
+        :type null_string:
+            `ArgumentType.String` or `None`
         """
         self._post_event(4, null_string)
 
@@ -117,9 +124,11 @@ class WlEventsResource(Resource):
         An event method that causes an imoprt of other interfaces
 
         :param id:
-        :type id: :class:`~pywayland.protocol.scanner_test.WlRequests`
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlRequests`
         :param object:
-        :type object: :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
+        :type object:
+            :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
         """
         self._post_event(5, id, object)
 

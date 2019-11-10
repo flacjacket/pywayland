@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.interface import Argument, ArgumentType, Interface
-from pywayland.proxy import Proxy
-from pywayland.server.resource import Resource
+from pywayland.protocol_core.interface import Argument, ArgumentType, Interface
+from pywayland.protocol_core.proxy import Proxy
+from pywayland.protocol_core.resource import Resource
 
 
 class WlDestructor(Interface):
@@ -48,15 +48,20 @@ class WlDestructorProxy(Proxy):
         Create a :class:`WlDestructor` interface object
 
         :param x:
-        :type x: `ArgumentType.Int`
+        :type x:
+            `ArgumentType.Int`
         :param y:
-        :type y: `ArgumentType.Int`
+        :type y:
+            `ArgumentType.Int`
         :param width:
-        :type width: `ArgumentType.Int`
+        :type width:
+            `ArgumentType.Int`
         :param height:
-        :type height: `ArgumentType.Int`
+        :type height:
+            `ArgumentType.Int`
         :param format:
-        :type format: `ArgumentType.Uint`
+        :type format:
+            `ArgumentType.Uint`
         :returns:
             :class:`WlDestructor`
         """
