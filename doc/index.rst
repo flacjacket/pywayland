@@ -22,50 +22,5 @@ Documentation
 
    install
    contributing
-
-Module Reference
-----------------
-
-Client Modules
-^^^^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-
-   module/client/index
-
-Server Modules
-^^^^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-
-   module/server/index
-
-Protocol Core Modules
-^^^^^^^^^^^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-
-   module/protocol_core/interface
-   module/protocol_core/proxy
-   module/protocol_core/resource
-
-Scanner and Protocol Modules
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-
    scanner
-   module/protocol/index
-   module/scanner/index
-
-Utilities
-^^^^^^^^^
-
-.. toctree::
-   :maxdepth: 2
-
-   module/utils
+   module/index

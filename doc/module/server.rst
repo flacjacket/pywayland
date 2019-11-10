@@ -7,11 +7,6 @@ Server Modules
 
 The base set of objects used by Wayland servers.
 
-.. toctree::
-   :maxdepth: 2
-
-   globals
-
 Client
 ------
 
@@ -34,4 +29,10 @@ Listener
 --------
 
 .. autoclass:: Listener
+   :members:
+
+Global
+------
+
+.. autoclass:: pywayland.server.globals.Global
    :members:
