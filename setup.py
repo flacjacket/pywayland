@@ -114,12 +114,28 @@ SdistCommand = get_protocol_command(sdist)
 # For the purposes of uploading to PyPI, we'll get the version of Wayland here
 rst_input = open('README.rst').read().split('\n')
 try:
-    from pywayland import __wayland_version__
+    from pywayland import __wayland_version__ as wayland_version, __version__ as pywayland_version
+
+    version_tag = f"v{pywayland_version}"
 except Exception:
-    pass
+    version_tag = "master"
 else:
-    version = 'Built against Wayland {}\n'.format(__wayland_version__)
+    version = f"Built against Wayland {wayland_version}\n"
     rst_input.insert(3, version)
+
+# replace all of the badges and links to point to the current version
+rst_input = rst_input[:-10]
+rst_input.extend([
+    f".. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch={version_tag}",
+    f"    :target: https://coveralls.io/github/flacjacket/pywayland?branch={version_tag}",
+    "    :alt: Build Coverage",
+    f".. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version={version_tag}",
+    f"   :target: https://pywayland.readthedocs.io/en/{version_tag}/",
+    "    :alt: Documentation Status",
+    f".. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch={version_tag}",
+    f"    :target: https://travis-ci.org/flacjacket/pywayland/",
+    "    :alt: Build Status",
+])
 
 long_description = '\n'.join(rst_input)
 
