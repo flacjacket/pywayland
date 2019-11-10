@@ -128,13 +128,13 @@ rst_input = rst_input[:-10]
 rst_input.extend([
     f".. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch={version_tag}",
     f"    :target: https://coveralls.io/github/flacjacket/pywayland?branch={version_tag}",
-    "    :alt: Build Coverage",
+    f"    :alt: Build Coverage",
     f".. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version={version_tag}",
     f"   :target: https://pywayland.readthedocs.io/en/{version_tag}/",
-    "    :alt: Documentation Status",
+    f"   :alt: Documentation Status",
     f".. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch={version_tag}",
     f"    :target: https://travis-ci.org/flacjacket/pywayland/",
-    "    :alt: Build Status",
+    f"    :alt: Build Status",
 ])
 
 long_description = '\n'.join(rst_input)
