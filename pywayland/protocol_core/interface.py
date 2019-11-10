@@ -20,16 +20,9 @@ from .argument import Argument
 from .message import Message
 from .proxy import Proxy
 from .resource import Resource
+from .globals import Global
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
-
-
-class classproperty:
-    def __init__(self, f):
-        self.f = f
-
-    def __get__(self, obj, owner):
-        return self.f(owner)
 
 
 class InterfaceMeta(type):
@@ -61,21 +54,7 @@ class Interface(metaclass=InterfaceMeta):
     version: int
     proxy_class: Type[Proxy]
     resource_class: Type[Resource]
-
-    @classproperty
-    def global_class(interface):
-        """Return a global object for the given interface
-
-        :returns: :class:`~pywayland.server.globals.Global` class for the given
-                  interface
-        """
-        from pywayland.server.globals import Global
-
-        # Use the name of the interface to construct the class name
-        class_name = '{}Global'.format(interface.__name__)
-
-        # Return the new class with the interface added as a class attribute
-        return type(class_name, (Global,), {'_interface': interface})
+    global_class: Type[Global]
 
     @classmethod
     def event(cls, *arguments: Argument, version: int = None) -> Callable:

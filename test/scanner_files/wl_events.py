@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.protocol_core import Argument, ArgumentType, Interface, Proxy, Resource
+from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_core import WlCore
 from .wl_requests import WlRequests
 
@@ -139,6 +139,11 @@ class WlEventsResource(Resource):
         self._post_event(6)
 
 
+class WlEventsGlobal(Global):
+    interface = WlEvents
+
+
 WlEvents._gen_c()
 WlEvents.proxy_class = WlEventsProxy
 WlEvents.resource_class = WlEventsResource
+WlEvents.global_class = WlEventsGlobal

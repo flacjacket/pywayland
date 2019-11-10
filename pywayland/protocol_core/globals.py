@@ -60,18 +60,18 @@ class Global:
             raise ValueError("Display has been destroyed or couldn't initialize")
 
         if version is None:
-            version = self._interface.version
+            version = self.interface.version
 
         # we can't keep alive a handle to self without creating a reference
         # loop, so use this dict as the handle to pass to the global_bind_func
         # callback
         self._callback_info = {
-            "interface": self._interface,
+            "interface": self.interface,
             "bind_func": None
         }
         self._handle = ffi.new_handle(self._callback_info)
 
-        ptr = lib.wl_global_create(display._ptr, self._interface._ptr,
+        ptr = lib.wl_global_create(display._ptr, self.interface._ptr,
                                    version, self._handle, lib.global_bind_func)
         destructor = functools.partial(_global_destroy, display)
         self._ptr = ffi.gc(ptr, destructor)

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.protocol_core import Argument, ArgumentType, Interface, Proxy, Resource
+from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 
 
 class WlDestructor(Interface):
@@ -80,6 +80,11 @@ class WlDestructorResource(Resource):
     interface = WlDestructor
 
 
+class WlDestructorGlobal(Global):
+    interface = WlDestructor
+
+
 WlDestructor._gen_c()
 WlDestructor.proxy_class = WlDestructorProxy
 WlDestructor.resource_class = WlDestructorResource
+WlDestructor.global_class = WlDestructorGlobal

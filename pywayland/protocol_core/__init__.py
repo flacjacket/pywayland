@@ -21,6 +21,7 @@ and resource instances.
 """
 
 from .argument import Argument, ArgumentType  # noqa: F401
+from .globals import Global  # noqa: F401
 from .interface import Interface  # noqa: F401
 from .proxy import Proxy  # noqa: F401
 from .resource import Resource  # noqa: F401

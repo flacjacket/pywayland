@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.protocol_core import Interface, Proxy, Resource
+from pywayland.protocol_core import Global, Interface, Proxy, Resource
 
 
 class WlXfail(Interface):
@@ -36,6 +36,11 @@ class WlXfailResource(Resource):
     interface = WlXfail
 
 
+class WlXfailGlobal(Global):
+    interface = WlXfail
+
+
 WlXfail._gen_c()
 WlXfail.proxy_class = WlXfailProxy
 WlXfail.resource_class = WlXfailResource
+WlXfail.global_class = WlXfailGlobal

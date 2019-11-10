@@ -76,9 +76,9 @@ class Interface(Element):
             printer('import enum')
             printer()
         if needs_argument_type:
-            printer('from pywayland.protocol_core import Argument, ArgumentType, Interface, Proxy, Resource')
+            printer('from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource')
         else:
-            printer('from pywayland.protocol_core import Interface, Proxy, Resource')
+            printer('from pywayland.protocol_core import Global, Interface, Proxy, Resource')
 
         for module, import_ in sorted(imports):
             printer('from {} import {}'.format(module, import_))
@@ -105,6 +105,7 @@ class Interface(Element):
 
         proxy_class_name = f"{self.class_name}Proxy"
         resource_class_name = f"{self.class_name}Resource"
+        global_class_name = f"{self.class_name}Global"
 
         printer()
         printer()
@@ -126,6 +127,13 @@ class Interface(Element):
 
         printer()
         printer()
+        printer(f"class {global_class_name}(Global):")
+        with printer.indented():
+            printer(f"interface = {self.class_name}")
+
+        printer()
+        printer()
         printer('{}._gen_c()'.format(self.class_name))
         printer(f"{self.class_name}.proxy_class = {proxy_class_name}")
         printer(f"{self.class_name}.resource_class = {resource_class_name}")
+        printer(f"{self.class_name}.global_class = {global_class_name}")

@@ -16,7 +16,7 @@
 
 import enum
 
-from pywayland.protocol_core import Argument, ArgumentType, Interface, Proxy, Resource
+from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_requests import WlRequests
 
 
@@ -119,6 +119,11 @@ class WlCoreResource(Resource):
         self._post_event(0, id, object)
 
 
+class WlCoreGlobal(Global):
+    interface = WlCore
+
+
 WlCore._gen_c()
 WlCore.proxy_class = WlCoreProxy
 WlCore.resource_class = WlCoreResource
+WlCore.global_class = WlCoreGlobal
