@@ -17,7 +17,6 @@ import subprocess
 import sys
 
 from setuptools import setup
-from distutils.command.build import build
 from setuptools.command.install import install
 from setuptools.command.sdist import sdist
 
@@ -69,14 +68,12 @@ def get_protocol_command(klass):
 
             # Generate the wayland interface by default
             input_files = [self.xml_file]
-            modules = ["wayland"]
 
             # Unless users says don't build protocols, try to build them
             if not self.no_wayland_protocols:
                 try:
-                    protocol_modules, protocol_files = get_wayland_protocols()
+                    protocol_files = get_wayland_protocols()
                     input_files += protocol_files
-                    modules += protocol_modules
                 except Exception:
                     # but only complain if we ask specifically to build them
                     if self.wayland_protocols:
@@ -97,17 +94,15 @@ def get_protocol_command(klass):
             for protocol in protocols:
                 protocol.output(self.output_dir, protocol_imports)
 
-            # if we're building or installing, add the modules we generated
-            if hasattr(self, 'distribution'):
-                for module in modules:
-                    self.distribution.packages.append('pywayland.protocol.{}'.format(module))
+            self.distribution.packages.extend(
+                f"pywayland.protocol.{protocol.name}" for protocol in protocols
+            )
 
             klass.run(self)
 
     return ProtocolCommand
 
 
-BuildCommand = get_protocol_command(build)
 InstallCommand = get_protocol_command(install)
 SdistCommand = get_protocol_command(sdist)
 
@@ -143,9 +138,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/x-rst',
     cmdclass={
-        'build': BuildCommand,
         'install': InstallCommand,
-        'sdist': SdistCommand
+        'sdist': SdistCommand,
     },
     cffi_modules=['pywayland/ffi_build.py:ffi_builder']
 )
