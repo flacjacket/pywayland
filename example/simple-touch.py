@@ -78,7 +78,7 @@ def handle_seat_capabilities(wl_seat, capabilities):
 
 def handle_shm_format(wl_shm, format):
     print('format')
-    from pywayland.protocol.wayland import Shm
+    from pywayland.protocol.wayland import WlShm
     touch = wl_shm.user_data
 
     if format == Shm.format.argb8888.value:
@@ -94,26 +94,26 @@ def handle_shell_surface_ping(wl_shell_surface, serial):
 
 def handle_registry_global(wl_registry, id, iface_name, version):
     print('global')
-    from pywayland.protocol.wayland import Compositor, Seat, Shell, Shm
+    from pywayland.protocol.wayland import WlCompositor, WlSeat, WlShell, WlShm
 
     touch = wl_registry.user_data
     if iface_name == 'wl_compositor':
-        touch['compositor'] = wl_registry.bind(id, Compositor, version)
+        touch['compositor'] = wl_registry.bind(id, WlCompositor, version)
     elif iface_name == 'wl_seat':
         seat = {}
         seat['touch'] = touch
         seat['wl_touch'] = None
 
-        wl_seat = wl_registry.bind(id, Seat, version)
+        wl_seat = wl_registry.bind(id, WlSeat, version)
         wl_seat.dispatcher['capabilities'] = handle_seat_capabilities
         wl_seat.user_data = seat
         seat['seat'] = wl_seat
     elif iface_name == 'wl_shell':
-        touch['shell'] = wl_registry.bind(id, Shell, version)
+        touch['shell'] = wl_registry.bind(id, WlShell, version)
     elif iface_name == 'wl_shm':
         touch['has_argb'] = False
 
-        shm = wl_registry.bind(id, Shm, version)
+        shm = wl_registry.bind(id, WlShm, version)
         shm.user_data = touch
         shm.dispatcher['format'] = handle_shm_format
         touch['shm'] = shm

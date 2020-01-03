@@ -26,7 +26,7 @@ if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
 
 from pywayland.client import Display  # noqa
-from pywayland.protocol.wayland import Compositor, Shell, Shm  # noqa
+from pywayland.protocol.wayland import WlCompositor, WlShell, WlShm  # noqa
 from pywayland.utils import AnonymousFile  # noqa
 
 WIDTH = 480
@@ -49,11 +49,11 @@ def shell_surface_ping_handler(shell_surface, serial):
 
 
 def shm_format_handler(shm, format_):
-    if format_ == Shm.format.argb8888.value:
+    if format_ == WlShm.format.argb8888.value:
         s = "ARGB8888"
-    elif format_ == Shm.format.xrgb8888.value:
+    elif format_ == WlShm.format.xrgb8888.value:
         s = "XRGB8888"
-    elif format_ == Shm.format.rgb565.value:
+    elif format_ == WlShm.format.rgb565.value:
         s = "RGB565"
     else:
         s = "other format"
@@ -64,13 +64,13 @@ def registry_global_handler(registry, id_, interface, version):
     window = registry.user_data
     if interface == 'wl_compositor':
         print('got compositor')
-        window.compositor = registry.bind(id_, Compositor, version)
+        window.compositor = registry.bind(id_, WlCompositor, version)
     elif interface == 'wl_shell':
         print('got shell')
-        window.shell = registry.bind(id_, Shell, version)
+        window.shell = registry.bind(id_, WlShell, version)
     elif interface == 'wl_shm':
         print('got shm')
-        window.shm = registry.bind(id_, Shm, version)
+        window.shm = registry.bind(id_, WlShm, version)
         window.shm.dispatcher['format'] = shm_format_handler
 
 
@@ -85,7 +85,7 @@ def create_buffer(window):
     with AnonymousFile(size) as fd:
         window.shm_data = mmap.mmap(fd, size, prot=mmap.PROT_READ | mmap.PROT_WRITE, flags=mmap.MAP_SHARED)
         pool = window.shm.create_pool(fd, size)
-        buff = pool.create_buffer(0, WIDTH, HEIGHT, stride, Shm.format.argb8888.value)
+        buff = pool.create_buffer(0, WIDTH, HEIGHT, stride, WlShm.format.argb8888.value)
         pool.destroy()
     return buff
 
