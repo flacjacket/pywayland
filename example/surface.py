@@ -21,7 +21,7 @@ import sys
 this_file = os.path.abspath(__file__)
 this_dir = os.path.split(this_file)[0]
 root_dir = os.path.split(this_dir)[0]
-pywayland_dir = os.path.join(root_dir, 'pywayland')
+pywayland_dir = os.path.join(root_dir, "pywayland")
 if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
 
@@ -62,16 +62,16 @@ def shm_format_handler(shm, format_):
 
 def registry_global_handler(registry, id_, interface, version):
     window = registry.user_data
-    if interface == 'wl_compositor':
-        print('got compositor')
+    if interface == "wl_compositor":
+        print("got compositor")
         window.compositor = registry.bind(id_, WlCompositor, version)
-    elif interface == 'wl_shell':
-        print('got shell')
+    elif interface == "wl_shell":
+        print("got shell")
         window.shell = registry.bind(id_, WlShell, version)
-    elif interface == 'wl_shm':
-        print('got shm')
+    elif interface == "wl_shm":
+        print("got shm")
         window.shm = registry.bind(id_, WlShm, version)
-        window.shm.dispatcher['format'] = shm_format_handler
+        window.shm.dispatcher["format"] = shm_format_handler
 
 
 def registry_global_remover(registry, id_):
@@ -83,7 +83,9 @@ def create_buffer(window):
     size = stride * HEIGHT
 
     with AnonymousFile(size) as fd:
-        window.shm_data = mmap.mmap(fd, size, prot=mmap.PROT_READ | mmap.PROT_WRITE, flags=mmap.MAP_SHARED)
+        window.shm_data = mmap.mmap(
+            fd, size, prot=mmap.PROT_READ | mmap.PROT_WRITE, flags=mmap.MAP_SHARED
+        )
         pool = window.shm.create_pool(fd, size)
         buff = pool.create_buffer(0, WIDTH, HEIGHT, stride, WlShm.format.argb8888.value)
         pool.destroy()
@@ -107,14 +109,14 @@ def redraw(callback, time, destroy_callback=True):
     callback = window.surface.frame()
     window.surface.attach(window.buffer, 0, 0)
     callback.user_data = window
-    callback.dispatcher['done'] = redraw
+    callback.dispatcher["done"] = redraw
     window.surface.commit()
 
 
 def paint(window):
     mm = window.shm_data
     mm.seek(0)
-    mm.write(b'\xff' * 4 * WIDTH * HEIGHT)
+    mm.write(b"\xff" * 4 * WIDTH * HEIGHT)
 
 
 def main():
@@ -125,28 +127,28 @@ def main():
     print("connected to display")
 
     registry = display.get_registry()
-    registry.dispatcher['global'] = registry_global_handler
-    registry.dispatcher['global_remove'] = registry_global_remover
+    registry.dispatcher["global"] = registry_global_handler
+    registry.dispatcher["global_remove"] = registry_global_remover
     registry.user_data = window
 
     display.dispatch(block=True)
     display.roundtrip()
 
     if window.compositor is None:
-        raise RuntimeError('no compositor found')
+        raise RuntimeError("no compositor found")
     elif window.shell is None:
-        raise RuntimeError('no shell found')
+        raise RuntimeError("no shell found")
     elif window.shm is None:
-        raise RuntimeError('no shm found')
+        raise RuntimeError("no shm found")
 
     window.surface = window.compositor.create_surface()
 
     shell_surface = window.shell.get_shell_surface(window.surface)
     shell_surface.set_toplevel()
-    shell_surface.dispatcher['ping'] = shell_surface_ping_handler
+    shell_surface.dispatcher["ping"] = shell_surface_ping_handler
 
     frame_callback = window.surface.frame()
-    frame_callback.dispatcher['done'] = redraw
+    frame_callback.dispatcher["done"] = redraw
     frame_callback.user_data = window
 
     create_window(window)
@@ -156,10 +158,11 @@ def main():
         pass
 
     import time
+
     time.sleep(1)
 
     display.disconnect()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
