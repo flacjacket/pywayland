@@ -27,8 +27,13 @@ pywayland_dir = os.path.join(root_dir, "pywayland")
 if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
 
-from pywayland.client import Display
-from pywayland.protocol.wayland import WlCompositor, WlSeat, WlShell, WlShm
+from pywayland.client import Display  # noqa: E402
+from pywayland.protocol.wayland import (
+    WlCompositor,
+    WlSeat,
+    WlShell,
+    WlShm,
+)  # noqa: E402
 
 
 def create_shm_buffer(touch, width, height):
