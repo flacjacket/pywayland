@@ -27,10 +27,11 @@ pywayland_dir = os.path.join(root_dir, 'pywayland')
 if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
 
+from pywayland.client import Display
+from pywayland.protocol.wayland import WlCompositor, WlSeat, WlShell, WlShm
+
 
 def create_shm_buffer(touch, width, height):
-    from pywayland.protocol.wayland import Shm
-
     stride = width * 4
     size = stride * height
 
@@ -41,7 +42,7 @@ def create_shm_buffer(touch, width, height):
         fd = f.fileno()
         touch['data'] = mmap.mmap(fd, size, mmap.MAP_SHARED, mmap.PROT_READ | mmap.PROT_WRITE)
         pool = touch['shm'].create_pool(fd, size)
-        touch['buffer'] = pool.create_buffer(0, width, height, stride, Shm.format.argb8888.value)
+        touch['buffer'] = pool.create_buffer(0, width, height, stride, WlShm.format.argb8888.value)
         pool.destroy()
 
 
@@ -59,29 +60,26 @@ def handle_touch_motion(wl_touch, time, id, x, y):
 
 def handle_seat_capabilities(wl_seat, capabilities):
     print('capabilities')
-    from pywayland.protocol.wayland import Seat
-
     seat = wl_seat.user_data
     touch = seat['touch']
 
-    if (capabilities & Seat.capability.touch.value) and seat['wl_touch'] is None:
+    if (capabilities & WlSeat.capability.touch.value) and seat['wl_touch'] is None:
         seat['wl_touch'] = wl_seat.get_touch()
         seat['wl_touch'].user_data = touch
         seat['wl_touch'].dispatcher['down'] = handle_touch_down
         # seat['wl_touch'].dispatcher['up'] = handle_touch_up
         seat['wl_touch'].dispatcher['motion'] = handle_touch_motion
-    elif not (capabilities & Seat.capability.touch.value) and seat['wl_touch']:
+    elif not (capabilities & WlSeat.capability.touch.value) and seat['wl_touch']:
         seat['wl_touch'].destroy()
         seat['wl_touch'] = None
     return 1
 
 
-def handle_shm_format(wl_shm, format):
+def handle_shm_format(wl_shm, fmt):
     print('format')
-    from pywayland.protocol.wayland import WlShm
     touch = wl_shm.user_data
 
-    if format == Shm.format.argb8888.value:
+    if fmt == WlShm.format.argb8888.value:
         touch['has_argb'] = True
     return 1
 
@@ -92,28 +90,27 @@ def handle_shell_surface_ping(wl_shell_surface, serial):
     return 1
 
 
-def handle_registry_global(wl_registry, id, iface_name, version):
-    print('global')
-    from pywayland.protocol.wayland import WlCompositor, WlSeat, WlShell, WlShm
+def handle_registry_global(wl_registry, id_num, iface_name, version):
+    print('global', id_num, iface_name)
 
     touch = wl_registry.user_data
     if iface_name == 'wl_compositor':
-        touch['compositor'] = wl_registry.bind(id, WlCompositor, version)
+        touch['compositor'] = wl_registry.bind(id_num, WlCompositor, version)
     elif iface_name == 'wl_seat':
         seat = {}
         seat['touch'] = touch
         seat['wl_touch'] = None
 
-        wl_seat = wl_registry.bind(id, WlSeat, version)
+        wl_seat = wl_registry.bind(id_num, WlSeat, version)
         wl_seat.dispatcher['capabilities'] = handle_seat_capabilities
         wl_seat.user_data = seat
         seat['seat'] = wl_seat
     elif iface_name == 'wl_shell':
-        touch['shell'] = wl_registry.bind(id, WlShell, version)
+        touch['shell'] = wl_registry.bind(id_num, WlShell, version)
     elif iface_name == 'wl_shm':
         touch['has_argb'] = False
 
-        shm = wl_registry.bind(id, WlShm, version)
+        shm = wl_registry.bind(id_num, WlShm, version)
         shm.user_data = touch
         shm.dispatcher['format'] = handle_shm_format
         touch['shm'] = shm
@@ -121,8 +118,6 @@ def handle_registry_global(wl_registry, id, iface_name, version):
 
 
 def touch_create(width, height):
-    from pywayland.client import Display
-
     touch = {}
 
     # Make the display and get the registry
@@ -134,6 +129,7 @@ def touch_create(width, height):
     touch['registry'].dispatcher['global'] = handle_registry_global
 
     touch['display'].dispatch()
+    touch['display'].roundtrip()
     touch['display'].roundtrip()
 
     if not touch['has_argb']:

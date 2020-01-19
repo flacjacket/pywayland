@@ -129,7 +129,7 @@ def main():
     registry.dispatcher['global_remove'] = registry_global_remover
     registry.user_data = window
 
-    display.dispatch()
+    display.dispatch(block=True)
     display.roundtrip()
 
     if window.compositor is None:
@@ -152,7 +152,7 @@ def main():
     create_window(window)
     redraw(frame_callback, 0, destroy_callback=False)
 
-    while display.dispatch() != -1:
+    while display.dispatch(block=True) != -1:
         pass
 
     import time
