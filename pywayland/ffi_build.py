@@ -131,6 +131,7 @@ int wl_display_dispatch_queue_pending(struct wl_display *display,
 int wl_display_roundtrip(struct wl_display *display);
 int wl_display_roundtrip_queue(struct wl_display *display,
                                struct wl_event_queue *queue);
+int wl_display_get_error(struct wl_display *display);
 int wl_display_read_events(struct wl_display *display);
 int wl_display_prepare_read(struct wl_display *display);
 int wl_display_prepare_read_queue(struct wl_display *display,

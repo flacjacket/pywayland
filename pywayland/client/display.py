@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union
+from typing import Optional, Union, TYPE_CHECKING
 from weakref import WeakSet
 
 from pywayland import ffi, lib
 from pywayland.client.eventqueue import EventQueue
 from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import WlDisplay
+
+if TYPE_CHECKING:
+    from pywayland._ffi import DisplayCdata, NullCdata  # noqa: F401
 
 
 class Display(WlDisplay.proxy_class):  # type: ignore
@@ -86,6 +89,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
 
         self._children: WeakSet = WeakSet()
         self._name_or_fd = name_or_fd
+        self._ptr: Optional["DisplayCdata"] = None
 
     def __enter__(self) -> "Display":
         """Connect to the display in a context manager"""
@@ -113,7 +117,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         else:
             # connect using string by name, or use default
             if self._name_or_fd is None:
-                name = ffi.NULL
+                name: Union["NullCdata", bytes] = ffi.NULL
             else:
                 name = self._name_or_fd.encode()
             self._ptr = lib.wl_display_connect(name)
@@ -149,6 +153,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         Return the file descriptor associated with a display so it can be
         integrated into the client's main loop.
         """
+        assert self._ptr is not None
         return lib.wl_display_get_fd(self._ptr)
 
     @ensure_valid
@@ -168,15 +173,18 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             It is not possible to check if there are events on the queue or
             not.
         """
+        assert self._ptr is not None
         if block:
             if queue is None:
                 ret = lib.wl_display_dispatch(self._ptr)
             else:
+                assert queue._ptr is not None
                 ret = lib.wl_display_dispatch_queue(self._ptr, queue._ptr)
         else:
             if queue is None:
                 ret = lib.wl_display_dispatch_pending(self._ptr)
             else:
+                assert queue._ptr is not None
                 ret = lib.wl_display_dispatch_queue_pending(self._ptr, queue._ptr)
 
         if ret == -1:
@@ -207,9 +215,11 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         :type queue: :class:`~pywayland.client.EventQueue`
         :returns: The number of dispatched events on success or -1 on failure
         """
+        assert self._ptr is not None
         if queue is None:
             return lib.wl_display_roundtrip(self._ptr)
         else:
+            assert queue._ptr is not None
             return lib.wl_display_roundtrip_queue(self._ptr, queue._ptr)
 
     @ensure_valid
@@ -223,10 +233,12 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         :param queue: If specified, queue the events onto the given event
                       queue, otherwise the default display queue will be used.
         """
+        assert self._ptr is not None
         while True:
             if queue is None:
                 prepared = lib.wl_display_prepare_read(self._ptr)
             else:
+                assert queue._ptr is not None
                 prepared = lib.wl_display_prepare_read_queue(self._ptr, queue._ptr)
 
             if prepared == 0:
@@ -254,4 +266,5 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         EAGAIN and -1 returned.  In that case, use poll on the display file
         descriptor to wait for it to become writable again.
         """
+        assert self._ptr is not None
         return lib.wl_display_flush(self._ptr)

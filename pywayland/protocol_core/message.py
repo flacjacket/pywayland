@@ -71,7 +71,7 @@ class Message:
             signature = f"{self.version}{signature}"
 
         wl_message_struct.name = name = ffi.new('char[]', self.name.encode())
-        wl_message_struct.signature = signature = ffi.new('char[]', signature.encode())
+        wl_message_struct.signature = cdata_signature = ffi.new('char[]', signature.encode())
 
         wl_message_struct.types = types = ffi.new('struct wl_interface* []', len(list(self._marshaled_arguments)))
 
@@ -79,9 +79,10 @@ class Message:
             if argument.interface is None:
                 types[index] = ffi.NULL
             else:
+                assert argument.interface._ptr is not None
                 types[index] = argument.interface._ptr
 
-        return name, signature, types
+        return name, cdata_signature, types
 
     def c_to_arguments(self, args_ptr):
         """Create a list of arguments

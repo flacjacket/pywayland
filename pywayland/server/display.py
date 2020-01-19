@@ -78,8 +78,7 @@ class Display:
                 raise RuntimeError("Unable to create socket")
             name = ffi.string(name_ptr)
         else:
-            name_ptr = ffi.new('char []', name.encode())
-            ret = lib.wl_display_add_socket(self._ptr, name_ptr)
+            ret = lib.wl_display_add_socket(self._ptr, name.encode())
 
             if ret == -1:
                 # TODO: raise better

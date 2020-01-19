@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Optional
 from pywayland import ffi, lib
 
 if TYPE_CHECKING:
+    from pywayland._ffi import QueueCdata  # noqa: F401
     from pywayland.client import Display  # noqa: F401
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
@@ -52,7 +53,7 @@ class EventQueue:
 
         # create a destructor, save data and display
         destructor = functools.partial(_event_queue_destroy, display)
-        self._ptr = ffi.gc(ptr, destructor)
+        self._ptr: Optional["QueueCdata"] = ffi.gc(ptr, destructor)
         self._display: Optional["Display"] = display
 
         display._children.add(self)

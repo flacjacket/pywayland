@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, Type
+from typing import Callable, Type, TYPE_CHECKING
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi
@@ -21,6 +21,9 @@ from .message import Message
 from .proxy import Proxy
 from .resource import Resource
 from .globals import Global
+
+if TYPE_CHECKING:
+    from pywayland._ffi import Cdata
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
@@ -49,7 +52,7 @@ class Interface(metaclass=InterfaceMeta):
     :func:`Interface.request` decorators.
     """
 
-    _ptr = None
+    _ptr: "Cdata"
     name: str
     version: int
     proxy_class: Type[Proxy]
