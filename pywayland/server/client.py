@@ -14,13 +14,18 @@
 
 import functools
 import logging
+from typing import Any, Optional, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
 from .display import Display
+from .listener import Listener
+
+if TYPE_CHECKING:
+    from pywayland import _ffi
 
 
-def _client_destroy(display: Display, cdata) -> None:
+def _client_destroy(display: Display, cdata: "_ffi.ClientCdata") -> None:
     # do nothing if the display is already destroyed
     if display.destroyed:
         logging.error("Display destroyed before client")
@@ -54,10 +59,10 @@ class Client:
         ptr = lib.wl_client_create(display._ptr, fd)
 
         destructor = functools.partial(_client_destroy, display)
-        self._ptr = ffi.gc(ptr, destructor)
-        self._display = display
+        self._ptr: Optional["_ffi.ClientCdata"] = ffi.gc(ptr, destructor)
+        self._display: Optional[Display] = display
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy the client"""
         if self._ptr is not None:
             ffi.release(self._ptr)
@@ -65,7 +70,7 @@ class Client:
             self._display = None
 
     @ensure_valid
-    def flush(self):
+    def flush(self) -> None:
         """Flush pending events to the client
 
         Events sent to clients are queued in a buffer and written to the socket
@@ -73,19 +78,21 @@ class Client:
         back to block in the event loop.  This function flushes all queued up
         events for a client immediately.
         """
+        assert self._ptr is not None
         lib.wl_client_flush(self._ptr)
 
     @ensure_valid
-    def add_destroy_listener(self, listener):
+    def add_destroy_listener(self, listener: Listener) -> None:
         """Add a listener for the destroy signal
 
         :param listener: The listener object
         :type listener: :class:`~pywayland.server.Listener`
         """
+        assert self._ptr is not None
         lib.wl_client_add_destroy_listener(self._ptr, listener._ptr)
 
     @ensure_valid
-    def get_object(self, object_id):
+    def get_object(self, object_id: int) -> Any:
         """Look up an object in the client name space
 
         This looks up an object in the client object name space by its object
@@ -96,6 +103,7 @@ class Client:
         :returns:
             The object, or ``None`` if there is not object for the given ID
         """
+        assert self._ptr is not None
 
         res_ptr = lib.wl_client_get_object(self._ptr, object_id)
         # If the object doesn't exist, this returns NULL, and asking for
