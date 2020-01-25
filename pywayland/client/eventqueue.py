@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 
-def _event_queue_destroy(display: "Display", cdata: "_ffi.QueueCdata") -> None:
+def _event_queue_destroy(display: "Display", cdata: "QueueCdata") -> None:
     # we should be careful that the display is still around
     if display._ptr is None:
         return
