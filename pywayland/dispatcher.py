@@ -13,8 +13,12 @@
 # limitations under the License.
 
 import traceback
+from typing import Callable, List, Optional, Union
 
+from pywayland.protocol_core.message import Message
 from pywayland import ffi, lib
+
+CallbackT = Callable[..., Optional[int]]
 
 
 # int (*wl_dispatcher_func_t)(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *)
@@ -79,23 +83,24 @@ class Dispatcher:
     :type destructor:
         `bool`
     """
-    def __init__(self, messages, destructor=False):
+
+    def __init__(self, messages: List[Message], destructor: bool = False) -> None:
         self.messages = messages
 
         # Create a map of message names to message opcodes
         self._names = {msg.name: opcode for opcode, msg in enumerate(messages)}
-        self._callback = [None] * len(messages)
+        self._callback: List[Optional[CallbackT]] = [None] * len(messages)
 
         if destructor:
             self.destructor = None
 
-    def __getitem__(self, opcode_or_name):
-        if opcode_or_name in self._names:
+    def __getitem__(self, opcode_or_name: Union[str, int]) -> Optional[CallbackT]:
+        if isinstance(opcode_or_name, str):
             opcode_or_name = self._names[opcode_or_name]
 
         return self._callback[opcode_or_name]
 
-    def __setitem__(self, opcode_or_name, function):
-        if opcode_or_name in self._names:
+    def __setitem__(self, opcode_or_name: Union[str, int], function: CallbackT) -> None:
+        if isinstance(opcode_or_name, str):
             opcode_or_name = self._names[opcode_or_name]
         self._callback[opcode_or_name] = function
