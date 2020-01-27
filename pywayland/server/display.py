@@ -12,9 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import TYPE_CHECKING
+
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
 from .eventloop import EventLoop
+
+if TYPE_CHECKING:
+    from pywayland._ffi import DisplayCdata
+
+
+def _full_display_gc(ptr: "DisplayCdata") -> None:
+    """Destroy the Display cdata pointer, but only after destroying the clients"""
+    lib.wl_display_destroy_clients(ptr)
+    lib.wl_display_destroy(ptr)
 
 
 class Display:
@@ -26,7 +37,15 @@ class Display:
             if ptr == ffi.NULL:
                 raise MemoryError("Unable to create wl_display object")
 
-        self._ptr = ffi.gc(ptr, lib.wl_display_destroy)
+        self._ptr = ffi.gc(ptr, _full_display_gc)
+
+    def __enter__(self) -> "Display":
+        """Use the Display in a context manager, which automatically destroys the Display"""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Destroy the used display"""
+        self.destroy()
 
     @property
     def destroyed(self) -> bool:
