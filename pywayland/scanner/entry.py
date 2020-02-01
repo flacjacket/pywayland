@@ -59,10 +59,10 @@ class Entry(Element):
 
         try:
             int(self.name)
-            printer('{}_{} = {}'.format(enum_name, self.name, value))
+            printer("{}_{} = {}".format(enum_name, self.name, value))
         except ValueError:
             if self.name == "name":
                 name = "name_"
             else:
                 name = self.name
-            printer('{} = {}'.format(name, value))
+            printer("{} = {}".format(name, value))

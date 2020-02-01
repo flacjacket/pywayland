@@ -52,9 +52,9 @@ class Enum(Element):
         """Generate the output for the enum to the printer"""
         name = self.name if self.name != "version" else "version_"
         if self.is_bitfield:
-            printer('class {0}(enum.IntFlag):'.format(name))
+            printer("class {0}(enum.IntFlag):".format(name))
         else:
-            printer('class {0}(enum.IntEnum):'.format(name))
+            printer("class {0}(enum.IntEnum):".format(name))
         with printer.indented():
             for entry in self.entry:
                 entry.output(self.name, printer)

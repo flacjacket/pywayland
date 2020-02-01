@@ -133,14 +133,13 @@ class EventLoop:
 
             :meth:`pywayland.server.eventloop.EventSource.check()`
         """
-        callback = CallbackInfo(
-            callback=callback,
-            data=data
-        )
+        callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
         self.callbacks.append(handle)
 
-        event_source_cdata = lib.wl_event_loop_add_fd(self._ptr, fd, mask.value, lib.event_loop_fd_func, handle)
+        event_source_cdata = lib.wl_event_loop_add_fd(
+            self._ptr, fd, mask.value, lib.event_loop_fd_func, handle
+        )
         event_source = EventSource(self, event_source_cdata)
         self.event_sources.add(event_source)
 
@@ -165,14 +164,13 @@ class EventLoop:
         :type data: `object`
         :returns: :class:`EventSource` for specified callback
         """
-        callback = CallbackInfo(
-            callback=callback,
-            data=data
-        )
+        callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
         self.callbacks.append(handle)
 
-        event_source_cdata = lib.wl_event_loop_add_signal(self._ptr, signal_number, lib.event_loop_signal_func, handle)
+        event_source_cdata = lib.wl_event_loop_add_signal(
+            self._ptr, signal_number, lib.event_loop_signal_func, handle
+        )
         event_source = EventSource(self, event_source_cdata)
         self.event_sources.add(event_source)
 
@@ -198,14 +196,13 @@ class EventLoop:
 
             :meth:`pywayland.server.eventloop.EventSource.timer_update()`
         """
-        callback = CallbackInfo(
-            callback=callback,
-            data=data
-        )
+        callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
         self.callbacks.append(handle)
 
-        event_source_cdata = lib.wl_event_loop_add_timer(self._ptr, lib.event_loop_timer_func, handle)
+        event_source_cdata = lib.wl_event_loop_add_timer(
+            self._ptr, lib.event_loop_timer_func, handle
+        )
         event_source = EventSource(self, event_source_cdata)
         self.event_sources.add(event_source)
 
@@ -220,14 +217,13 @@ class EventLoop:
         :param data: User data to send to callback
         :returns: :class:`EventSource` for specified callback
         """
-        callback = CallbackInfo(
-            callback=callback,
-            data=data
-        )
+        callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
         self.callbacks.append(handle)
 
-        event_source_cdata = lib.wl_event_loop_add_idle(self._ptr, lib.event_loop_idle_func, handle)
+        event_source_cdata = lib.wl_event_loop_add_idle(
+            self._ptr, lib.event_loop_idle_func, handle
+        )
         event_source = EventSource(self, event_source_cdata)
         self.event_sources.add(event_source)
 
@@ -259,6 +255,7 @@ class EventSource:
     :param cdata: The struct corresponding to the EventSource
     :type cdata: `ffi cdata`
     """
+
     def __init__(self, eventloop, cdata):
         self._eventloop = eventloop
         self._ptr = cdata

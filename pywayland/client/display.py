@@ -83,6 +83,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
     :type name_or_fd:
         ``int`` or ``str``
     """
+
     def __init__(self, name_or_fd: Union[int, str] = None) -> None:
         """Constructor for the Display object"""
         super().__init__(None)

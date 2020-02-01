@@ -58,7 +58,7 @@ class Interface(Element):
 
         Camel cases the name of the interface, to be used as the class name.
         """
-        return ''.join(x.capitalize() for x in self.name.split('_'))
+        return "".join(x.capitalize() for x in self.name.split("_"))
 
     def output(self, printer: Printer, module_imports: Dict[str, str]) -> None:
         """Generate the output for the interface to the printer"""
@@ -69,24 +69,29 @@ class Interface(Element):
             for _import in method.imports(self.name, module_imports)
         )
 
-        needs_argument_type = any(len(method.arg) > 0 for method in self.request) \
-            or any(len(method.arg) > 0 for method in self.event)
+        needs_argument_type = any(
+            len(method.arg) > 0 for method in self.request
+        ) or any(len(method.arg) > 0 for method in self.event)
 
         if self.enum:
-            printer('import enum')
+            printer("import enum")
             printer()
         if needs_argument_type:
-            printer('from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource')
+            printer(
+                "from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource"
+            )
         else:
-            printer('from pywayland.protocol_core import Global, Interface, Proxy, Resource')
+            printer(
+                "from pywayland.protocol_core import Global, Interface, Proxy, Resource"
+            )
 
         for module, import_ in sorted(imports):
-            printer('from {} import {}'.format(module, import_))
+            printer("from {} import {}".format(module, import_))
         printer()
         printer()
 
         # Class definition
-        printer('class {}(Interface):'.format(self.class_name))
+        printer("class {}(Interface):".format(self.class_name))
         with printer.indented():
             # Docstring
             if self.description:
@@ -96,7 +101,7 @@ class Interface(Element):
 
             # Class attributes
             printer('name = "{}"'.format(self.name))
-            printer('version = {}'.format(self.version))
+            printer("version = {}".format(self.version))
 
             # Enums
             for enum in self.enum:
@@ -133,7 +138,7 @@ class Interface(Element):
 
         printer()
         printer()
-        printer('{}._gen_c()'.format(self.class_name))
+        printer("{}._gen_c()".format(self.class_name))
         printer(f"{self.class_name}.proxy_class = {proxy_class_name}")
         printer(f"{self.class_name}.resource_class = {resource_class_name}")
         printer(f"{self.class_name}.global_class = {global_class_name}")

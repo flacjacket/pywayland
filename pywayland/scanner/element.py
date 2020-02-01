@@ -48,7 +48,9 @@ class Element(abc.ABC):
         return obj
 
     @staticmethod
-    def parse_optional_child(element: ET.Element, child_class: Type[T], name: str) -> Optional[T]:
+    def parse_optional_child(
+        element: ET.Element, child_class: Type[T], name: str
+    ) -> Optional[T]:
         obj = element.find(name)
         if obj is None:
             return None
@@ -56,7 +58,9 @@ class Element(abc.ABC):
         return child_class.parse(obj)
 
     @staticmethod
-    def parse_repeated_child(element: ET.Element, child_class: Type[T], name: str) -> List[T]:
+    def parse_repeated_child(
+        element: ET.Element, child_class: Type[T], name: str
+    ) -> List[T]:
         obj = [child_class.parse(elem) for elem in element.findall(name)]
         return obj
 
@@ -65,6 +69,6 @@ class Element(abc.ABC):
         text = element.text
         if text:
             # We need to strip each line while keeping paragraph breaks
-            return textwrap.dedent(text.expandtabs(8).rstrip().lstrip('\n'))
+            return textwrap.dedent(text.expandtabs(8).rstrip().lstrip("\n"))
 
         return None

@@ -52,7 +52,7 @@ def get_wayland_protocols():
 
 def main():
     this_dir = os.path.split(__file__)[0]
-    protocol_dir = os.path.join(this_dir, '..', 'protocol')
+    protocol_dir = os.path.join(this_dir, "..", "protocol")
 
     # try to figure out where the wayland.xml file is installed, otherwise use
     # default
@@ -63,19 +63,29 @@ def main():
         xml_file = "/usr/share/wayland/wayland.xml"
 
     parser = argparse.ArgumentParser(
-        description='Generate wayland protocol files from xml'
+        description="Generate wayland protocol files from xml"
     )
     parser.add_argument(
-        '-o', '--output-dir', metavar='DIR', default=protocol_dir, type=str,
-        help='Directory to output protocol files'
+        "-o",
+        "--output-dir",
+        metavar="DIR",
+        default=protocol_dir,
+        type=str,
+        help="Directory to output protocol files",
     )
     parser.add_argument(
-        "--with-protocols", action="store_true",
-        help="Also locate and build wayland-protocol xml files (using pkg-config)"
+        "--with-protocols",
+        action="store_true",
+        help="Also locate and build wayland-protocol xml files (using pkg-config)",
     )
     parser.add_argument(
-        "-i", "--input", metavar="XML_FILE", default=[xml_file], nargs="+", type=str,
-        help="Path to input xml file to scan"
+        "-i",
+        "--input",
+        metavar="XML_FILE",
+        default=[xml_file],
+        nargs="+",
+        type=str,
+        help="Path to input xml file to scan",
     )
 
     args = parser.parse_args()
@@ -89,9 +99,7 @@ def main():
         protocols_files = get_wayland_protocols()
         input_files += protocols_files
 
-    protocols = [
-        Protocol.parse_file(input_file) for input_file in input_files
-    ]
+    protocols = [Protocol.parse_file(input_file) for input_file in input_files]
     logger.info("Parsed {} input xml files".format(len(protocols)))
 
     protocol_imports = {

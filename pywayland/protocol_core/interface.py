@@ -33,6 +33,7 @@ class InterfaceMeta(type):
 
     Initializes empty lists for events and requests for the given class.
     """
+
     def __init__(self, name, bases, dct):
         self.events = []
         self.requests = []
@@ -110,13 +111,15 @@ class Interface(metaclass=InterfaceMeta):
         """
         cls.registry = WeakValueDictionary()
 
-        cls._ptr.name = name = ffi.new('char[]', cls.name.encode())
+        cls._ptr.name = name = ffi.new("char[]", cls.name.encode())
         cls._ptr.version = cls.version
 
         keep_alive = []
         # Determine the number of methods to assign and assign them
         cls._ptr.method_count = len(cls.requests)
-        cls._ptr.methods = methods_ptr = ffi.new("struct wl_message[]", len(cls.requests))
+        cls._ptr.methods = methods_ptr = ffi.new(
+            "struct wl_message[]", len(cls.requests)
+        )
         # Iterate over the methods
         for i, message in enumerate(cls.requests):
             keep_alive.extend(message.build_message_struct(methods_ptr[i]))

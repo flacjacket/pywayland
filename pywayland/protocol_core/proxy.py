@@ -48,7 +48,9 @@ class Proxy:
         # parent display is the root-most client Display object, all proxies
         # should keep the display alive
         if display is None:
-            raise ValueError("Non-Display Proxy objects must be associated to a Display")
+            raise ValueError(
+                "Non-Display Proxy objects must be associated to a Display"
+            )
         display._children.add(self)
 
         if ptr == ffi.NULL:
@@ -56,11 +58,13 @@ class Proxy:
 
         # note that even though we cast to a proxy here, the ptr may be a
         # wl_display, so the methods must still cast to 'struct wl_proxy *'
-        ptr = ffi.cast('struct wl_proxy *', ptr)
+        ptr = ffi.cast("struct wl_proxy *", ptr)
         self._ptr = ffi.gc(ptr, lib.wl_proxy_destroy)
 
         self._handle = ffi.new_handle(self)
-        lib.wl_proxy_add_dispatcher(self._ptr, lib.dispatcher_func, self._handle, ffi.NULL)
+        lib.wl_proxy_add_dispatcher(
+            self._ptr, lib.dispatcher_func, self._handle, ffi.NULL
+        )
 
         self.interface.registry[self._ptr] = self
 
@@ -93,7 +97,7 @@ class Proxy:
         args_ptr = self.interface.requests[opcode].arguments_to_c(*args)
 
         # Write the event into the connection queue
-        proxy = ffi.cast('struct wl_proxy *', self._ptr)
+        proxy = ffi.cast("struct wl_proxy *", self._ptr)
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
     @ensure_valid
@@ -103,7 +107,9 @@ class Proxy:
         args_ptr = self.interface.requests[opcode].arguments_to_c(*args)
 
         # Write the event into the connection queue and build a new proxy from the given args
-        proxy = ffi.cast('struct wl_proxy *', self._ptr)
-        proxy_ptr = lib.wl_proxy_marshal_array_constructor(proxy, opcode, args_ptr, interface._ptr)
+        proxy = ffi.cast("struct wl_proxy *", self._ptr)
+        proxy_ptr = lib.wl_proxy_marshal_array_constructor(
+            proxy, opcode, args_ptr, interface._ptr
+        )
 
         return interface.proxy_class(proxy_ptr, self._display)

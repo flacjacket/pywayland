@@ -19,10 +19,10 @@ from .version import __version__  # noqa: F401
 try:
     from ._ffi import ffi, lib  # noqa: F401
 except ImportError:  # pragma: no cover
-    raise ImportError("No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`")
+    raise ImportError(
+        "No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`"
+    )
 
-__wayland_version__ = '{}.{}.{}'.format(
-    lib.WAYLAND_VERSION_MAJOR,
-    lib.WAYLAND_VERSION_MINOR,
-    lib.WAYLAND_VERSION_MICRO
+__wayland_version__ = "{}.{}.{}".format(
+    lib.WAYLAND_VERSION_MAJOR, lib.WAYLAND_VERSION_MINOR, lib.WAYLAND_VERSION_MICRO
 )

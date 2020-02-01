@@ -42,10 +42,13 @@ class Message:
     :type types:
         `list`
     """
-    def __init__(self, func: Callable, arguments: List[Argument], version: Optional[int]) -> None:
+
+    def __init__(
+        self, func: Callable, arguments: List[Argument], version: Optional[int]
+    ) -> None:
         self.py_func = func
 
-        self.name = func.__name__.strip('_')
+        self.name = func.__name__.strip("_")
         self.arguments = arguments
         self.version = version
 
@@ -70,10 +73,14 @@ class Message:
         if self.version is not None:
             signature = f"{self.version}{signature}"
 
-        wl_message_struct.name = name = ffi.new('char[]', self.name.encode())
-        wl_message_struct.signature = cdata_signature = ffi.new('char[]', signature.encode())
+        wl_message_struct.name = name = ffi.new("char[]", self.name.encode())
+        wl_message_struct.signature = cdata_signature = ffi.new(
+            "char[]", signature.encode()
+        )
 
-        wl_message_struct.types = types = ffi.new('struct wl_interface* []', len(list(self._marshaled_arguments)))
+        wl_message_struct.types = types = ffi.new(
+            "struct wl_interface* []", len(list(self._marshaled_arguments))
+        )
 
         for index, argument in enumerate(self._marshaled_arguments):
             if argument.interface is None:
@@ -126,10 +133,14 @@ class Message:
                     args.append(None)
                 else:
                     iface = self.types[i]
-                    proxy_ptr = ffi.cast('struct wl_proxy *', arg_ptr.o)
+                    proxy_ptr = ffi.cast("struct wl_proxy *", arg_ptr.o)
                     obj = iface.proxy_class.registry.get(proxy_ptr)
                     if obj is None:
-                        raise RuntimeError("Unable to get object for {}, was it garbage collected?".format(proxy_ptr))
+                        raise RuntimeError(
+                            "Unable to get object for {}, was it garbage collected?".format(
+                                proxy_ptr
+                            )
+                        )
                     args.append(obj)
             elif argument.argument_type == ArgumentType.NewId:
                 # TODO
@@ -153,7 +164,7 @@ class Message:
         :returns: cdata `union wl_argument []` of args
         """
         nargs = len(list(self._marshaled_arguments))
-        args_ptr = ffi.new('union wl_argument []', nargs)
+        args_ptr = ffi.new("union wl_argument []", nargs)
 
         arg_iter = iter(args)
         refs = []
@@ -184,7 +195,7 @@ class Message:
                         raise Exception
                     new_arg = ffi.NULL
                 else:
-                    new_arg = ffi.new('char []', arg.encode())
+                    new_arg = ffi.new("char []", arg.encode())
                     refs.append(new_arg)
                 args_ptr[i].s = new_arg
             elif argument.argument_type == ArgumentType.Object:
@@ -193,13 +204,13 @@ class Message:
                         raise Exception
                     new_arg = ffi.NULL
                 else:
-                    new_arg = ffi.cast('struct wl_object *', arg._ptr)
+                    new_arg = ffi.cast("struct wl_object *", arg._ptr)
                     refs.append(new_arg)
                 args_ptr[i].o = new_arg
             elif argument.argument_type == ArgumentType.Array:
                 # TODO: this is a bit messy, we probably don't want to put everything in one buffer like this
-                new_arg = ffi.new('struct wl_array *')
-                new_data = ffi.new('void []', len(arg))
+                new_arg = ffi.new("struct wl_array *")
+                new_data = ffi.new("void []", len(arg))
                 new_arg.alloc = new_arg.size = len(arg)
                 ffi.buffer(new_data)[:] = arg
                 refs.append(new_arg)

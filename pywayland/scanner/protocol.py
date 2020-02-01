@@ -48,8 +48,10 @@ class Protocol(Element):
         if not os.path.exists(input_file):
             raise ValueError("Input xml file does not exist: {}".format(input_file))
         xmlroot = ET.parse(input_file).getroot()
-        if xmlroot.tag != 'protocol':
-            raise ValueError("Input file not a valid Wayland protocol file: {}".format(input_file))
+        if xmlroot.tag != "protocol":
+            raise ValueError(
+                "Input file not a valid Wayland protocol file: {}".format(input_file)
+            )
 
         return cls.parse(xmlroot)
 
@@ -71,7 +73,7 @@ class Protocol(Element):
         :param output_dir: Path of directory to output protocol files to
         :type output_dir: string
         """
-        protocol_name = self.name.replace('-', '_')
+        protocol_name = self.name.replace("-", "_")
 
         output_dir = os.path.join(output_dir, protocol_name)
         if not os.path.exists(output_dir):
@@ -86,17 +88,19 @@ class Protocol(Element):
 
         printer()
         for iface in sorted(self.interface, key=lambda x: x.name):
-            printer('from .{} import {}  # noqa: F401'.format(iface.name, iface.class_name))
+            printer(
+                "from .{} import {}  # noqa: F401".format(iface.name, iface.class_name)
+            )
 
-        init_path = os.path.join(output_dir, '__init__.py')
-        with open(init_path, 'wb') as f:
+        init_path = os.path.join(output_dir, "__init__.py")
+        with open(init_path, "wb") as f:
             printer.write(f)
 
         # Now build all the modules
         for iface in self.interface:
             module_path = os.path.join(output_dir, iface.name + ".py")
 
-            printer = Printer(self.name.replace('-', '_'), iface.name, module_imports)
+            printer = Printer(self.name.replace("-", "_"), iface.name, module_imports)
             if self.copyright:
                 self.copyright.output(printer)
             else:
@@ -105,5 +109,5 @@ class Protocol(Element):
 
             iface.output(printer, module_imports)
 
-            with open(module_path, 'wb') as f:
+            with open(module_path, "wb") as f:
                 printer.write(f)

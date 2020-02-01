@@ -34,7 +34,9 @@ class Method(Element, abc.ABC):
     description: Optional[Description]
     arg: List[Argument]
 
-    def imports(self, interface: str, module_imports: Dict[str, str]) -> List[Tuple[str, str]]:
+    def imports(
+        self, interface: str, module_imports: Dict[str, str]
+    ) -> List[Tuple[str, str]]:
         """Get the imports required for each of the interfaces
 
         :param interface:
@@ -86,7 +88,13 @@ class Method(Element, abc.ABC):
     def output_body(self, printer: Printer, opcode: int) -> None:
         pass
 
-    def output(self, printer: Printer, opcode: int, in_class: str, module_imports: Dict[str, str]) -> None:
+    def output(
+        self,
+        printer: Printer,
+        opcode: int,
+        in_class: str,
+        module_imports: Dict[str, str],
+    ) -> None:
         """Generate the output for the given method to the printer"""
         if len(self.arg) > 0:
             printer(f"@{in_class}.{self.method_type}(")
@@ -103,8 +111,8 @@ class Method(Element, abc.ABC):
                 printer(f"@{in_class}.{self.method_type}()")
 
         # Generate the definition of the method and args
-        args = ', '.join(['self'] + list(self.method_args))
-        printer('def {}({}):'.format(self.name, args))
+        args = ", ".join(["self"] + list(self.method_args))
+        printer("def {}({}):".format(self.name, args))
 
         with printer.indented():
             # Write the documentation

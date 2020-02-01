@@ -43,6 +43,7 @@ class EventQueue:
     :type display:
         :class:`~pywayland.client.Display`
     """
+
     def __init__(self, display: "Display") -> None:
         """Constructor for the EventQueue object"""
         # check that we attach to a valid display

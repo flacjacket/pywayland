@@ -22,7 +22,8 @@ def notify_func(listener_ptr, data):
     # wl_listener_container for the given listener
     container = ffi.cast(
         "struct wl_listener_container *",
-        ffi.cast("char*", listener_ptr) - ffi.offsetof("struct wl_listener_container", "destroy_listener")
+        ffi.cast("char*", listener_ptr)
+        - ffi.offsetof("struct wl_listener_container", "destroy_listener"),
     )
     listener = ffi.from_handle(container.handle)
 
@@ -48,6 +49,7 @@ class Listener:
     :param function: callback function for the Listener
     :type function: callable
     """
+
     def __init__(self, function):
         self._handle = ffi.new_handle(self)
 
@@ -78,6 +80,7 @@ class Signal:
     using #wl_signal_emit, which will invoke all listeners until that listener
     is removed by wl_list_remove() (or whenever the signal is destroyed).
     """
+
     def __init__(self, *, ptr=None, data_wrapper=None):
         if ptr is None:
             self._ptr = ffi.new("struct wl_listener *")

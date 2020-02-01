@@ -33,7 +33,7 @@ class Event(Method):
     Child elements: `description` and `arg``
     """
 
-    method_type = 'event'
+    method_type = "event"
 
     @classmethod
     def parse(cls, element: ET.Element) -> "Event":
@@ -67,5 +67,5 @@ class Event(Method):
 
     def output_body(self, printer: Printer, opcode: int) -> None:
         """Output the body of the event to the printer"""
-        args = ', '.join([str(opcode)] + list(self.method_args))
-        printer('self._post_event({})'.format(args))
+        args = ", ".join([str(opcode)] + list(self.method_args))
+        printer("self._post_event({})".format(args))

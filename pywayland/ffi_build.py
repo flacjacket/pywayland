@@ -426,10 +426,10 @@ os_create_anonymous_file(off_t size)
 
 ffi_builder = FFI()
 ffi_builder.set_source(
-    'pywayland._ffi', SOURCE, libraries=['wayland-client', 'wayland-server']
+    "pywayland._ffi", SOURCE, libraries=["wayland-client", "wayland-server"]
 )
 ffi_builder.cdef(CDEF)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ffi_builder.compile()

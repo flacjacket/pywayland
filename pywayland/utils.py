@@ -22,10 +22,11 @@ def ensure_valid(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self._ptr is None:
-            raise ValueError("{cls} object has been destroyed".format(
-                cls=self.__class__.__name__
-            ))
+            raise ValueError(
+                "{cls} object has been destroyed".format(cls=self.__class__.__name__)
+            )
         return func(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -39,6 +40,7 @@ class AnonymousFile:
     This class provides a content manager, that is, it can be used with Python
     ``with`` statements, where the value returned is the file descriptor.
     """
+
     def __init__(self, size):
         self.size = size
         self.fd = None

@@ -46,8 +46,8 @@ class Copyright(Element):
         return cls(text=text)
 
     def output(self, printer: Printer) -> None:
-        for line in self.text.split('\n'):
+        for line in self.text.split("\n"):
             if line:
-                printer('# ' + line.rstrip())
+                printer("# " + line.rstrip())
             else:
-                printer('#')
+                printer("#")

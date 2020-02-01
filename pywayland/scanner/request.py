@@ -22,8 +22,8 @@ from .method import Method
 from .printer import Printer
 
 # For 'new_id' types with no 'interface'
-NO_IFACE = 'interface'
-NO_IFACE_VERSION = 'version'
+NO_IFACE = "interface"
+NO_IFACE_VERSION = "version"
 
 
 @dataclass(frozen=True)
@@ -37,7 +37,7 @@ class Request(Method):
     Child elements: `description` and `arg`
     """
 
-    method_type = 'request'
+    method_type = "request"
 
     type: Optional[str]
 
@@ -87,7 +87,7 @@ class Request(Method):
         for arg in self.arg:
             if arg.type == ArgumentType.NewId:
                 if not arg.interface:
-                    yield '{}.name'.format(NO_IFACE)
+                    yield "{}.name".format(NO_IFACE)
                     yield NO_IFACE_VERSION
             else:
                 yield arg.name
@@ -132,13 +132,11 @@ class Request(Method):
                 id_class = self.new_id.interface_class
             else:
                 id_class = NO_IFACE
-            args = ', '.join([str(opcode), id_class] + list(self.marshal_args))
-            printer('{} = self._marshal_constructor({})'.format(
-                self.new_id.name, args
-            ))
-            printer('return {}'.format(self.new_id.name))
+            args = ", ".join([str(opcode), id_class] + list(self.marshal_args))
+            printer("{} = self._marshal_constructor({})".format(self.new_id.name, args))
+            printer("return {}".format(self.new_id.name))
         else:
-            args = ', '.join([str(opcode)] + list(self.marshal_args))
-            printer('self._marshal({})'.format(args))
-            if self.type == 'destructor':
-                printer('self._destroy()')
+            args = ", ".join([str(opcode)] + list(self.marshal_args))
+            printer("self._marshal({})".format(args))
+            if self.type == "destructor":
+                printer("self._destroy()")

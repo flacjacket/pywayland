@@ -21,7 +21,7 @@ from .description import Description
 from .element import Element
 from .printer import Printer
 
-NO_IFACE_NAME = 'interface'
+NO_IFACE_NAME = "interface"
 
 
 @enum.unique
@@ -96,7 +96,7 @@ class Argument(Element):
         argument.
         """
         assert self.interface is not None
-        return ''.join(x.capitalize() for x in self.interface.split('_'))
+        return "".join(x.capitalize() for x in self.interface.split("_"))
 
     def output(self, printer: Printer) -> None:
         args = [f"ArgumentType.{self.type.name}"]
@@ -110,7 +110,7 @@ class Argument(Element):
     def output_doc_param(self, printer: Printer) -> None:
         """Document the argument as a parameter"""
         # Output the parameter and summary
-        printer.doc(':param {}:'.format(self.name))
+        printer.doc(":param {}:".format(self.name))
         if self.summary:
             with printer.indented():
                 printer.docstring(self.summary)
@@ -119,7 +119,7 @@ class Argument(Element):
         if self.interface:
             arg_type = self.interface
         else:
-            arg_type = '`{}`'.format(self.type)
+            arg_type = "`{}`".format(self.type)
 
         # Output the parameter type
         printer.doc(f":type {self.name}:")
@@ -137,12 +137,12 @@ class Argument(Element):
         else:
             # Only new_id's are returned, the only corner case here is for
             # wl_registry.bind, so no interface => Proxy
-            arg_type = ':class:`pywayland.client.proxy.Proxy` of specified Interface'
+            arg_type = ":class:`pywayland.client.proxy.Proxy` of specified Interface"
 
         # Output the type and summary
-        printer.doc(':returns:')
+        printer.doc(":returns:")
         with printer.indented():
             if self.summary:
-                printer.docstring('{} -- {}'.format(arg_type, self.summary))
+                printer.docstring("{} -- {}".format(arg_type, self.summary))
             else:
-                printer.docstring('{}'.format(arg_type))
+                printer.docstring("{}".format(arg_type))

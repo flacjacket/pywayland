@@ -38,6 +38,7 @@ class Resource:
     :param id: The id for the item
     :type id: `int`
     """
+
     interface: Type["Interface"]
 
     def __init__(self, client, version=None, id=0):
@@ -57,8 +58,13 @@ class Resource:
 
         if self.dispatcher is not None:
             self._handle = ffi.new_handle(self)
-            lib.wl_resource_set_dispatcher(self._ptr, lib.dispatcher_func, ffi.NULL,
-                                           self._handle, lib.resource_destroy_func)
+            lib.wl_resource_set_dispatcher(
+                self._ptr,
+                lib.dispatcher_func,
+                ffi.NULL,
+                self._handle,
+                lib.resource_destroy_func,
+            )
 
     def destroy(self):
         """Destroy the Resource"""
@@ -80,11 +86,11 @@ class Resource:
         # Create wl_argument array
         args_ptr = self._interface.events[opcode].arguments_to_c(*args)
         # Make the cast to a wl_resource
-        resource = ffi.cast('struct wl_resource *', self._ptr)
+        resource = ffi.cast("struct wl_resource *", self._ptr)
 
         lib.wl_resource_post_event_array(resource, opcode, args_ptr)
 
     @ensure_valid
     def _post_error(self, code, msg=""):
-        msg_ptr = ffi.new('char []', msg)
+        msg_ptr = ffi.new("char []", msg)
         lib.wl_resouce_post_error(self._ptr, code, msg_ptr)
