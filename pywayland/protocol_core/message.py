@@ -132,9 +132,9 @@ class Message:
                         raise RuntimeError(message)
                     args.append(None)
                 else:
-                    iface = self.types[i]
+                    iface = argument.interface
                     proxy_ptr = ffi.cast("struct wl_proxy *", arg_ptr.o)
-                    obj = iface.proxy_class.registry.get(proxy_ptr)
+                    obj = iface.registry.get(proxy_ptr)
                     if obj is None:
                         raise RuntimeError(
                             "Unable to get object for {}, was it garbage collected?".format(
