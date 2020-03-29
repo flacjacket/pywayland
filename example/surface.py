@@ -108,13 +108,14 @@ def redraw(callback, time, destroy_callback=True):
     if destroy_callback:
         callback._destroy()
 
-    window.surface.damage(0, 0, WIDTH, HEIGHT)
     paint(window)
+    window.surface.damage(0, 0, WIDTH, HEIGHT)
 
     callback = window.surface.frame()
-    window.surface.attach(window.buffer, 0, 0)
-    callback.user_data = window
     callback.dispatcher["done"] = redraw
+    callback.user_data = window
+
+    window.surface.attach(window.buffer, 0, 0)
     window.surface.commit()
 
 
