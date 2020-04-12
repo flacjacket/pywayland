@@ -32,6 +32,8 @@ from pywayland.utils import AnonymousFile  # noqa: E402
 WIDTH = 480
 HEIGHT = 256
 
+MARGIN = 10
+
 
 class Window(object):
     def __init__(self):
@@ -41,6 +43,9 @@ class Window(object):
         self.shm = None
         self.shm_data = None
         self.surface = None
+
+        self.line_pos = MARGIN
+        self.line_speed = +1
 
 
 def shell_surface_ping_handler(shell_surface, serial):
@@ -103,20 +108,31 @@ def redraw(callback, time, destroy_callback=True):
     if destroy_callback:
         callback._destroy()
 
-    window.surface.damage(0, 0, WIDTH, HEIGHT)
     paint(window)
+    window.surface.damage(0, 0, WIDTH, HEIGHT)
 
     callback = window.surface.frame()
-    window.surface.attach(window.buffer, 0, 0)
-    callback.user_data = window
     callback.dispatcher["done"] = redraw
+    callback.user_data = window
+
+    window.surface.attach(window.buffer, 0, 0)
     window.surface.commit()
 
 
 def paint(window):
     mm = window.shm_data
+    # clear
     mm.seek(0)
     mm.write(b"\xff" * 4 * WIDTH * HEIGHT)
+
+    # draw progressing line
+    mm.seek((window.line_pos * WIDTH + MARGIN) * 4)
+    mm.write(b"\x00\x00\x00\xff" * (WIDTH - 2 * MARGIN))
+    window.line_pos += window.line_speed
+
+    # maybe reverse direction of progression
+    if window.line_pos >= HEIGHT - MARGIN or window.line_pos <= MARGIN:
+        window.line_speed = -window.line_speed
 
 
 def main():
