@@ -16,13 +16,13 @@ python:
 matrix:
   include:
     - python: 3.8
-      env: TEST=pep8 WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.18
+      env: TEST=pep8 WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.20
     - python: 3.8
-      env: TEST=mypy WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.18
+      env: TEST=mypy WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.20
     - python: 3.8
-      env: TEST=docs WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.18
+      env: TEST=docs WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.20
     - python: 3.8
-      env: TEST=packaging WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.18
+      env: TEST=packaging WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.20
   allow_failures:
     - python: nightly
 
@@ -36,7 +36,7 @@ env:
     - WAYLAND_URL='http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz'
     - WAYLAND_PROTOCOLS_URL='http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz'
   matrix:
-    - WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.18
+    - WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.20
 
 install:
   - WAYLAND_URL=`echo $WAYLAND_URL | envsubst`
