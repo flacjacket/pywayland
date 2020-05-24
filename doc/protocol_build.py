@@ -2,11 +2,11 @@ import os
 import tarfile
 import urllib.request
 
-wayland_version = '1.17.0'
-protocols_version = '1.18'
+wayland_version = '1.18.0'
+protocols_version = '1.20'
 
-wayland_source = 'http://cgit.freedesktop.org/wayland/wayland/plain/protocol/wayland.xml?id={}'.format(wayland_version)
-protocols_source = 'http://wayland.freedesktop.org/releases/wayland-protocols-{}.tar.xz'.format(protocols_version)
+wayland_source = 'https://cgit.freedesktop.org/wayland/wayland/plain/protocol/wayland.xml?id={}'.format(wayland_version)
+protocols_source = 'https://wayland.freedesktop.org/releases/wayland-protocols-{}.tar.xz'.format(protocols_version)
 
 
 def protocols_build(output_dir):

@@ -28,11 +28,11 @@ given in :ref:`install-source`.  A few things to be aware of when writing code:
   Additional checks using other type checkers are appreciated.
 
 .. _Coveralls: https://coveralls.io/r/flacjacket/pywayland
-.. _GitHub: http://github.com/flacjacket/pywayland/
+.. _GitHub: https://github.com/flacjacket/pywayland/
 .. _Travis: https://travis-ci.org/flacjacket/pywayland
 .. _flake8: https://flake8.readthedocs.org
 .. _nose: https://nose.readthedocs.org
-.. _pytest: http://pytest.org
+.. _pytest: https://pytest.org
 
 .. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch=master
     :alt: Build Status

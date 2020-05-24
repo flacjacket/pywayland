@@ -124,4 +124,4 @@ If you have any problems or have any feedback, please report back to the `issue
 tracker`_, contribution is always welcome, see :ref:`contributing`.
 
 .. _issue tracker: https://github.com/flacjacket/pywayland/issues
-.. _Wayland releases: http://wayland.freedesktop.org/releases
+.. _Wayland releases: https://wayland.freedesktop.org/releases.html
