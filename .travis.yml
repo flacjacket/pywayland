@@ -90,7 +90,7 @@ script:
         python setup.py sdist;
         twine check dist/*;
     else
-        pytest --cov pywayland --cov-report term-missing;
+        pytest -Wall --cov pywayland --cov-report term-missing;
     fi
 
 after_success:
