@@ -33,8 +33,8 @@ env:
     - LIBRARY_PATH="${HOME}/wayland/lib"
     - PKG_CONFIG_PATH="${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig"
     - XDG_RUNTIME_DIR="/tmp"
-    - WAYLAND_URL='http://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz'
-    - WAYLAND_PROTOCOLS_URL='http://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz'
+    - WAYLAND_URL='https://wayland.freedesktop.org/releases/wayland-${WAYLAND_VERSION}.tar.xz'
+    - WAYLAND_PROTOCOLS_URL='https://wayland.freedesktop.org/releases/wayland-protocols-${WAYLAND_PROTOCOLS}.tar.xz'
   matrix:
     - WAYLAND_VERSION=1.18.0 WAYLAND_PROTOCOLS=1.20
 
