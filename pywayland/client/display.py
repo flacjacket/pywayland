@@ -23,6 +23,9 @@ from pywayland.protocol.wayland import WlDisplay
 if TYPE_CHECKING:
     from pywayland._ffi import DisplayCdata, NullCdata  # noqa: F401
 
+    # introduced in standard library in Python 3.8
+    from typing_extensions import Literal  # noqa: F401
+
 
 class Display(WlDisplay.proxy_class):  # type: ignore
     """Represents a connection to the compositor
@@ -84,7 +87,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         ``int`` or ``str``
     """
 
-    def __init__(self, name_or_fd: Union[int, str] = None) -> None:
+    def __init__(self, name_or_fd: Optional[Union[int, str]] = None) -> None:
         """Constructor for the Display object"""
         super().__init__(None)
 
@@ -97,9 +100,10 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         self.connect()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(self, exc_type, exc_value, traceback) -> "Literal[False]":
         """Disconnect from the display"""
         self.disconnect()
+        return False
 
     def connect(self) -> None:
         """Connect to a Wayland display
@@ -158,7 +162,9 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_get_fd(self._ptr)
 
     @ensure_valid
-    def dispatch(self, *, block: bool = False, queue: EventQueue = None) -> int:
+    def dispatch(
+        self, *, block: bool = False, queue: Optional[EventQueue] = None
+    ) -> int:
         """Process incoming events
 
         If block is `False`, it does not attempt to read the display fd or
@@ -195,7 +201,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return ret
 
     @ensure_valid
-    def roundtrip(self, *, queue: EventQueue = None) -> int:
+    def roundtrip(self, *, queue: Optional[EventQueue] = None) -> int:
         """Block until all pending request are processed by the server
 
         This function blocks until the server has processed all currently
@@ -224,7 +230,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             return lib.wl_display_roundtrip_queue(self._ptr, queue._ptr)
 
     @ensure_valid
-    def read(self, *, queue: EventQueue = None) -> None:
+    def read(self, *, queue: Optional[EventQueue] = None) -> None:
         """Read events from display file descriptor
 
         Calling this function will result in data available on the display file

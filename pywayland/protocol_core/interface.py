@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, Type, TYPE_CHECKING
+from typing import Callable, Type, Optional, TYPE_CHECKING
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi
@@ -61,7 +61,7 @@ class Interface(metaclass=InterfaceMeta):
     global_class: Type[Global]
 
     @classmethod
-    def event(cls, *arguments: Argument, version: int = None) -> Callable:
+    def event(cls, *arguments: Argument, version: Optional[int] = None) -> Callable:
         """Decorator for interface events
 
         Adds the decorated method to the list of events of the interface
@@ -82,7 +82,7 @@ class Interface(metaclass=InterfaceMeta):
         return wrapper
 
     @classmethod
-    def request(cls, *arguments: Argument, version: int = None):
+    def request(cls, *arguments: Argument, version: Optional[int] = None):
         """Decorator for interface requests
 
         Adds the decorated method to the list of requests of the interface

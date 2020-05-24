@@ -46,6 +46,12 @@ class lib:
     WAYLAND_VERSION_MAJOR: int
     WAYLAND_VERSION_MINOR: int
     WAYLAND_VERSION_MICRO: int
+    # Event loop functionality
+    @staticmethod
+    def wl_event_loop_create() -> EventLoopCdata: ...
+    @staticmethod
+    def wl_event_loop_destroy(event_loop: EventLoopCdata) -> None: ...
+    # Display functionality
     @staticmethod
     def wl_display_create() -> DisplayCdata: ...
     @staticmethod

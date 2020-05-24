@@ -15,9 +15,14 @@
 import enum
 from weakref import WeakSet
 from collections import namedtuple
+from typing import List, Optional, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
+
+if TYPE_CHECKING:
+    from pywayland.server import Display  # noqa: F401
+    from pywayland._ffi import EventLoopCdata  # noqa: F401
 
 CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
 
@@ -68,6 +73,38 @@ def event_loop_idle_func(data_ptr):
     callback_info.callback(callback_info.data)
 
 
+class EventSource:
+    """Parameters for the EventLoop callbacks
+
+    :param cdata: The struct corresponding to the EventSource
+    :type cdata: `ffi cdata`
+    """
+
+    def __init__(self, eventloop, cdata):
+        self._eventloop = eventloop
+        self._ptr = cdata
+
+    def remove(self):
+        """Remove the callback from the event loop"""
+        if self._ptr is not None:
+            lib.wl_event_source_remove(self._ptr)
+        self._ptr = None
+
+    @ensure_valid
+    def check(self):
+        """Insert the EventSource into the check list"""
+        lib.wl_event_source_check(self._ptr)
+
+    @ensure_valid
+    def timer_update(self, timeout):
+        """Set the timeout of the times callback
+
+        :param timeout: Delay for timeout in ms
+        :type timeout: `int`
+        """
+        lib.wl_event_source_timer_update(self._ptr, timeout)
+
+
 class EventLoop:
     """An event loop to add events to
 
@@ -85,16 +122,16 @@ class EventLoop:
         WL_EVENT_HANGUP = lib.WL_EVENT_HANGUP
         WL_EVENT_ERROR = lib.WL_EVENT_ERROR
 
-    def __init__(self, display=None):
+    def __init__(self, display: Optional["Display"] = None) -> None:
         if display:
-            self._ptr = lib.wl_display_get_event_loop(display._ptr)
+            self._ptr: Optional["EventLoopCdata"] = lib.wl_display_get_event_loop(display._ptr)
         else:
             # if we are creating an eventloop. we need to destroy it later
             ptr = lib.wl_event_loop_create()
             self._ptr = ffi.gc(ptr, lib.wl_event_loop_destroy)
 
-        self.event_sources = WeakSet()
-        self.callbacks = []
+        self.event_sources: WeakSet[EventSource] = WeakSet()
+        self._callback_handles: List = []
 
     def destroy(self):
         """Destroy the event loop"""
@@ -102,8 +139,7 @@ class EventLoop:
             for event_source in self.event_sources:
                 event_source.remove()
             # destroy the pointer and remove the destructor
-            lib.wl_event_loop_destroy(self._ptr)
-            ffi.gc(self._ptr, None)
+            ffi.release(self._ptr)
             self._ptr = None
 
     @ensure_valid
@@ -135,7 +171,7 @@ class EventLoop:
         """
         callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
-        self.callbacks.append(handle)
+        self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_fd(
             self._ptr, fd, mask.value, lib.event_loop_fd_func, handle
@@ -166,7 +202,7 @@ class EventLoop:
         """
         callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
-        self.callbacks.append(handle)
+        self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_signal(
             self._ptr, signal_number, lib.event_loop_signal_func, handle
@@ -198,7 +234,7 @@ class EventLoop:
         """
         callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
-        self.callbacks.append(handle)
+        self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_timer(
             self._ptr, lib.event_loop_timer_func, handle
@@ -219,7 +255,7 @@ class EventLoop:
         """
         callback = CallbackInfo(callback=callback, data=data)
         handle = ffi.new_handle(callback)
-        self.callbacks.append(handle)
+        self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_idle(
             self._ptr, lib.event_loop_idle_func, handle
@@ -247,35 +283,3 @@ class EventLoop:
     def dispatch_idle(self):
         """Dispatch idle callback on the event loop"""
         lib.wl_event_loop_dispatch_idle(self._ptr)
-
-
-class EventSource:
-    """Parameters for the EventLoop callbacks
-
-    :param cdata: The struct corresponding to the EventSource
-    :type cdata: `ffi cdata`
-    """
-
-    def __init__(self, eventloop, cdata):
-        self._eventloop = eventloop
-        self._ptr = cdata
-
-    def remove(self):
-        """Remove the callback from the event loop"""
-        if self._ptr is not None:
-            lib.wl_event_source_remove(self._ptr)
-        self._ptr = None
-
-    @ensure_valid
-    def check(self):
-        """Insert the EventSource into the check list"""
-        lib.wl_event_source_check(self._ptr)
-
-    @ensure_valid
-    def timer_update(self, timeout):
-        """Set the timeout of the times callback
-
-        :param timeout: Delay for timeout in ms
-        :type timeout: `int`
-        """
-        lib.wl_event_source_timer_update(self._ptr, timeout)
