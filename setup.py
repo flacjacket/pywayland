@@ -127,8 +127,8 @@ rst_input.extend([
     f".. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version={version_tag}",
     f"   :target: https://pywayland.readthedocs.io/en/{version_tag}/",
     f"   :alt: Documentation Status",
-    f".. |travis| image:: https://travis-ci.org/flacjacket/pywayland.svg?branch={version_tag}",
-    f"    :target: https://travis-ci.org/flacjacket/pywayland/",
+    f".. |ci| image:: https://github.com/flacjacket/pywayland/workflows/ci/badge.svg?branch={version_tag}",
+    f"    :target: https://github.com/flacjacket/pywayland/actions",
     f"    :alt: Build Status",
 ])
 

@@ -1,0 +1,224 @@
+name: ci
+on:
+  pull_request:
+  push:
+
+jobs:
+  build-wayland:
+    name: Build Wayland libraries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        wayland-version: [1.18.0]
+        wayland-protocols-version: [1.20]
+    steps:
+      - run: |
+          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
+      - name: Download and unpack Wayland source
+        run: |
+          wget --no-check-certificate $WAYLAND_URL
+          wget --no-check-certificate $WAYLAND_PROTOCOLS_URL
+          tar -xJf wayland-${{ matrix.wayland-version }}.tar.xz
+          tar -xJf wayland-protocols-${{ matrix.wayland-protocols-version }}.tar.xz
+        env:
+          WAYLAND_URL: https://wayland.freedesktop.org/releases/wayland-${{ matrix.wayland-version }}.tar.xz
+          WAYLAND_PROTOCOLS_URL: https://wayland.freedesktop.org/releases/wayland-protocols-${{ matrix.wayland-protocols-version }}.tar.xz
+      - name: Build wayland
+        working-directory: wayland-${{ matrix.wayland-version }}
+        run: |
+          ./configure --disable-documentation --prefix=${HOME}/wayland
+          make
+          make install
+      - name: Build wayland-protocols
+        working-directory: wayland-protocols-${{ matrix.wayland-protocols-version }}
+        run: |
+          ./configure --prefix=${HOME}/wayland
+          make
+          make install
+      - name: Upload built libraries
+        uses: actions/upload-artifact@v2
+        with:
+          name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+          path: ~/wayland/
+          if-no-files-found: error
+  unit-test:
+    name: Python ${{ matrix.python-version}} unit tests
+    runs-on: ubuntu-latest
+    needs: build-wayland
+    strategy:
+      matrix:
+        python-version: [pypy3, 3.6, 3.7, 3.8, 3.9]
+        wayland-version: [1.18.0]
+        wayland-protocols-version: [1.20]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download wayland libraries
+        uses: actions/download-artifact@v2
+        with:
+          path: ~/wayland/
+          name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set environment variables
+        run: |
+          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
+          echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+          python pywayland/ffi_build.py
+          python -m pywayland.scanner --with-protocols
+      - name: Run unit tests
+        run: pytest
+  docs-test:
+    name: Python ${{ matrix.python-version}} docs check
+    runs-on: ubuntu-latest
+    needs: build-wayland
+    strategy:
+      matrix:
+        python-version: [3.9]
+        wayland-version: [1.18.0]
+        wayland-protocols-version: [1.20]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download wayland libraries
+        uses: actions/download-artifact@v2
+        with:
+          path: ~/wayland/
+          name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set environment variables
+        run: |
+          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
+          echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r doc/requirements.txt
+          python pywayland/ffi_build.py
+          python -m pywayland.scanner --with-protocols
+      - name: Build docs
+        run: sphinx-build -W -b html doc doc/_build/html
+  flake8-test:
+    name: Python ${{ matrix.python-version}} flake8 tests
+    runs-on: ubuntu-latest
+    needs: build-wayland
+    strategy:
+      matrix:
+        python-version: [3.9]
+        wayland-version: [1.18.0]
+        wayland-protocols-version: [1.20]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download wayland libraries
+        uses: actions/download-artifact@v2
+        with:
+          path: ~/wayland/
+          name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set environment variables
+        run: |
+          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
+          echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install flake8
+          python pywayland/ffi_build.py
+          python -m pywayland.scanner --with-protocols
+      - name: Run flake8 test
+        run: flake8 pywayland example test
+  mypy-test:
+    name: Python ${{ matrix.python-version}} mypy tests
+    runs-on: ubuntu-latest
+    needs: build-wayland
+    strategy:
+      matrix:
+        python-version: [3.9]
+        wayland-version: [1.18.0]
+        wayland-protocols-version: [1.20]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download wayland libraries
+        uses: actions/download-artifact@v2
+        with:
+          path: ~/wayland/
+          name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set environment variables
+        run: |
+          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
+          echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install mypy
+          python pywayland/ffi_build.py
+          python -m pywayland.scanner --with-protocols
+      - name: Run mypy test
+        run: mypy -p pywayland
+  packaging-test:
+    name: Python ${{ matrix.python-version}} packaging tests
+    runs-on: ubuntu-latest
+    needs: build-wayland
+    strategy:
+      matrix:
+        python-version: [3.9]
+        wayland-version: [1.18.0]
+        wayland-protocols-version: [1.20]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download wayland libraries
+        uses: actions/download-artifact@v2
+        with:
+          path: ~/wayland/
+          name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set environment variables
+        run: |
+          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
+          echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install check-manifest twine
+          python pywayland/ffi_build.py
+      - name: Run packaging test
+        run: |
+          check-manifest
+          python setup.py check -m -s
+          python setup.py sdist
+          twine check dist/*
