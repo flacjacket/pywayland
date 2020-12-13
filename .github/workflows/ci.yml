@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         wayland-version: [1.18.0]
-        wayland-protocols-version: [1.20]
+        wayland-protocols-version: ["1.20"]
     steps:
       - run: |
           echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
@@ -50,9 +50,9 @@ jobs:
     needs: build-wayland
     strategy:
       matrix:
-        python-version: [pypy3, 3.6, 3.7, 3.8, 3.9]
+        python-version: [pypy3, "3.6", "3.7", "3.8", "3.9"]
         wayland-version: [1.18.0]
-        wayland-protocols-version: [1.20]
+        wayland-protocols-version: ["1.20"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -85,9 +85,9 @@ jobs:
     needs: build-wayland
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: ["3.9"]
         wayland-version: [1.18.0]
-        wayland-protocols-version: [1.20]
+        wayland-protocols-version: ["1.20"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -120,9 +120,9 @@ jobs:
     needs: build-wayland
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: ["3.9"]
         wayland-version: [1.18.0]
-        wayland-protocols-version: [1.20]
+        wayland-protocols-version: ["1.20"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -155,9 +155,9 @@ jobs:
     needs: build-wayland
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: ["3.9"]
         wayland-version: [1.18.0]
-        wayland-protocols-version: [1.20]
+        wayland-protocols-version: ["1.20"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -190,9 +190,9 @@ jobs:
     needs: build-wayland
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: ["3.9"]
         wayland-version: [1.18.0]
-        wayland-protocols-version: [1.20]
+        wayland-protocols-version: ["1.20"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
