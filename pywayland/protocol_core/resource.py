@@ -84,7 +84,7 @@ class Resource:
     @ensure_valid
     def _post_event(self, opcode, *args):
         # Create wl_argument array
-        args_ptr = self._interface.events[opcode].arguments_to_c(*args)
+        args_ptr = self.interface.events[opcode].arguments_to_c(*args)
         # Make the cast to a wl_resource
         resource = ffi.cast("struct wl_resource *", self._ptr)
 
