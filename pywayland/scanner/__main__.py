@@ -47,7 +47,10 @@ def get_wayland_protocols():
             if file_ext == ".xml":
                 protocols.append(os.path.join(dirpath, filename))
 
-    return protocols
+    # this is pretty brittle, there is an xdg_popup in both the unstable and
+    # stable xdg_shell implementations. process the unstable version first so
+    # the import is correct when the pop-up tries to import other interfaces.
+    return sorted(protocols, reverse=True)
 
 
 def main():
