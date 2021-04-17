@@ -170,3 +170,8 @@ class Display:
         :type shm_format: :class:`~pywayland.protocol.wayland.WlShm.format`
         """
         lib.wl_display_add_shm_format(self._ptr, shm_format.value)
+
+    @ensure_valid
+    def flush_clients(self) -> None:
+        """Flush client connections"""
+        lib.wl_display_flush_clients(self._ptr)
