@@ -15,7 +15,7 @@ running.  For more help, see the `full documentation`_.
 Current Release
 ---------------
 
-PyWayland is still in a developmental state.  An initial version ``0.2.1`` is
+PyWayland is still in a developmental state.  An initial version ``0.4.1`` is
 available on the `cheese shop`_.  Current development versions can be obtained
 from the `git repository`_, feedback, as well as any bug reports or fixes are
 highly appreciated.
