@@ -168,6 +168,7 @@ struct wl_signal {
 };
 
 void wl_signal_add(struct wl_signal *signal, struct wl_listener *listener);
+void wl_signal_emit(struct wl_signal *signal, void *data);
 """
 
 # wl_eventloop callbacks and methods

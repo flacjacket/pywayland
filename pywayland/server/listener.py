@@ -113,4 +113,4 @@ class Signal:
             data_ptr = ffi.new_handle(data)
         else:
             data_ptr = ffi.NULL
-        lib.wl_signal.emit(self._ptr, data_ptr)
+        lib.wl_signal_emit(self._ptr, data_ptr)
