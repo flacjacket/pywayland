@@ -72,7 +72,7 @@ tests can be run through ``pytest``.  Be sure you build the protocol files (see
 .. |ci| image:: https://github.com/flacjacket/pywayland/workflows/ci/badge.svg
     :target: https://github.com/flacjacket/pywayland/actions
     :alt: Build Status
-.. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch=master
+.. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg
     :target: https://coveralls.io/r/flacjacket/pywayland
     :alt: Build Coverage
 .. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version=latest

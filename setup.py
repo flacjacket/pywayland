@@ -19,6 +19,10 @@ import sys
 from setuptools import setup
 from setuptools.command.install import install
 from setuptools.command.sdist import sdist
+try:
+    from wheel.bdist_wheel import bdist_wheel
+except ImportError:
+    bdist_wheel = None
 
 # we need this to import the version and scanner module directly so we can
 # build the protocol before the cffi module has been compiled
@@ -106,6 +110,15 @@ def get_protocol_command(klass):
 InstallCommand = get_protocol_command(install)
 SdistCommand = get_protocol_command(sdist)
 
+cmdclass={
+    'install': InstallCommand,
+    'sdist': SdistCommand,
+}
+
+if bdist_wheel is not None:
+    BdistWheelCommand = get_protocol_command(bdist_wheel)
+    cmdclass['bdist_wheel'] = BdistWheelCommand
+
 # For the purposes of uploading to PyPI, we'll get the version of Wayland here
 rst_input = open('README.rst').read().split('\n')
 try:
@@ -137,9 +150,6 @@ long_description = '\n'.join(rst_input)
 setup(
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    cmdclass={
-        'install': InstallCommand,
-        'sdist': SdistCommand,
-    },
+    cmdclass=cmdclass,
     cffi_modules=['pywayland/ffi_build.py:ffi_builder']
 )
