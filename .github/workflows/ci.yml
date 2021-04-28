@@ -13,10 +13,10 @@ jobs:
         wayland-protocols-version: ["1.20"]
     steps:
       - run: |
-          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
+          echo "CPATH=${HOME}/wayland/usr/include" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${HOME}/wayland/usr/share/pkgconfig:${HOME}/wayland/usr/lib/pkgconfig" >> $GITHUB_ENV
       - name: Download and unpack Wayland source
         run: |
           wget --no-check-certificate $WAYLAND_URL
@@ -29,20 +29,22 @@ jobs:
       - name: Build wayland
         working-directory: wayland-${{ matrix.wayland-version }}
         run: |
-          ./configure --disable-documentation --prefix=${HOME}/wayland
+          ./configure --disable-documentation --prefix=/usr
           make
-          make install
+          DESTDIR=~/wayland make install
       - name: Build wayland-protocols
         working-directory: wayland-protocols-${{ matrix.wayland-protocols-version }}
         run: |
-          ./configure --prefix=${HOME}/wayland
+          ./configure --prefix=/usr
           make
-          make install
+          DESTDIR=~/wayland make install
+      - name: Create artifact
+        run: tar czf ~/wayland.tar.gz -C ${HOME}/wayland/ .
       - name: Upload built libraries
         uses: actions/upload-artifact@v2
         with:
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
-          path: ~/wayland/
+          path: ~/wayland.tar.gz
           if-no-files-found: error
   unit-test:
     name: Python ${{ matrix.python-version}} unit tests
@@ -58,18 +60,15 @@ jobs:
       - name: Download wayland libraries
         uses: actions/download-artifact@v2
         with:
-          path: ~/wayland/
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Unpack wayland artifact
+        run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
         run: |
-          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
@@ -107,18 +106,15 @@ jobs:
       - name: Download wayland libraries
         uses: actions/download-artifact@v2
         with:
-          path: ~/wayland/
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Unpack wayland artifact
+        run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
         run: |
-          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
@@ -142,18 +138,15 @@ jobs:
       - name: Download wayland libraries
         uses: actions/download-artifact@v2
         with:
-          path: ~/wayland/
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Unpack wayland artifact
+        run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
         run: |
-          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
@@ -177,18 +170,15 @@ jobs:
       - name: Download wayland libraries
         uses: actions/download-artifact@v2
         with:
-          path: ~/wayland/
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Unpack wayland artifact
+        run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
         run: |
-          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
@@ -212,18 +202,15 @@ jobs:
       - name: Download wayland libraries
         uses: actions/download-artifact@v2
         with:
-          path: ~/wayland/
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
+      - name: Unpack wayland artifact
+        run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
         run: |
-          echo "CPATH=${HOME}/wayland/include" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=${HOME}/wayland/lib" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=${HOME}/wayland/share/pkgconfig:${HOME}/wayland/lib/pkgconfig" >> $GITHUB_ENV
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
