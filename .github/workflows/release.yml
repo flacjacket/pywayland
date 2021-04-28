@@ -88,6 +88,7 @@ jobs:
           python -m pip install -r requirements-wheel-build.txt
       - name: Build wheels
         run: |
+          python pywayland/ffi_build.py
           python setup.py bdist_wheel --wayland-protocols
           auditwheel repair --plat manylinux2014_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels

@@ -126,7 +126,7 @@ try:
 
     version_tag = f"v{pywayland_version}"
 except Exception:
-    version_tag = "master"
+    version_tag = "main"
 else:
     version = f"Built against Wayland {wayland_version}\n"
     rst_input.insert(3, version)
@@ -134,15 +134,15 @@ else:
 # replace all of the badges and links to point to the current version
 rst_input = rst_input[:-10]
 rst_input.extend([
+    f".. |ci| image:: https://github.com/flacjacket/pywayland/workflows/ci/badge.svg?branch={version_tag}",
+    f"    :target: https://github.com/flacjacket/pywayland/actions",
+    f"    :alt: Build Status",
     f".. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch={version_tag}",
     f"    :target: https://coveralls.io/github/flacjacket/pywayland?branch={version_tag}",
     f"    :alt: Build Coverage",
     f".. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version={version_tag}",
-    f"   :target: https://pywayland.readthedocs.io/en/{version_tag}/",
-    f"   :alt: Documentation Status",
-    f".. |ci| image:: https://github.com/flacjacket/pywayland/workflows/ci/badge.svg?branch={version_tag}",
-    f"    :target: https://github.com/flacjacket/pywayland/actions",
-    f"    :alt: Build Status",
+    f"    :target: https://pywayland.readthedocs.io/en/{version_tag}/",
+    f"    :alt: Documentation Status",
 ])
 
 long_description = '\n'.join(rst_input)
