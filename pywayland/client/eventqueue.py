@@ -61,6 +61,11 @@ class EventQueue:
 
         weakkeydict[self._ptr] = display
 
+    @property
+    def destroyed(self) -> bool:
+        """Determine the state of the event queue"""
+        return self._ptr is None
+
     def destroy(self) -> None:
         """Destroy an event queue
 
