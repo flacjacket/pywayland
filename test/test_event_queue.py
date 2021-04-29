@@ -15,6 +15,8 @@
 import time
 import threading
 
+import pytest
+
 from pywayland.client.display import Display
 from pywayland.client.eventqueue import EventQueue
 from pywayland.server.display import Display as ServerDisplay
