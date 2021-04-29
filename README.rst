@@ -69,7 +69,7 @@ PyWayland implements a (currently limited) test-suite in ``./tests``.  The
 tests can be run through ``pytest``.  Be sure you build the protocol files (see
 `Building Wayland protocols`_) before running the tests.
 
-.. |ci| image:: https://github.com/flacjacket/pywayland/workflows/ci/badge.svg
+.. |ci| image:: https://github.com/flacjacket/pywayland/actions/workflows/ci.yml/badge.svg
     :target: https://github.com/flacjacket/pywayland/actions
     :alt: Build Status
 .. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg

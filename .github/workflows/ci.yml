@@ -70,6 +70,10 @@ jobs:
       - name: Set environment variables
         run: |
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
+      - name: Install dev coveralls version
+        run: |
+          cd ..
+          pip install -e git+https://github.com/flacjacket/coveralls-python@patch-1#egg=coveralls
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
@@ -82,16 +86,18 @@ jobs:
         run: coveralls --service=github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
   coverage:
     name: Finalize Coverage
     needs: unit-test
     runs-on: ubuntu-latest
     steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
   docs-test:
     name: Python ${{ matrix.python-version}} docs check
     runs-on: ubuntu-latest

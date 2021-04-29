@@ -19,6 +19,7 @@ import sys
 from setuptools import setup
 from setuptools.command.install import install
 from setuptools.command.sdist import sdist
+
 try:
     from wheel.bdist_wheel import bdist_wheel
 except ImportError:
@@ -26,33 +27,45 @@ except ImportError:
 
 # we need this to import the version and scanner module directly so we can
 # build the protocol before the cffi module has been compiled
-sys.path.insert(0, 'pywayland')
+sys.path.insert(0, "pywayland")
 
-default_xml_file = '/usr/share/wayland/wayland.xml'
+default_xml_file = "/usr/share/wayland/wayland.xml"
 
 
 def get_protocol_command(klass):
     class ProtocolCommand(klass):
         user_options = [
-            ('xml-file=', None, 'Location of wayland.xml protocol file'),
-            ('output-dir=', None, 'Output location for protocol python files'),
-            ('wayland-protocols', None, 'Force generation of external protocols from wayland-protocols'),
-            ('no-wayland-protocols', None, 'Disable generation of external protocols from wayland-protocols')
+            ("xml-file=", None, "Location of wayland.xml protocol file"),
+            ("output-dir=", None, "Output location for protocol python files"),
+            (
+                "wayland-protocols",
+                None,
+                "Force generation of external protocols from wayland-protocols",
+            ),
+            (
+                "no-wayland-protocols",
+                None,
+                "Disable generation of external protocols from wayland-protocols",
+            ),
         ] + klass.user_options
-        boolean_options = ['wayland-protocols', 'no-wayland-protocols'] + klass.boolean_options
+        boolean_options = [
+            "wayland-protocols",
+            "no-wayland-protocols",
+        ] + klass.boolean_options
 
         def initialize_options(self):
             from scanner.__main__ import pkgconfig
+
             # try to figure out where the main wayland protocols are installed
             try:
-                data_dir = pkgconfig('wayland-scanner', 'pkgdatadir')
+                data_dir = pkgconfig("wayland-scanner", "pkgdatadir")
             except subprocess.CalledProcessError:
                 # silently fallback to the default
                 self.xml_file = default_xml_file
             else:
-                self.xml_file = os.path.join(data_dir, 'wayland.xml')
+                self.xml_file = os.path.join(data_dir, "wayland.xml")
 
-            self.output_dir = './pywayland/protocol'
+            self.output_dir = "./pywayland/protocol"
             self.wayland_protocols = False
             self.no_wayland_protocols = False
 
@@ -110,46 +123,52 @@ def get_protocol_command(klass):
 InstallCommand = get_protocol_command(install)
 SdistCommand = get_protocol_command(sdist)
 
-cmdclass={
-    'install': InstallCommand,
-    'sdist': SdistCommand,
+cmdclass = {
+    "install": InstallCommand,
+    "sdist": SdistCommand,
 }
 
 if bdist_wheel is not None:
     BdistWheelCommand = get_protocol_command(bdist_wheel)
-    cmdclass['bdist_wheel'] = BdistWheelCommand
+    cmdclass["bdist_wheel"] = BdistWheelCommand
 
 # For the purposes of uploading to PyPI, we'll get the version of Wayland here
-rst_input = open('README.rst').read().split('\n')
+with open("README.rst") as f:
+    rst_input = f.read().strip().split("\n")
 try:
-    from pywayland import __wayland_version__ as wayland_version, __version__ as pywayland_version
+    from pywayland import (
+        __wayland_version__ as wayland_version,
+        __version__ as pywayland_version,
+    )
 
     version_tag = f"v{pywayland_version}"
 except Exception:
-    version_tag = "main"
+    pass
 else:
     version = f"Built against Wayland {wayland_version}\n"
     rst_input.insert(3, version)
 
-# replace all of the badges and links to point to the current version
-rst_input = rst_input[:-10]
-rst_input.extend([
-    f".. |ci| image:: https://github.com/flacjacket/pywayland/workflows/ci/badge.svg?branch={version_tag}",
-    f"    :target: https://github.com/flacjacket/pywayland/actions",
-    f"    :alt: Build Status",
-    f".. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch={version_tag}",
-    f"    :target: https://coveralls.io/github/flacjacket/pywayland?branch={version_tag}",
-    f"    :alt: Build Coverage",
-    f".. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version={version_tag}",
-    f"    :target: https://pywayland.readthedocs.io/en/{version_tag}/",
-    f"    :alt: Documentation Status",
-])
+    # replace all of the badges and links to point to the current version
+    rst_input = rst_input[:-9]
+    rst_input.extend(
+        [
+            f".. |ci| image:: https://github.com/flacjacket/pywayland/actions/workflows/ci.yml/badge.svg?branch={version_tag}",
+            f"    :target: https://github.com/flacjacket/pywayland/actions",
+            f"    :alt: Build Status",
+            f".. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch={version_tag}",
+            f"    :target: https://coveralls.io/github/flacjacket/pywayland?branch={version_tag}",
+            f"    :alt: Build Coverage",
+            f".. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version={version_tag}",
+            f"    :target: https://pywayland.readthedocs.io/en/{version_tag}/",
+            f"    :alt: Documentation Status",
+        ]
+    )
 
-long_description = '\n'.join(rst_input)
+long_description = "\n".join(rst_input)
 
 setup(
     long_description=long_description,
-    long_description_content_type='text/x-rst',
+    long_description_content_type="text/x-rst",
     cmdclass=cmdclass,
-    cffi_modules=['pywayland/ffi_build.py:ffi_builder']
+    cffi_modules=["pywayland/ffi_build.py:ffi_builder"],
 )
