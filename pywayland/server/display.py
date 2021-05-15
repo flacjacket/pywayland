@@ -19,11 +19,10 @@ from pywayland.utils import ensure_valid
 from .eventloop import EventLoop
 
 if TYPE_CHECKING:
-    from pywayland._ffi import DisplayCData
     from typing_extensions import Literal
 
 
-def _full_display_gc(ptr: "DisplayCData") -> None:
+def _full_display_gc(ptr: "ffi.DisplayCData") -> None:
     """Destroy the Display cdata pointer, but only after destroying the clients"""
     lib.wl_display_destroy_clients(ptr)
     lib.wl_display_destroy(ptr)

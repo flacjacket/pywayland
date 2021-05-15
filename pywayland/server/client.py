@@ -21,11 +21,8 @@ from pywayland.utils import ensure_valid
 from .display import Display
 from .listener import Listener
 
-if TYPE_CHECKING:
-    from pywayland import _ffi
 
-
-def _client_destroy(display: Display, cdata: "_ffi.ClientCData") -> None:
+def _client_destroy(display: Display, cdata: "ffi.ClientCData") -> None:
     # do nothing if the display is already destroyed
     if display.destroyed:
         logging.error("Display destroyed before client")
@@ -59,7 +56,7 @@ class Client:
         ptr = lib.wl_client_create(display._ptr, fd)
 
         destructor = functools.partial(_client_destroy, display)
-        self._ptr: Optional["_ffi.ClientCData"] = ffi.gc(ptr, destructor)
+        self._ptr: Optional["ffi.ClientCData"] = ffi.gc(ptr, destructor)
         self._display: Optional[Display] = display
 
     def destroy(self) -> None:

@@ -19,9 +19,6 @@ from typing import Iterator, TYPE_CHECKING
 
 from . import ffi, lib
 
-if TYPE_CHECKING:
-    from ._ffi import CData
-
 
 def ensure_valid(func):
     @wraps(func)
@@ -83,7 +80,7 @@ class AnonymousFile:
         self.fd = None
 
 
-def wl_container_of(ptr: "CData", ctype: str, member: str, *, ffi=ffi) -> "CData":
+def wl_container_of(ptr: ffi.CData, ctype: str, member: str, *, ffi=ffi) -> ffi.CData:
     """
     #define wl_container_of(ptr, sample, member)				\
             (__typeof__(sample))((char *)(ptr) -				\
@@ -103,8 +100,8 @@ def wl_container_of(ptr: "CData", ctype: str, member: str, *, ffi=ffi) -> "CData
 
 
 def wl_list_for_each(
-    ctype: str, head: "CData", member: str, *, ffi=ffi
-) -> Iterator["CData"]:
+    ctype: str, head: ffi.CData, member: str, *, ffi=ffi
+) -> Iterator[ffi.CData]:
     """
     #define wl_list_for_each(pos, head, member)				\
         for (pos = wl_container_of((head)->next, pos, member);	\
