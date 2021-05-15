@@ -15,7 +15,7 @@
 
 import os
 from functools import wraps
-from typing import Iterator, TYPE_CHECKING
+from typing import Iterator
 
 from . import ffi, lib
 

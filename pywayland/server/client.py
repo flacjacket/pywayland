@@ -14,7 +14,7 @@
 
 import functools
 import logging
-from typing import Any, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Optional, Tuple
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid

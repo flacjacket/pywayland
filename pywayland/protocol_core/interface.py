@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, Type, Optional, TYPE_CHECKING
+from typing import Callable, Type, Optional
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi
