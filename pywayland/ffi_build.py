@@ -250,6 +250,12 @@ struct wl_client *wl_client_create(struct wl_display *display, int fd);
 void wl_client_destroy(struct wl_client *client);
 void wl_client_flush(struct wl_client *client);
 
+typedef int pid_t;
+typedef unsigned int uid_t;
+typedef unsigned int gid_t;
+void wl_client_get_credentials(struct wl_client *client,
+    pid_t *pid, uid_t *uid, gid_t *gid);
+
 void wl_client_add_destroy_listener(struct wl_client *client,
                                     struct wl_listener *listener);
 

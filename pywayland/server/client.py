@@ -14,7 +14,7 @@
 
 import functools
 import logging
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional, Tuple, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
@@ -80,6 +80,22 @@ class Client:
         """
         assert self._ptr is not None
         lib.wl_client_flush(self._ptr)
+
+    @ensure_valid
+    def get_credentials(self) -> Tuple[int, int, int]:
+        """Return Unix credentials for the client.
+
+        This function returns the process ID, the user ID and the group ID for the given
+        client. The credentials come from getsockopt() with SO_PEERCRED, on the client
+        socket fd.
+        """
+        assert self._ptr is not None
+
+        pid = ffi.new("pid_t *")
+        uid = ffi.new("uid_t *")
+        gid = ffi.new("gid_t *")
+        lib.wl_client_get_credentials(self._ptr, pid, uid, gid)
+        return pid[0], uid[0], gid[0]
 
     @ensure_valid
     def add_destroy_listener(self, listener: Listener) -> None:
