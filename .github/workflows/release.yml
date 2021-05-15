@@ -123,7 +123,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install wheel
-        run: pip install pywayland-*-manylinux2014_x86_64.whl
+        run: pip install pywayland-*.whl
       - name: Check installation
         shell: python
         run: |
