@@ -124,7 +124,9 @@ class EventLoop:
 
     def __init__(self, display: Optional["Display"] = None) -> None:
         if display:
-            self._ptr: Optional["EventLoopCData"] = lib.wl_display_get_event_loop(display._ptr)
+            self._ptr: Optional["EventLoopCData"] = lib.wl_display_get_event_loop(
+                display._ptr
+            )
         else:
             # if we are creating an eventloop. we need to destroy it later
             ptr = lib.wl_event_loop_create()

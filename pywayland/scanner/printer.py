@@ -181,7 +181,9 @@ class Printer:
         ):
             protocol_path = self._interface_imports[interface_name]
             return ":class:`~{base_path}.{iface}.{class_name}`".format(
-                class_name=interface_class, base_path=BASE_PATH, iface=protocol_path,
+                class_name=interface_class,
+                base_path=BASE_PATH,
+                iface=protocol_path,
             )
 
         return "`{}`".format(interface_class)
