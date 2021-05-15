@@ -13,17 +13,14 @@
 # limitations under the License.
 
 from pywayland import ffi, lib
+from pywayland.utils import wl_container_of
 
 
 # void (*wl_notify_func_t)(struct wl_listener *listener, void *data);
 @ffi.def_extern()
 def notify_func(listener_ptr, data):
-    # basically a `container_of` macro, but using cffi, get the
-    # wl_listener_container for the given listener
-    container = ffi.cast(
-        "struct wl_listener_container *",
-        ffi.cast("char*", listener_ptr)
-        - ffi.offsetof("struct wl_listener_container", "destroy_listener"),
+    container = wl_container_of(
+        listener_ptr, "struct wl_listener_container *", "destroy_listener"
     )
     listener = ffi.from_handle(container.handle)
 

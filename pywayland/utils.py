@@ -1,4 +1,5 @@
 # Copyright 2015 Sean Vig
+# Copyright 2021 Matt Colligan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +15,9 @@
 
 import os
 from functools import wraps
+from typing import Iterator
 
-from . import lib
+from . import ffi, lib
 
 
 def ensure_valid(func):
@@ -76,3 +78,49 @@ class AnonymousFile:
 
         os.close(self.fd)
         self.fd = None
+
+
+def wl_container_of(ptr: ffi.CData, ctype: str, member: str, *, ffi=ffi) -> ffi.CData:
+    """
+    #define wl_container_of(ptr, sample, member)				\
+            (__typeof__(sample))((char *)(ptr) -				\
+                                 offsetof(__typeof__(*sample), member))
+
+    :param ptr:
+        Pointer to contained object
+    :param ctype:
+        ctype of container as string
+    :param member:
+        Member name of contained object in ctype
+    :param ffi:
+        ffi module to use. The default is pywayland, but this allows the use of this
+        macro by other ffi modules that use `wl_list`s.
+    """
+    return ffi.cast(
+        ctype,
+        ffi.cast("char *", ptr) - ffi.offsetof(ctype, member)
+    )
+
+
+def wl_list_for_each(ctype: str, head: ffi.CData, member: str, *, ffi=ffi) -> Iterator[ffi.CData]:
+    """
+    #define wl_list_for_each(pos, head, member)				\
+        for (pos = wl_container_of((head)->next, pos, member);	\
+             &pos->member != (head);					\
+             pos = wl_container_of(pos->member.next, pos, member))
+
+    :param ctype:
+        ctype of container as string
+    :param head:
+        The struct wl_list
+    :param member:
+        Member name of struct wl_list in ctype
+    :param ffi:
+        ffi module to use. The default is pywayland, but this allows the use of this
+        macro by other ffi modules that use `wl_list`s.
+    """
+    pos = wl_container_of(head.next, ctype, member, ffi=ffi)
+
+    while getattr(pos, member) != head:
+        yield pos
+        pos = wl_container_of(getattr(pos, member).next, ctype, member, ffi=ffi)

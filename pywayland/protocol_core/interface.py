@@ -23,7 +23,7 @@ from .resource import Resource
 from .globals import Global
 
 if TYPE_CHECKING:
-    from pywayland._ffi import Cdata
+    from pywayland._ffi import CData
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
@@ -53,7 +53,7 @@ class Interface(metaclass=InterfaceMeta):
     :func:`Interface.request` decorators.
     """
 
-    _ptr: "Cdata"
+    _ptr: "CData"
     name: str
     version: int
     proxy_class: Type[Proxy]

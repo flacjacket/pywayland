@@ -21,7 +21,7 @@ from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import WlDisplay
 
 if TYPE_CHECKING:
-    from pywayland._ffi import DisplayCdata, NullCdata  # noqa: F401
+    from pywayland._ffi import DisplayCData, NullCData  # noqa: F401
 
     # introduced in standard library in Python 3.8
     from typing_extensions import Literal  # noqa: F401
@@ -93,7 +93,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
 
         self._children: WeakSet = WeakSet()
         self._name_or_fd = name_or_fd
-        self._ptr: Optional["DisplayCdata"] = None
+        self._ptr: Optional["DisplayCData"] = None
 
     def __enter__(self) -> "Display":
         """Connect to the display in a context manager"""
@@ -122,7 +122,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         else:
             # connect using string by name, or use default
             if self._name_or_fd is None:
-                name: Union["NullCdata", bytes] = ffi.NULL
+                name: Union["NullCData", bytes] = ffi.NULL
             else:
                 name = self._name_or_fd.encode()
             self._ptr = lib.wl_display_connect(name)

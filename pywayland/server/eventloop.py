@@ -22,7 +22,7 @@ from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
     from pywayland.server import Display  # noqa: F401
-    from pywayland._ffi import EventLoopCdata  # noqa: F401
+    from pywayland._ffi import EventLoopCData  # noqa: F401
 
 CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
 
@@ -124,7 +124,7 @@ class EventLoop:
 
     def __init__(self, display: Optional["Display"] = None) -> None:
         if display:
-            self._ptr: Optional["EventLoopCdata"] = lib.wl_display_get_event_loop(display._ptr)
+            self._ptr: Optional["EventLoopCData"] = lib.wl_display_get_event_loop(display._ptr)
         else:
             # if we are creating an eventloop. we need to destroy it later
             ptr = lib.wl_event_loop_create()
