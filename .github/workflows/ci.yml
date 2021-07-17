@@ -70,10 +70,6 @@ jobs:
       - name: Set environment variables
         run: |
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
-      - name: Install dev coveralls version
-        run: |
-          cd ..
-          pip install -e git+https://github.com/TheKevJames/coveralls-python#egg=coveralls
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
