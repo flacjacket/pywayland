@@ -1,2 +1,4 @@
 include *.txt
 recursive-include pywayland *.pyi
+recursive-include test *.py
+recursive-include test *.xml
