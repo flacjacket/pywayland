@@ -189,7 +189,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
-          pip install mypy
+          pip install -r requirements-types.txt
           python pywayland/ffi_build.py
           python -m pywayland.scanner --with-protocols
       - name: Run mypy test
