@@ -22,7 +22,7 @@ from .element import Element
 from .printer import Printer
 
 
-@dataclass(frozen=True)  # type: ignore
+@dataclass(frozen=True)  # type: ignore[misc]
 class Method(Element, abc.ABC):
     """Scanner for methods
 

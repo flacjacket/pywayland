@@ -15,12 +15,12 @@
 
 import os
 from functools import wraps
-from typing import Iterator
+from typing import Callable, Iterator, Optional
 
 from . import ffi, lib
 
 
-def ensure_valid(func):
+def ensure_valid(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self._ptr is None:
@@ -43,19 +43,20 @@ class AnonymousFile:
     ``with`` statements, where the value returned is the file descriptor.
     """
 
-    def __init__(self, size):
+    def __init__(self, size: int) -> None:
         self.size = size
-        self.fd = None
+        self.fd: Optional[int] = None
 
-    def __enter__(self):
+    def __enter__(self) -> int:
         self.open()
 
+        assert self.fd is not None
         return self.fd
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.close()
 
-    def open(self):
+    def open(self) -> None:
         """Open an anonymous file
 
         Opens the anonymous file and sets the ``fd`` property to the file
@@ -67,7 +68,7 @@ class AnonymousFile:
         if self.fd < 0:
             raise IOError("Unable to create anonymous file")
 
-    def close(self):
+    def close(self) -> None:
         """Close the anonymous file
 
         Closes the file descriptor and sets the ``fd`` property to ``None``.
@@ -96,7 +97,7 @@ def wl_container_of(ptr: ffi.CData, ctype: str, member: str, *, ffi=ffi) -> ffi.
         ffi module to use. The default is pywayland, but this allows the use of this
         macro by other ffi modules that use `wl_list`s.
     """
-    return ffi.cast(ctype, ffi.cast("char *", ptr) - ffi.offsetof(ctype, member))
+    return ffi.cast(ctype, ffi.cast("char *", ptr) - ffi.offsetof(ctype, member))  # type: ignore[no-any-return]
 
 
 def wl_list_for_each(

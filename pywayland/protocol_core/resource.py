@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Type, TYPE_CHECKING
+from typing import Optional, Type, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
@@ -41,7 +41,7 @@ class Resource:
 
     interface: Type["Interface"]
 
-    def __init__(self, client, version=None, id=0):
+    def __init__(self, client, version=None, id=0) -> None:
         if version is None:
             version = self.interface.version
 
@@ -52,8 +52,11 @@ class Resource:
             client_ptr = client._ptr
         else:
             client_ptr = client
+        assert client_ptr is not None
 
-        self._ptr = lib.wl_resource_create(client_ptr, self.interface._ptr, version, id)
+        self._ptr: Optional["ffi.ResourceCData"] = lib.wl_resource_create(
+            client_ptr, self.interface._ptr, version, id
+        )
         self.id = lib.wl_resource_get_id(self._ptr)
 
         if self.dispatcher is not None:
@@ -66,31 +69,33 @@ class Resource:
                 lib.resource_destroy_func,
             )
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy the Resource"""
         if self._ptr:
             lib.wl_resource_destroy(self._ptr)
             self._ptr = None
 
     @ensure_valid
-    def add_destroy_listener(self, listener):
+    def add_destroy_listener(self, listener) -> None:
         """Add a listener for the destroy signal
 
         :param listener: The listener object
         :type listener: :class:`~pywayland.server.Listener`
         """
+        assert self._ptr is not None
         lib.wl_resource_add_destroy_listener(self._ptr, listener._ptr)
 
     @ensure_valid
-    def _post_event(self, opcode, *args):
+    def _post_event(self, opcode, *args) -> None:
         # Create wl_argument array
         args_ptr = self.interface.events[opcode].arguments_to_c(*args)
         # Make the cast to a wl_resource
-        resource = ffi.cast("struct wl_resource *", self._ptr)
+        assert self._ptr is not None
+        resource: ffi.ResourceCData = ffi.cast("struct wl_resource *", self._ptr)  # type: ignore[assignment]
 
         lib.wl_resource_post_event_array(resource, opcode, args_ptr)
 
     @ensure_valid
-    def _post_error(self, code, msg=""):
-        msg_ptr = ffi.new("char []", msg)
-        lib.wl_resouce_post_error(self._ptr, code, msg_ptr)
+    def _post_error(self, code, msg="") -> None:
+        assert self._ptr is not None
+        lib.wl_resource_post_error(self._ptr, code, msg.encode())

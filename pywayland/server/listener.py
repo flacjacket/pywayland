@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Callable
+
 from pywayland import ffi, lib
 from pywayland.utils import wl_container_of
 
@@ -47,13 +49,15 @@ class Listener:
     :type function: callable
     """
 
-    def __init__(self, function):
+    container: "ffi.ListenerContainerCData"
+
+    def __init__(self, function: Callable) -> None:
         self._handle = ffi.new_handle(self)
 
         # we need a way to get this Python object from the `struct
         # wl_listener*`, so we put the pointer in a container struct that
         # contains both the wl_listener and a pointer to our ffi handle
-        self.container = ffi.new("struct wl_listener_container *")
+        self.container = ffi.new("struct wl_listener_container *")  # type: ignore[assignment]
         self.container.handle = self._handle
 
         self._ptr = ffi.addressof(self.container.destroy_listener)
@@ -61,7 +65,7 @@ class Listener:
         self._notify = function
         self._signal = None
 
-    def remove(self):
+    def remove(self) -> None:
         """Remove the listener"""
         if self._ptr.link != ffi.NULL:
             lib.wl_list_remove(ffi.addressof(self._ptr.link))

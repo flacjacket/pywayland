@@ -17,21 +17,22 @@ import logging
 import os
 import shlex
 import subprocess
+from typing import List
 
 from .protocol import Protocol
 
 logger = logging.getLogger(__name__)
 
 
-def pkgconfig(package, variable):
+def pkgconfig(package, variable) -> str:
     """pkg-config"""
     pkgconfig_env = os.environ.get("PKG_CONFIG", "pkg-config")
     cmd = f"{pkgconfig_env} --variable={variable} {package}"
-    cmd = shlex.split(cmd)
-    return subprocess.check_output(cmd).decode().strip()
+    args = shlex.split(cmd)
+    return subprocess.check_output(args).decode().strip()
 
 
-def get_wayland_protocols():
+def get_wayland_protocols() -> List[str]:
     # use pkg-config to try to find the wayland-protocol directory
     try:
         protocols_dir = pkgconfig("wayland-protocols", "pkgdatadir")
@@ -53,7 +54,7 @@ def get_wayland_protocols():
     return sorted(protocols, reverse=True)
 
 
-def main():
+def main() -> None:
     this_dir = os.path.split(__file__)[0]
     protocol_dir = os.path.join(this_dir, "..", "protocol")
 

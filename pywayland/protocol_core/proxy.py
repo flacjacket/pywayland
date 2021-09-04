@@ -69,17 +69,17 @@ class Proxy:
         self.interface.registry[self._ptr] = self
 
     @property
-    def destroyed(self):
+    def destroyed(self) -> bool:
         """Determine if proxy has been destroyed
 
         Returns true if the proxy has been destroyed.
         """
         return self._ptr is None
 
-    def __del__(self):
+    def __del__(self) -> None:
         self._destroy()
 
-    def _destroy(self):
+    def _destroy(self) -> None:
         """Frees the pointer associated with the Proxy"""
         if self._ptr is not None:
             if self._display._ptr is not None:

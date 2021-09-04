@@ -120,7 +120,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         else:
             # connect using string by name, or use default
             if self._name_or_fd is None:
-                name: Union["ffi.NullCData", bytes] = ffi.NULL
+                name: Union["ffi.CData", bytes] = ffi.NULL
             else:
                 name = self._name_or_fd.encode()
             self._ptr = lib.wl_display_connect(name)

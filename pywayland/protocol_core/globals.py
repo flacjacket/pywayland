@@ -22,7 +22,7 @@ weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 # void (*wl_global_bind_func_t)(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 @ffi.def_extern()
-def global_bind_func(client_ptr, data, version, id):
+def global_bind_func(client_ptr, data, version, id) -> None:
     # `data` is the handle to Global
     callback_info = ffi.from_handle(data)
 
@@ -35,7 +35,7 @@ def global_bind_func(client_ptr, data, version, id):
         callback_info["bind_func"](resource)
 
 
-def _global_destroy(display, cdata):
+def _global_destroy(display, cdata) -> None:
     if display._ptr is not None:
         # TODO: figure out how this can get run...
         # lib.wl_global_destroy(cdata)

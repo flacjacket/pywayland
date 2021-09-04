@@ -30,7 +30,7 @@ CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
 
 # int (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data)
 @ffi.def_extern()
-def event_loop_fd_func(fd, mask, data_ptr):
+def event_loop_fd_func(fd, mask, data_ptr) -> int:
     callback_info = ffi.from_handle(data_ptr)
 
     ret = callback_info.callback(fd, mask, callback_info.data)
@@ -42,7 +42,7 @@ def event_loop_fd_func(fd, mask, data_ptr):
 
 # int (*wl_event_loop_signal_func_t)(int signal_number, void *data)
 @ffi.def_extern()
-def event_loop_signal_func(signal_number, data_ptr):
+def event_loop_signal_func(signal_number, data_ptr) -> int:
     callback_info = ffi.from_handle(data_ptr)
 
     ret = callback_info.callback(signal_number, callback_info.data)

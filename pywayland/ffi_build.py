@@ -270,6 +270,9 @@ typedef void (*wl_resource_destroy_func_t)(struct wl_resource *resource);
 void wl_resource_post_event_array(struct wl_resource *resource,
                                   uint32_t opcode, union wl_argument *args);
 
+void wl_resource_post_error(struct wl_resource *resource,
+                            uint32_t code, const char *msg, ...);
+
 struct wl_resource *
 wl_resource_create(struct wl_client *client,
                    const struct wl_interface *interface,

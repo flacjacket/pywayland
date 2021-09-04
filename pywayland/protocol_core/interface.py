@@ -50,7 +50,7 @@ class Interface(metaclass=InterfaceMeta):
     :func:`Interface.request` decorators.
     """
 
-    _ptr: ffi.CData
+    _ptr: "ffi.InterfaceCData"
     name: str
     version: int
     proxy_class: Type[Proxy]
