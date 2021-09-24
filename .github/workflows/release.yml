@@ -102,13 +102,53 @@ jobs:
         with:
           name: wheels-${{ matrix.python-version }}
           path: output_wheels/*.whl
+  build-wheel-pypy:
+    name: Build PyPy wheels
+    runs-on: ubuntu-latest
+    container: quay.io/pypa/manylinux_2_24_x86_64
+    needs: build-wayland
+    strategy:
+      matrix:
+        include:
+          - python-version: "3.7"
+            pypy-version: "7.3"
+    steps:
+      - name: Download wayland libraries
+        uses: actions/download-artifact@v2
+        with:
+          name: wayland
+      - name: Unpack wayland artifact
+        run: tar xf wayland.tar.gz -C /
+      - name: Set environment variables
+        run: |
+          PYTHON_ROOT=$(find /opt/python -name pp${PYTHON_VERSION/./}-*_pp${PP_VERSION/./})
+          echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
+        shell: bash
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+          PP_VERSION: ${{ matrix.pypy-version }}
+      - uses: actions/checkout@v2
+      - name: Install Python dependencies
+        run: |
+          python --version
+          python -m pip install -r requirements-wheel-build.txt
+      - name: Build wheels
+        run: |
+          python pywayland/ffi_build.py
+          python setup.py bdist_wheel --wayland-protocols
+          auditwheel repair --plat manylinux2014_x86_64 -w output_wheels dist/pywayland-*.whl
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels-pypy-${{ matrix.python-version }}
+          path: output_wheels/*.whl
   test-wheel:
     name: Test wheels
     runs-on: ubuntu-latest
-    needs: build-wheel-cpython
+    needs: [build-wheel-cpython, build-wheel-pypy]
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.6", "3.7", "3.8", "3.9", "pypy-3.7"]
     steps:
       - name: Download wheels
         uses: actions/download-artifact@v2
@@ -164,25 +204,30 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-wheel, build-source]
     steps:
-      - name: Download wheels Python 3.6
+      - name: Download wheels CPython 3.6
         uses: actions/download-artifact@v2
         with:
           name: wheels-3.6
           path: dist/
-      - name: Download wheels Python 3.7
+      - name: Download wheels CPython 3.7
         uses: actions/download-artifact@v2
         with:
           name: wheels-3.7
           path: dist/
-      - name: Download wheels Python 3.8
+      - name: Download wheels CPython 3.8
         uses: actions/download-artifact@v2
         with:
           name: wheels-3.8
           path: dist/
-      - name: Download wheels Python 3.9
+      - name: Download wheels CPython 3.9
         uses: actions/download-artifact@v2
         with:
           name: wheels-3.9
+          path: dist/
+      - name: Download wheels PyPy 3.7
+        uses: actions/download-artifact@v2
+        with:
+          name: wheels-pypy-3.7
           path: dist/
       - name: Download source
         uses: actions/download-artifact@v2
