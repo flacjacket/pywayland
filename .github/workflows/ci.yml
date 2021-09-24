@@ -10,13 +10,19 @@ jobs:
     strategy:
       matrix:
         wayland-version: ["1.19.0"]
-        wayland-protocols-version: ["1.22"]
+        wayland-protocols-version: ["1.23"]
     steps:
-      - run: |
+      - name: Setup environment
+        run: |
           echo "CPATH=${HOME}/wayland/usr/include" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
           echo "LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${HOME}/wayland/usr/share/pkgconfig:${HOME}/wayland/usr/lib/pkgconfig" >> $GITHUB_ENV
+      - name: Install meson
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build
+          sudo pip install meson
       - name: Download and unpack Wayland source
         run: |
           wget --no-check-certificate $WAYLAND_URL
@@ -32,12 +38,13 @@ jobs:
           ./configure --disable-documentation --prefix=/usr
           make
           DESTDIR=~/wayland make install
+          sudo make install
       - name: Build wayland-protocols
         working-directory: wayland-protocols-${{ matrix.wayland-protocols-version }}
         run: |
-          ./configure --prefix=/usr
-          make
-          DESTDIR=~/wayland make install
+          meson build --prefix=/usr
+          ninja -C build
+          DESTDIR=~/wayland ninja -C build install
       - name: Create artifact
         run: tar czf ~/wayland.tar.gz -C ${HOME}/wayland/ .
       - name: Upload built libraries
@@ -55,7 +62,7 @@ jobs:
       matrix:
         python-version: [pypy3, "3.6", "3.7", "3.8", "3.9"]
         wayland-version: ["1.19.0"]
-        wayland-protocols-version: ["1.22"]
+        wayland-protocols-version: ["1.23"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -104,7 +111,7 @@ jobs:
       matrix:
         python-version: ["3.9"]
         wayland-version: ["1.19.0"]
-        wayland-protocols-version: ["1.22"]
+        wayland-protocols-version: ["1.23"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -137,7 +144,7 @@ jobs:
       matrix:
         python-version: ["3.9"]
         wayland-version: ["1.19.0"]
-        wayland-protocols-version: ["1.22"]
+        wayland-protocols-version: ["1.23"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -170,7 +177,7 @@ jobs:
       matrix:
         python-version: ["3.9"]
         wayland-version: ["1.19.0"]
-        wayland-protocols-version: ["1.22"]
+        wayland-protocols-version: ["1.23"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
@@ -203,7 +210,7 @@ jobs:
       matrix:
         python-version: ["3.9"]
         wayland-version: ["1.19.0"]
-        wayland-protocols-version: ["1.22"]
+        wayland-protocols-version: ["1.23"]
     steps:
       - uses: actions/checkout@v2
       - name: Download wayland libraries
