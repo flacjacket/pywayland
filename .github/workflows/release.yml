@@ -5,6 +5,7 @@ on:
     tags: ['*']
   release:
     types: [published]
+  workflow_dispatch:
 jobs:
   build-wayland:
     name: Build Wayland libraries
