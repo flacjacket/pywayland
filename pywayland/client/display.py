@@ -72,7 +72,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
 
     A real world example of event queue usage is Mesa's implementation of
     glSwapBuffers() for the Wayland platform. This function might need to block
-    until a frame callback is received, but dispatching the default ueue could
+    until a frame callback is received, but dispatching the default queue could
     cause an event handler on the client to start drawing gain.  This problem
     is solved using another event queue, so that only the events handled by the
     EGL code are dispatched during the block.
