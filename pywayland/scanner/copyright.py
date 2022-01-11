@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
@@ -39,7 +41,7 @@ class Copyright(Element):
     text: str
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Copyright":
+    def parse(cls, element: ET.Element) -> Copyright:
         text = cls.parse_pcdata(element)
         assert text is not None
 

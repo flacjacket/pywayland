@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import enum
 from weakref import WeakSet
 from collections import namedtuple
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
@@ -121,9 +123,9 @@ class EventLoop:
         WL_EVENT_HANGUP = lib.WL_EVENT_HANGUP
         WL_EVENT_ERROR = lib.WL_EVENT_ERROR
 
-    def __init__(self, display: Optional["Display"] = None) -> None:
+    def __init__(self, display: Display | None = None) -> None:
         if display:
-            self._ptr: Optional["ffi.EventLoopCData"] = lib.wl_display_get_event_loop(
+            self._ptr: ffi.EventLoopCData | None = lib.wl_display_get_event_loop(
                 display._ptr
             )
         else:
@@ -132,7 +134,7 @@ class EventLoop:
             self._ptr = ffi.gc(ptr, lib.wl_event_loop_destroy)
 
         self.event_sources: WeakSet[EventSource] = WeakSet()
-        self._callback_handles: List = []
+        self._callback_handles: list = []
 
     def destroy(self):
         """Destroy the event loop"""

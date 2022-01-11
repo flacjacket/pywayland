@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Type, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import Type, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
@@ -54,7 +56,7 @@ class Resource:
             client_ptr = client
         assert client_ptr is not None
 
-        self._ptr: Optional["ffi.ResourceCData"] = lib.wl_resource_create(
+        self._ptr: ffi.ResourceCData | None = lib.wl_resource_create(
             client_ptr, self.interface._ptr, version, id
         )
         self.id = lib.wl_resource_get_id(self._ptr)

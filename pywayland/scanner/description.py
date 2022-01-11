@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional
 import xml.etree.ElementTree as ET
 
 from .element import Element
@@ -23,10 +24,10 @@ from .printer import Printer
 @dataclass(frozen=True)
 class Description(Element):
     summary: str
-    text: Optional[str]
+    text: str | None
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Description":
+    def parse(cls, element: ET.Element) -> Description:
         return cls(
             summary=cls.parse_attribute(element, "summary"),
             text=cls.parse_pcdata(element),

@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
@@ -22,7 +24,7 @@ if TYPE_CHECKING:
     from typing_extensions import Literal
 
 
-def _full_display_gc(ptr: "ffi.DisplayCData") -> None:
+def _full_display_gc(ptr: ffi.DisplayCData) -> None:
     """Destroy the Display cdata pointer, but only after destroying the clients"""
     lib.wl_display_destroy_clients(ptr)
     lib.wl_display_destroy(ptr)
@@ -39,11 +41,11 @@ class Display:
 
         self._ptr = ffi.gc(ptr, _full_display_gc)
 
-    def __enter__(self) -> "Display":
+    def __enter__(self) -> Display:
         """Use the Display in a context manager, which automatically destroys the Display"""
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "Literal[False]":
+    def __exit__(self, exc_type, exc_value, traceback) -> Literal[False]:
         """Destroy the used display"""
         self.destroy()
         return False
@@ -70,7 +72,7 @@ class Display:
             self._ptr = None
 
     @ensure_valid
-    def add_socket(self, name: Optional[str] = None) -> str:
+    def add_socket(self, name: str | None = None) -> str:
         """Add a socket to Wayland display for the clients to connect.
 
         This adds a Unix socket to Wayland display which can be used by clients

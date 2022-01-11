@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import abc
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Iterable
 
 from .argument import Argument
 from .description import Description
@@ -30,13 +32,13 @@ class Method(Element, abc.ABC):
     """
 
     name: str
-    since: Optional[str]
-    description: Optional[Description]
-    arg: List[Argument]
+    since: str | None
+    description: Description | None
+    arg: list[Argument]
 
     def imports(
-        self, interface: str, module_imports: Dict[str, str]
-    ) -> List[Tuple[str, str]]:
+        self, interface: str, module_imports: dict[str, str]
+    ) -> list[tuple[str, str]]:
         """Get the imports required for each of the interfaces
 
         :param interface:
@@ -93,7 +95,7 @@ class Method(Element, abc.ABC):
         printer: Printer,
         opcode: int,
         in_class: str,
-        module_imports: Dict[str, str],
+        module_imports: dict[str, str],
     ) -> None:
         """Generate the output for the given method to the printer"""
         if len(self.arg) > 0:

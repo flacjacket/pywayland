@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import xml.etree.ElementTree as ET
 import os
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from .element import Element
 from .copyright import Copyright, copyright_default
@@ -39,12 +40,12 @@ class Protocol(Element):
     """
 
     name: str
-    copyright: Optional[Copyright]
-    description: Optional[Description]
-    interface: List[Interface]
+    copyright: Copyright | None
+    description: Description | None
+    interface: list[Interface]
 
     @classmethod
-    def parse_file(cls, input_file: str) -> "Protocol":
+    def parse_file(cls, input_file: str) -> Protocol:
         if not os.path.exists(input_file):
             raise ValueError("Input xml file does not exist: {}".format(input_file))
         xmlroot = ET.parse(input_file).getroot()
@@ -56,7 +57,7 @@ class Protocol(Element):
         return cls.parse(xmlroot)
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Protocol":
+    def parse(cls, element: ET.Element) -> Protocol:
         return cls(
             name=cls.parse_attribute(element, "name"),
             copyright=cls.parse_optional_child(element, Copyright, "copyright"),
@@ -67,7 +68,7 @@ class Protocol(Element):
     def __repr__(self) -> str:
         return "Protocol({})".format(self.name)
 
-    def output(self, output_dir: str, module_imports: Dict[str, str]) -> None:
+    def output(self, output_dir: str, module_imports: dict[str, str]) -> None:
         """Output the scanned files to the given directory
 
         :param output_dir: Path of directory to output protocol files to

@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Iterable, Optional
+from typing import Iterable
 import xml.etree.ElementTree as ET
 
 from .argument import Argument, ArgumentType
@@ -39,10 +41,10 @@ class Request(Method):
 
     method_type = "request"
 
-    type: Optional[str]
+    type: str | None
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Request":
+    def parse(cls, element: ET.Element) -> Request:
         name = cls.parse_attribute(element, "name")
         if name in ("global", "import"):
             name += "_"
@@ -56,7 +58,7 @@ class Request(Method):
         )
 
     @property
-    def new_id(self) -> Optional[Argument]:
+    def new_id(self) -> Argument | None:
         for arg in self.arg:
             if arg.type == ArgumentType.NewId:
                 return arg

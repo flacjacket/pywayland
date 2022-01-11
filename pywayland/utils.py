@@ -13,9 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import os
 from functools import wraps
-from typing import Callable, Iterator, Optional
+from typing import Callable, Iterator
 
 from . import ffi, lib
 
@@ -45,7 +47,7 @@ class AnonymousFile:
 
     def __init__(self, size: int) -> None:
         self.size = size
-        self.fd: Optional[int] = None
+        self.fd: int | None = None
 
     def __enter__(self) -> int:
         self.open()

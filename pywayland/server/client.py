@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import functools
 import logging
-from typing import Any, Optional, Tuple
+from typing import Any
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
@@ -22,7 +24,7 @@ from .display import Display
 from .listener import Listener
 
 
-def _client_destroy(display: Display, cdata: "ffi.ClientCData") -> None:
+def _client_destroy(display: Display, cdata: ffi.ClientCData) -> None:
     # do nothing if the display is already destroyed
     if display.destroyed:
         logging.error("Display destroyed before client")
@@ -56,8 +58,8 @@ class Client:
         ptr = lib.wl_client_create(display._ptr, fd)
 
         destructor = functools.partial(_client_destroy, display)
-        self._ptr: Optional["ffi.ClientCData"] = ffi.gc(ptr, destructor)
-        self._display: Optional[Display] = display
+        self._ptr: ffi.ClientCData | None = ffi.gc(ptr, destructor)
+        self._display: Display | None = display
 
     def destroy(self) -> None:
         """Destroy the client"""
@@ -79,7 +81,7 @@ class Client:
         lib.wl_client_flush(self._ptr)
 
     @ensure_valid
-    def get_credentials(self) -> Tuple[int, int, int]:
+    def get_credentials(self) -> tuple[int, int, int]:
         """Return Unix credentials for the client.
 
         This function returns the process ID, the user ID and the group ID for the given

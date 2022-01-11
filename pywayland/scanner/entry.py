@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from typing import Optional
 
 from .element import Element
 from .description import Description
@@ -34,12 +35,12 @@ class Entry(Element):
 
     name: str
     value: str
-    summary: Optional[str]
-    since: Optional[str]
-    description: Optional[Description]
+    summary: str | None
+    since: str | None
+    description: Description | None
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Entry":
+    def parse(cls, element: ET.Element) -> Entry:
         return Entry(
             name=cls.parse_attribute(element, "name"),
             value=cls.parse_attribute(element, "value"),
