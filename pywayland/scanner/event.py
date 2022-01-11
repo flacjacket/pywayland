@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Iterator
 import xml.etree.ElementTree as ET
@@ -36,7 +38,7 @@ class Event(Method):
     method_type = "event"
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Event":
+    def parse(cls, element: ET.Element) -> Event:
         name = cls.parse_attribute(element, "name")
         if name in ("global", "import"):
             name += "_"

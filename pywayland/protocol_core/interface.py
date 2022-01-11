@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, Type, Optional
+from __future__ import annotations
+
+from typing import Callable, Type
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi
@@ -50,7 +52,7 @@ class Interface(metaclass=InterfaceMeta):
     :func:`Interface.request` decorators.
     """
 
-    _ptr: "ffi.InterfaceCData"
+    _ptr: ffi.InterfaceCData
     name: str
     version: int
     proxy_class: Type[Proxy]
@@ -58,7 +60,7 @@ class Interface(metaclass=InterfaceMeta):
     global_class: Type[Global]
 
     @classmethod
-    def event(cls, *arguments: Argument, version: Optional[int] = None) -> Callable:
+    def event(cls, *arguments: Argument, version: int | None = None) -> Callable:
         """Decorator for interface events
 
         Adds the decorated method to the list of events of the interface
@@ -79,7 +81,7 @@ class Interface(metaclass=InterfaceMeta):
         return wrapper
 
     @classmethod
-    def request(cls, *arguments: Argument, version: Optional[int] = None):
+    def request(cls, *arguments: Argument, version: int | None = None):
         """Decorator for interface requests
 
         Adds the decorated method to the list of requests of the interface

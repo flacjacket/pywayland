@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Callable, Iterable, List, Optional, Tuple
+from __future__ import annotations
+
+from typing import Callable, Iterable
 from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
@@ -44,7 +46,7 @@ class Message:
     """
 
     def __init__(
-        self, func: Callable, arguments: List[Argument], version: Optional[int]
+        self, func: Callable, arguments: list[Argument], version: int | None
     ) -> None:
         self.py_func = func
 
@@ -60,7 +62,7 @@ class Message:
                 yield Argument(ArgumentType.Uint)
             yield arg
 
-    def build_message_struct(self, wl_message_struct) -> Tuple:
+    def build_message_struct(self, wl_message_struct) -> tuple:
         """Bulid the wl_message struct for this message
 
         :param wl_message_struct:

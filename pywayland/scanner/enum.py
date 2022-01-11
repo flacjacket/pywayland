@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import List, Optional
 import xml.etree.ElementTree as ET
 
 from .description import Description
@@ -32,13 +33,13 @@ class Enum(Element):
     """
 
     name: str
-    since: Optional[str]
+    since: str | None
     is_bitfield: bool
-    description: Optional[Description]
-    entry: List[Entry]
+    description: Description | None
+    entry: list[Entry]
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Enum":
+    def parse(cls, element: ET.Element) -> Enum:
         is_bitfield = cls.parse_optional_attribute(element, "bitfield") == "true"
         return Enum(
             name=cls.parse_attribute(element, "name"),

@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import argparse
 import logging
 import os
 import shlex
 import subprocess
-from typing import List
 
 from .protocol import Protocol
 
@@ -32,7 +33,7 @@ def pkgconfig(package, variable) -> str:
     return subprocess.check_output(args).decode().strip()
 
 
-def get_wayland_protocols() -> List[str]:
+def get_wayland_protocols() -> list[str]:
     # use pkg-config to try to find the wayland-protocol directory
     try:
         protocols_dir = pkgconfig("wayland-protocols", "pkgdatadir")

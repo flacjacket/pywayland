@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import functools
 from weakref import WeakKeyDictionary
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from pywayland import ffi, lib
 
@@ -24,7 +26,7 @@ if TYPE_CHECKING:
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 
-def _event_queue_destroy(display: "Display", cdata: "ffi.QueueCData") -> None:
+def _event_queue_destroy(display: Display, cdata: ffi.QueueCData) -> None:
     # we should be careful that the display is still around
     if display._ptr is None:
         return
@@ -43,7 +45,7 @@ class EventQueue:
         :class:`~pywayland.client.Display`
     """
 
-    def __init__(self, display: "Display") -> None:
+    def __init__(self, display: Display) -> None:
         """Constructor for the EventQueue object"""
         # check that we attach to a valid display
         if display._ptr is None or display._ptr == ffi.NULL:
@@ -53,8 +55,8 @@ class EventQueue:
 
         # create a destructor, save data and display
         destructor = functools.partial(_event_queue_destroy, display)
-        self._ptr: Optional["ffi.QueueCData"] = ffi.gc(ptr, destructor)
-        self._display: Optional["Display"] = display
+        self._ptr: ffi.QueueCData | None = ffi.gc(ptr, destructor)
+        self._display: Display | None = display
 
         display._children.add(self)
 

@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional, Type, TYPE_CHECKING
+from typing import Type, TYPE_CHECKING
 
 from pywayland.scanner.argument import ArgumentType
 
@@ -33,7 +35,7 @@ class classproperty:
 class Argument:
     argument_type: ArgumentType
     nullable: bool = False
-    interface: Optional[Type["Interface"]] = None
+    interface: Type["Interface"] | None = None
 
     @property
     def signature(self) -> str:

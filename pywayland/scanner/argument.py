@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional
 import enum
 import xml.etree.ElementTree as ET
 
@@ -49,14 +50,14 @@ class Argument(Element):
 
     name: str
     type: ArgumentType
-    summary: Optional[str]
-    interface: Optional[str]
+    summary: str | None
+    interface: str | None
     allow_null: bool
-    enum: Optional[str]
-    description: Optional[Description]
+    enum: str | None
+    description: Description | None
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Argument":
+    def parse(cls, element: ET.Element) -> Argument:
         arg_type_str = cls.parse_attribute(element, "type")
         if arg_type_str == "int":
             argument_type = ArgumentType.Int

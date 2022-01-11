@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Union, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from weakref import WeakSet
 
 from pywayland import ffi, lib
@@ -22,7 +24,7 @@ from pywayland.protocol.wayland import WlDisplay
 
 if TYPE_CHECKING:
     # introduced in standard library in Python 3.8
-    from typing_extensions import Literal  # noqa: F401
+    from typing_extensions import Literal
 
 
 class Display(WlDisplay.proxy_class):  # type: ignore
@@ -85,20 +87,20 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         ``int`` or ``str``
     """
 
-    def __init__(self, name_or_fd: Optional[Union[int, str]] = None) -> None:
+    def __init__(self, name_or_fd: int | str | None = None) -> None:
         """Constructor for the Display object"""
         super().__init__(None)
 
         self._children: WeakSet = WeakSet()
         self._name_or_fd = name_or_fd
-        self._ptr: Optional["ffi.DisplayCData"] = None
+        self._ptr: ffi.DisplayCData | None = None
 
-    def __enter__(self) -> "Display":
+    def __enter__(self) -> Display:
         """Connect to the display in a context manager"""
         self.connect()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> "Literal[False]":
+    def __exit__(self, exc_type, exc_value, traceback) -> Literal[False]:
         """Disconnect from the display"""
         self.disconnect()
         return False
@@ -120,7 +122,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         else:
             # connect using string by name, or use default
             if self._name_or_fd is None:
-                name: Union["ffi.CData", bytes] = ffi.NULL
+                name: ffi.CData | bytes = ffi.NULL
             else:
                 name = self._name_or_fd.encode()
             self._ptr = lib.wl_display_connect(name)
@@ -160,9 +162,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return lib.wl_display_get_fd(self._ptr)
 
     @ensure_valid
-    def dispatch(
-        self, *, block: bool = False, queue: Optional[EventQueue] = None
-    ) -> int:
+    def dispatch(self, *, block: bool = False, queue: EventQueue | None = None) -> int:
         """Process incoming events
 
         If block is `False`, it does not attempt to read the display fd or
@@ -199,7 +199,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         return ret
 
     @ensure_valid
-    def roundtrip(self, *, queue: Optional[EventQueue] = None) -> int:
+    def roundtrip(self, *, queue: EventQueue | None = None) -> int:
         """Block until all pending request are processed by the server
 
         This function blocks until the server has processed all currently
@@ -228,7 +228,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             return lib.wl_display_roundtrip_queue(self._ptr, queue._ptr)
 
     @ensure_valid
-    def read(self, *, queue: Optional[EventQueue] = None) -> None:
+    def read(self, *, queue: EventQueue | None = None) -> None:
         """Read events from display file descriptor
 
         Calling this function will result in data available on the display file

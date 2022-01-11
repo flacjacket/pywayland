@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from typing import Callable
 
 from pywayland import ffi, lib
@@ -49,7 +51,7 @@ class Listener:
     :type function: callable
     """
 
-    container: "ffi.ListenerContainerCData"
+    container: ffi.ListenerContainerCData
 
     def __init__(self, function: Callable) -> None:
         self._handle = ffi.new_handle(self)

@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import itertools
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from .description import Description
 from .element import Element
@@ -29,13 +30,13 @@ from .request import Request
 class Interface(Element):
     name: str
     version: str
-    description: Optional[Description]
-    enum: List[Enum]
-    event: List[Event]
-    request: List[Request]
+    description: Description | None
+    enum: list[Enum]
+    event: list[Event]
+    request: list[Request]
 
     @classmethod
-    def parse(cls, element: ET.Element) -> "Interface":
+    def parse(cls, element: ET.Element) -> Interface:
         """Scanner for interface objects
 
         Required attributes: `name` and `version`
@@ -60,7 +61,7 @@ class Interface(Element):
         """
         return "".join(x.capitalize() for x in self.name.split("_"))
 
-    def output(self, printer: Printer, module_imports: Dict[str, str]) -> None:
+    def output(self, printer: Printer, module_imports: dict[str, str]) -> None:
         """Generate the output for the interface to the printer"""
         # Imports
         imports = set(

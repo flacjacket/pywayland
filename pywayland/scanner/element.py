@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional, TypeVar, Type
+from __future__ import annotations
+
+from typing import TypeVar, Type
 import abc
 import textwrap
 import xml.etree.ElementTree as ET
@@ -35,7 +37,7 @@ class Element(abc.ABC):
         return obj
 
     @staticmethod
-    def parse_optional_attribute(element: ET.Element, name) -> Optional[str]:
+    def parse_optional_attribute(element: ET.Element, name) -> str | None:
         obj = element.attrib.get(name)
         return obj
 
@@ -50,7 +52,7 @@ class Element(abc.ABC):
     @staticmethod
     def parse_optional_child(
         element: ET.Element, child_class: Type[T], name: str
-    ) -> Optional[T]:
+    ) -> T | None:
         obj = element.find(name)
         if obj is None:
             return None
@@ -60,12 +62,12 @@ class Element(abc.ABC):
     @staticmethod
     def parse_repeated_child(
         element: ET.Element, child_class: Type[T], name: str
-    ) -> List[T]:
+    ) -> list[T]:
         obj = [child_class.parse(elem) for elem in element.findall(name)]
         return obj
 
     @staticmethod
-    def parse_pcdata(element: ET.Element) -> Optional[str]:
+    def parse_pcdata(element: ET.Element) -> str | None:
         text = element.text
         if text:
             # We need to strip each line while keeping paragraph breaks
