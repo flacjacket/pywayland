@@ -14,6 +14,7 @@ jobs:
     env:
       wayland-version: "1.20.0"
       wayland-protocols-version: "1.24"
+      python-version: "3.10"
     steps:
       - name: Install dependencies
         run: |
@@ -23,12 +24,9 @@ jobs:
             libffi-dev \
             libxml++2.6-dev \
             ninja-build \
-            python3-pip \
-            python3-setuptools \
             wget \
             xsltproc \
             xz-utils
-          pip3 install meson
       - name: Download and unpack Wayland source
         run: |
           wget $WAYLAND_URL
@@ -44,13 +42,23 @@ jobs:
           echo "LD_LIBRARY_PATH=/wayland/usr/lib" >> $GITHUB_ENV
           echo "LIBRARY_PATH=/wayland/usr/lib" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/wayland/usr/share/pkgconfig:/wayland/usr/lib/pkgconfig" >> $GITHUB_ENV
+      - name: Set python version
+        run: |
+          PYTHON_ROOT=$(find /opt/python -name cp${PYTHON_VERSION/./}-*)
+          echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
+        shell: bash
+        env:
+          PYTHON_VERSION: ${{ env.python-version }}
+      - name: Install python dependencies
+        run: |
+          pip install meson ninja
       - name: Build Wayland
         working-directory: wayland-${{ env.wayland-version }}
         run: |
-          ./configure --disable-documentation --prefix=/usr
-          make
-          make install
-          DESTDIR=/wayland make install
+          meson build --prefix=/usr -Ddocumentation=false
+          ninja -C build
+          DESTDIR=/wayland ninja -C build install
+          ninja -C build install
       - name: Build Wayland protocols
         working-directory: wayland-protocols-${{ env.wayland-protocols-version }}
         run: |
