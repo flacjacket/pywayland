@@ -25,8 +25,8 @@ try:
 except ImportError:
     bdist_wheel = None
 
-# we need this to import the version and scanner module directly so we can
-# build the protocol before the cffi module has been compiled
+# we need this to import the scanner module directly so we can build the
+# protocol before the cffi module has been compiled
 sys.path.insert(0, "pywayland")
 
 default_xml_file = "/usr/share/wayland/wayland.xml"
