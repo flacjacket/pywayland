@@ -19,8 +19,8 @@ import pytest
 import tempfile
 
 this_dir = os.path.split(__file__)[0]
-scanner_dir = os.path.join(this_dir, 'scanner_files')
-input_file = os.path.join(scanner_dir, 'test_scanner_input.xml')
+scanner_dir = os.path.join(this_dir, "scanner_files")
+input_file = os.path.join(scanner_dir, "test_scanner_input.xml")
 
 interface_tests = [
     "__init__.py",
@@ -36,10 +36,7 @@ interface_tests = [
 def protocol_directory():
     scanner = Protocol.parse_file(input_file)
 
-    imports = {
-        interface.name: scanner.name
-        for interface in scanner.interface
-    }
+    imports = {interface.name: scanner.name for interface in scanner.interface}
 
     generated_files = [
         iface if isinstance(iface, str) else iface.values[0]
@@ -61,12 +58,12 @@ def test_interface(protocol_directory, iface_name):
     # Get the generated file output
     generated_file = os.path.join(protocol_directory, iface_name)
     with open(generated_file) as f:
-        gen_lines = [line.strip('\n') for line in f.readlines()]
+        gen_lines = [line.strip("\n") for line in f.readlines()]
 
     # Get output to check against
     check_file = os.path.join(scanner_dir, iface_name)
     with open(check_file) as f:
-        check_lines = [line.strip('\n') for line in f.readlines()]
+        check_lines = [line.strip("\n") for line in f.readlines()]
 
     # Run through both files, checking each line
     for gen_line, check_line in zip(gen_lines, check_lines):

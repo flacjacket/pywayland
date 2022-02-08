@@ -31,8 +31,8 @@ def test_create_resource():
     # Fetching the client object by id gives the resource back again
     assert client.get_object(res.id) == res
 
-    client.user_data = 0xbee
-    assert client.user_data == 0xbee
+    client.user_data = 0xBEE
+    assert client.user_data == 0xBEE
 
     client.destroy()
     display.destroy()

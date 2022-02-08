@@ -44,7 +44,8 @@ from pywayland.protocol.wayland import (
 
 ffi = FFI()
 
-ffi.cdef("""
+ffi.cdef(
+    """
 struct wl_message {
     const char *name;
     const char *signature;
@@ -81,11 +82,15 @@ extern const struct wl_interface wl_subcompositor_interface;
 extern const struct wl_interface wl_subsurface_interface;
 extern const struct wl_interface wl_surface_interface;
 extern const struct wl_interface wl_touch_interface;
-""")
+"""
+)
 
-C = ffi.verify("""
+C = ffi.verify(
+    """
 #include <wayland-server-protocol.h>
-""", libraries=['wayland-server', 'wayland-client'])
+""",
+    libraries=["wayland-server", "wayland-client"],
+)
 
 # Check the generated cdata interfaces against actual ones, list of all
 # interfaces as of wayland 1.7.0
@@ -140,7 +145,7 @@ def verify_wl_message(py_ptr, wl_ptr):
 
 @pytest.mark.parametrize("py_cls,wl_ptr", interfaces)
 def test_wl_interface(py_cls, wl_ptr):
-    """ Verify that the wl_interface of the Python class
+    """Verify that the wl_interface of the Python class
 
     Check the wl_interface associated with the given Python class against the
     given wl_interface object

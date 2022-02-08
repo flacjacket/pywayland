@@ -25,7 +25,7 @@ got_compositor = None
 
 def _get_registry_callback(proxy, id, iface_name, version):
     global got_compositor
-    if iface_name == 'wl_compositor':
+    if iface_name == "wl_compositor":
         got_compositor = proxy
     return 1
 
@@ -44,7 +44,7 @@ def _run_client():
         break
 
     reg = c.get_registry()
-    reg.dispatcher['global'] = _get_registry_callback
+    reg.dispatcher["global"] = _get_registry_callback
 
     c.roundtrip()
 

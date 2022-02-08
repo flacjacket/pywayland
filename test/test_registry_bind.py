@@ -23,7 +23,7 @@ import threading
 
 def _get_registry_callback(registry, id, iface_name, version):
     global compositor
-    if iface_name == 'wl_compositor':
+    if iface_name == "wl_compositor":
         compositor = registry.bind(id, WlCompositor, version)
 
 
@@ -39,7 +39,7 @@ def _run_client():
         break
 
     reg = c.get_registry()
-    reg.dispatcher['global'] = _get_registry_callback
+    reg.dispatcher["global"] = _get_registry_callback
 
     c.dispatch(block=True)
     c.roundtrip()

@@ -17,7 +17,14 @@
 from __future__ import annotations
 
 
-from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
+from pywayland.protocol_core import (
+    Argument,
+    ArgumentType,
+    Global,
+    Interface,
+    Proxy,
+    Resource,
+)
 
 
 class WlDestructor(Interface):
@@ -43,7 +50,9 @@ class WlDestructorProxy(Proxy[WlDestructor]):
         Argument(ArgumentType.Int),
         Argument(ArgumentType.Uint),
     )
-    def create_interface(self, x: int, y: int, width: int, height: int, format: int) -> Proxy[WlDestructor]:
+    def create_interface(
+        self, x: int, y: int, width: int, height: int, format: int
+    ) -> Proxy[WlDestructor]:
         """Create another interface
 
         Create a :class:`WlDestructor` interface object

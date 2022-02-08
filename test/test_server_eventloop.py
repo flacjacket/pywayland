@@ -50,7 +50,9 @@ def test_event_loop_post_dispatch_check():
     r, w = os.pipe()
 
     try:
-        source = event_loop.add_fd(r, _fd_callback, EventLoop.FdMask.WL_EVENT_READABLE, callback)
+        source = event_loop.add_fd(
+            r, _fd_callback, EventLoop.FdMask.WL_EVENT_READABLE, callback
+        )
         source.check()
 
         event_loop.dispatch(0)
@@ -186,6 +188,7 @@ def test_event_loop_destroy():
     event_loop.destroy()
 
     import gc
+
     gc.collect()
 
     assert a is False

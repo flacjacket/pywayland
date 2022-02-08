@@ -17,7 +17,14 @@
 from __future__ import annotations
 
 
-from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
+from pywayland.protocol_core import (
+    Argument,
+    ArgumentType,
+    Global,
+    Interface,
+    Proxy,
+    Resource,
+)
 from .wl_core import WlCore
 from .wl_requests import WlRequests
 
@@ -45,7 +52,9 @@ class WlEventsResource(Resource):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.FileDescriptor),
     )
-    def send_event(self, id: WlRequests, the_int: int, the_uint: int, the_fd: int) -> None:
+    def send_event(
+        self, id: WlRequests, the_int: int, the_uint: int, the_fd: int
+    ) -> None:
         """Send the data
 
         Request for data from the client.  Send the data as the specified mime

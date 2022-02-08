@@ -32,8 +32,8 @@ def import_object(module_name, class_name):
 
 def format_args(func):
     arg_spec = getargspec(func)
-    if arg_spec[0][0] == 'self':  # Should always be true
-        del(arg_spec[0][0])
+    if arg_spec[0][0] == "self":  # Should always be true
+        del arg_spec[0][0]
     return formatargspec(*arg_spec)
 
 
@@ -45,7 +45,8 @@ def formatargspec(*argspec):
     return inspect.formatargspec(*argspec)
 
 
-wl_protocol_template = Template("""
+wl_protocol_template = Template(
+    """
 .. autoclass:: {{ module }}.{{ class_name }}
     {% for func, opcode, sig, docs in requests %}
     .. method:: {{ func }} {{ sig }}
@@ -61,7 +62,8 @@ wl_protocol_template = Template("""
 
 {% for doc in docs %}
         {{ doc }}{% endfor %}{% endfor %}
-""")
+"""
+)
 
 
 class WlProtocol(Directive):
@@ -71,17 +73,29 @@ class WlProtocol(Directive):
         module_name, class_name = self.arguments[:2]
         obj = import_object(module_name, class_name)
         events = [
-            (event.py_func.__name__, opcode, format_args(event.py_func), prepare_docstring(event.py_func.__doc__))
+            (
+                event.py_func.__name__,
+                opcode,
+                format_args(event.py_func),
+                prepare_docstring(event.py_func.__doc__),
+            )
             for opcode, event in enumerate(obj.events)
         ]
-        reqs = [(req.py_func.__name__, opcode, format_args(req.py_func),
-                 prepare_docstring(req.py_func.__doc__)) for opcode, req in enumerate(obj.requests)]
+        reqs = [
+            (
+                req.py_func.__name__,
+                opcode,
+                format_args(req.py_func),
+                prepare_docstring(req.py_func.__doc__),
+            )
+            for opcode, req in enumerate(obj.requests)
+        ]
         context = {
-            'module': module_name,
-            'class_name': class_name,
-            'obj': obj,
-            'events': events,
-            'requests': reqs
+            "module": module_name,
+            "class_name": class_name,
+            "obj": obj,
+            "events": events,
+            "requests": reqs,
         }
         rst = wl_protocol_template.render(**context)
         for line in rst.splitlines():
@@ -92,10 +106,10 @@ class WlProtocol(Directive):
         node.document = self.state.document
         result = ViewList()
         for line in self.make_rst():
-            result.append(line, '<{0}>'.format(self.__class__.__name__))
+            result.append(line, "<{0}>".format(self.__class__.__name__))
         nested_parse_with_titles(self.state, result, node)
         return node.children
 
 
 def setup(app):
-    app.add_directive('wl_protocol', WlProtocol)
+    app.add_directive("wl_protocol", WlProtocol)
