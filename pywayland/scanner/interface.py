@@ -79,11 +79,18 @@ class Interface(Element):
         if self.enum:
             printer("import enum")
 
+        typing_imports = []
         define_t = any(req.new_id and not req.new_id.interface for req in self.request)
+        needs_any = any(req.needs_any for req in self.request) or any(
+            event.needs_any for event in self.event
+        )
         if define_t:
-            printer("from typing import Any, Type, TypeVar  # noqa: F401")
-        else:
-            printer("from typing import Any  # noqa: F401")
+            typing_imports.extend(["Type", "TypeVar"])
+        if needs_any:
+            typing_imports.append("Any")
+
+        if typing_imports:
+            printer(f"from typing import {', '.join(sorted(typing_imports))}")
 
         printer()
         if needs_argument_type:

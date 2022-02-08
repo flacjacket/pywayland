@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Type, TypeVar
+from typing import Type, TypeVar
 
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_core import WlCore

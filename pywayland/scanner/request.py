@@ -152,3 +152,10 @@ class Request(Method):
             else:
                 return "Proxy[T]"
         return "None"
+
+    @property
+    def needs_any(self) -> bool:
+        for arg in self.arg:
+            if arg.type == ArgumentType.Object and not arg.interface:
+                return True
+        return False

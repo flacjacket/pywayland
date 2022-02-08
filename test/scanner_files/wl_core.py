@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import enum
-from typing import Any
 
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_requests import WlRequests
@@ -103,7 +102,7 @@ class WlCoreResource(Resource):
         Argument(ArgumentType.NewId, interface=WlCore),
         Argument(ArgumentType.Object, interface=WlRequests),
     )
-    def send_event(self, id: Any, object: WlRequests) -> None:
+    def send_event(self, id: WlCore, object: WlRequests) -> None:
         """A :class:`WlCore` event
 
         Send an event, but also put in some docs for our interface

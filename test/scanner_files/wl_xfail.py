@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 
-from typing import Any
 
 from pywayland.protocol_core import Global, Interface, Proxy, Resource
 

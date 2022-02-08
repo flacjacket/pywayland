@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 
-from typing import Any
 
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_core import WlCore
@@ -46,7 +45,7 @@ class WlEventsResource(Resource):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.FileDescriptor),
     )
-    def send_event(self, id: Any, the_int: int, the_uint: int, the_fd: int) -> None:
+    def send_event(self, id: WlRequests, the_int: int, the_uint: int, the_fd: int) -> None:
         """Send the data
 
         Request for data from the client.  Send the data as the specified mime
@@ -79,7 +78,7 @@ class WlEventsResource(Resource):
     @WlEvents.event(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id(self, id: Any) -> None:
+    def create_id(self, id: WlCore) -> None:
         """Create an id
 
         With a description
@@ -93,7 +92,7 @@ class WlEventsResource(Resource):
     @WlEvents.event(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id2(self, id: Any) -> None:
+    def create_id2(self, id: WlCore) -> None:
         """Create an id without a description
 
         :param id:
@@ -120,7 +119,7 @@ class WlEventsResource(Resource):
         Argument(ArgumentType.NewId, interface=WlRequests),
         Argument(ArgumentType.Object, interface=WlCore, nullable=True),
     )
-    def make_import(self, id: Any, object: WlCore | None) -> None:
+    def make_import(self, id: WlRequests, object: WlCore | None) -> None:
         """Event that causes an import
 
         An event method that causes an imoprt of other interfaces
