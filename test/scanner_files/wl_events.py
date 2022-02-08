@@ -52,9 +52,7 @@ class WlEventsResource(Resource):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.FileDescriptor),
     )
-    def send_event(
-        self, id: WlRequests, the_int: int, the_uint: int, the_fd: int
-    ) -> None:
+    def send_event(self, id: WlRequests, the_int: int, the_uint: int, the_fd: int) -> None:
         """Send the data
 
         Request for data from the client.  Send the data as the specified mime

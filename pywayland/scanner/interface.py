@@ -94,9 +94,14 @@ class Interface(Element):
 
         printer()
         if needs_argument_type:
-            printer(
-                "from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource"
-            )
+            printer("from pywayland.protocol_core import (")
+            printer("    Argument,")
+            printer("    ArgumentType,")
+            printer("    Global,")
+            printer("    Interface,")
+            printer("    Proxy,")
+            printer("    Resource,")
+            printer(")")
         else:
             printer(
                 "from pywayland.protocol_core import Global, Interface, Proxy, Resource"

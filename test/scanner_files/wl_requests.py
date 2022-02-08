@@ -155,9 +155,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.NewId),
     )
-    def new_id_no_interface(
-        self, name: int, interface: Type[T], version: int
-    ) -> Proxy[T]:
+    def new_id_no_interface(self, name: int, interface: Type[T], version: int) -> Proxy[T]:
         """Create a new id, but with no interface
 
         A method with an argument for a new_id, but with no corresponding

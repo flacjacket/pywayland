@@ -5,3 +5,4 @@ repos:
       - id: black
         # Use the latest supported version here
         language_version: python3.10
+        exclude: ^test/scanner_files/

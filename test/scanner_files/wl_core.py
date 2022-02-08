@@ -53,9 +53,7 @@ class WlCoreProxy(Proxy[WlCore]):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.Fixed),
     )
-    def make_request(
-        self, the_int: int, the_uint: int, the_fixed: float
-    ) -> Proxy[WlCore]:
+    def make_request(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
         """A request
 
         The request asks the server for an event.
@@ -82,9 +80,7 @@ class WlCoreProxy(Proxy[WlCore]):
         Argument(ArgumentType.Fixed),
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def make_request2(
-        self, the_int: int, the_uint: int, the_fixed: float
-    ) -> Proxy[WlCore]:
+    def make_request2(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
         """A request
 
         The request asks the server for an event but move the args around.
