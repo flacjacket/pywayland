@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from typing import Any
+
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_core import WlCore
 from .wl_requests import WlRequests
@@ -29,7 +33,7 @@ class WlEvents(Interface):
     version = 2
 
 
-class WlEventsProxy(Proxy):
+class WlEventsProxy(Proxy[WlEvents]):
     interface = WlEvents
 
 
@@ -42,7 +46,7 @@ class WlEventsResource(Resource):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.FileDescriptor),
     )
-    def send_event(self, id, the_int, the_uint, the_fd):
+    def send_event(self, id: Any, the_int: int, the_uint: int, the_fd: int) -> None:
         """Send the data
 
         Request for data from the client.  Send the data as the specified mime
@@ -65,7 +69,7 @@ class WlEventsResource(Resource):
         self._post_event(0, id, the_int, the_uint, the_fd)
 
     @WlEvents.event()
-    def no_args(self):
+    def no_args(self) -> None:
         """Event with no args
 
         An event method that does not have any arguments.
@@ -75,7 +79,7 @@ class WlEventsResource(Resource):
     @WlEvents.event(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id(self, id):
+    def create_id(self, id: Any) -> None:
         """Create an id
 
         With a description
@@ -89,7 +93,7 @@ class WlEventsResource(Resource):
     @WlEvents.event(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id2(self, id):
+    def create_id2(self, id: Any) -> None:
         """Create an id without a description
 
         :param id:
@@ -101,7 +105,7 @@ class WlEventsResource(Resource):
     @WlEvents.event(
         Argument(ArgumentType.String, nullable=True),
     )
-    def allow_null_event(self, null_string):
+    def allow_null_event(self, null_string: str | None) -> None:
         """A event with an allowed null argument
 
         An event where one of the arguments is allowed to be null.
@@ -116,7 +120,7 @@ class WlEventsResource(Resource):
         Argument(ArgumentType.NewId, interface=WlRequests),
         Argument(ArgumentType.Object, interface=WlCore, nullable=True),
     )
-    def make_import(self, id, object):
+    def make_import(self, id: Any, object: WlCore | None) -> None:
         """Event that causes an import
 
         An event method that causes an imoprt of other interfaces
@@ -131,7 +135,7 @@ class WlEventsResource(Resource):
         self._post_event(5, id, object)
 
     @WlEvents.event(version=2)
-    def versioned(self):
+    def versioned(self) -> None:
         """A versioned event
 
         An event that is versioned.

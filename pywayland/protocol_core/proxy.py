@@ -12,18 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Type, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import Generic, Type, TypeVar, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
 from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
-    from .interface import Interface  # noqa: F401
+    from .interface import Interface
+
+    T = TypeVar("T", bound=Interface)
+    InterfaceT = TypeVar("InterfaceT", bound=Interface)
+else:
+    T = TypeVar("T")
 
 
-class Proxy:
-    interface: Type["Interface"]
+class Proxy(Generic[T]):
+    interface: Type[T]
 
     def __init__(self, ptr, display=None):
         """Represents a protocol object on the client side.
@@ -76,9 +83,6 @@ class Proxy:
         """
         return self._ptr is None
 
-    def __del__(self) -> None:
-        self._destroy()
-
     def _destroy(self) -> None:
         """Frees the pointer associated with the Proxy"""
         if self._ptr is not None:
@@ -91,7 +95,7 @@ class Proxy:
     destroy = _destroy
 
     @ensure_valid
-    def _marshal(self, opcode, *args):
+    def _marshal(self, opcode, *args) -> None:
         """Marshal the given arguments into the Wayland wire format"""
         # Create a wl_argument array
         args_ptr = self.interface.requests[opcode].arguments_to_c(*args)
@@ -100,8 +104,9 @@ class Proxy:
         proxy = ffi.cast("struct wl_proxy *", self._ptr)
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
-    @ensure_valid
-    def _marshal_constructor(self, opcode, interface, *args):
+    def _marshal_constructor(
+        self, opcode: int, interface: Type[InterfaceT], *args
+    ) -> Proxy[InterfaceT]:
         """Marshal the given arguments into the Wayland wire format for a constructor"""
         # Create a wl_argument array
         args_ptr = self.interface.requests[opcode].arguments_to_c(*args)

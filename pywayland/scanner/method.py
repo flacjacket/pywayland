@@ -82,6 +82,11 @@ class Method(Element, abc.ABC):
     def method_args(self) -> Iterable[str]:
         pass
 
+    @property
+    @abc.abstractmethod
+    def return_type(self) -> str:
+        pass
+
     @abc.abstractmethod
     def output_doc_params(self, printer: Printer) -> None:
         pass
@@ -102,7 +107,7 @@ class Method(Element, abc.ABC):
             printer(f"@{in_class}.{self.method_type}(")
             with printer.indented():
                 for arg in self.arg:
-                    arg.output(printer)
+                    printer(arg.argument + ",")
                 if self.since:
                     printer(f"version={self.since},")
             printer(")")
@@ -114,7 +119,7 @@ class Method(Element, abc.ABC):
 
         # Generate the definition of the method and args
         args = ", ".join(["self"] + list(self.method_args))
-        printer("def {}({}):".format(self.name, args))
+        printer(f"def {self.name}({args}) -> {self.return_type}:")
 
         with printer.indented():
             # Write the documentation

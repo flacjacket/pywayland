@@ -57,7 +57,7 @@ class Event(Method):
         All arguments to be sent to `._post_event` must be passed in
         """
         for arg in self.arg:
-            yield arg.name
+            yield arg.signature
 
     def output_doc_params(self, printer: Printer) -> None:
         """Aguments documented as parameters
@@ -69,5 +69,9 @@ class Event(Method):
 
     def output_body(self, printer: Printer, opcode: int) -> None:
         """Output the body of the event to the printer"""
-        args = ", ".join([str(opcode)] + list(self.method_args))
+        args = ", ".join([str(opcode)] + [arg.name for arg in self.arg])
         printer("self._post_event({})".format(args))
+
+    @property
+    def return_type(self) -> str:
+        return "None"

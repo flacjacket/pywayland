@@ -74,9 +74,18 @@ class Interface(Element):
             len(method.arg) > 0 for method in self.request
         ) or any(len(method.arg) > 0 for method in self.event)
 
+        printer("from __future__ import annotations")
+        printer()
         if self.enum:
             printer("import enum")
-            printer()
+
+        define_t = any(req.new_id and not req.new_id.interface for req in self.request)
+        if define_t:
+            printer("from typing import Any, Type, TypeVar  # noqa: F401")
+        else:
+            printer("from typing import Any  # noqa: F401")
+
+        printer()
         if needs_argument_type:
             printer(
                 "from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource"
@@ -88,6 +97,9 @@ class Interface(Element):
 
         for module, import_ in sorted(imports):
             printer("from {} import {}".format(module, import_))
+        if define_t:
+            printer()
+            printer('T = TypeVar("T", bound=Interface)')
         printer()
         printer()
 
@@ -115,7 +127,7 @@ class Interface(Element):
 
         printer()
         printer()
-        printer(f"class {proxy_class_name}(Proxy):")
+        printer(f"class {proxy_class_name}(Proxy[{self.class_name}]):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
             for opcode, request in enumerate(self.request):

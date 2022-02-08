@@ -37,7 +37,7 @@ class Element(abc.ABC):
         return obj
 
     @staticmethod
-    def parse_optional_attribute(element: ET.Element, name) -> str | None:
+    def parse_optional_attribute(element: ET.Element, name: str) -> str | None:
         obj = element.attrib.get(name)
         return obj
 

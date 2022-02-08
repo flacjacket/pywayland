@@ -25,7 +25,7 @@ from .protocol import Protocol
 logger = logging.getLogger(__name__)
 
 
-def pkgconfig(package, variable) -> str:
+def pkgconfig(package: str, variable: str) -> str:
     """pkg-config"""
     pkgconfig_env = os.environ.get("PKG_CONFIG", "pkg-config")
     cmd = f"{pkgconfig_env} --variable={variable} {package}"

@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Type, TYPE_CHECKING
+from typing import Generic, Type, TypeVar, TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
@@ -22,10 +22,14 @@ from pywayland.utils import ensure_valid
 from pywayland.server.client import Client
 
 if TYPE_CHECKING:
-    from .interface import Interface  # noqa: F401
+    from .interface import Interface
+
+    T = TypeVar("T", bound=Interface)
+else:
+    T = TypeVar("T")
 
 
-class Resource:
+class Resource(Generic[T]):
     """A server-side Interface object for the client
 
     Not created directly, created from the
@@ -41,9 +45,9 @@ class Resource:
     :type id: `int`
     """
 
-    interface: Type["Interface"]
+    interface: Type[T]
 
-    def __init__(self, client, version=None, id=0) -> None:
+    def __init__(self, client, version: int | None = None, id: int = 0) -> None:
         if version is None:
             version = self.interface.version
 

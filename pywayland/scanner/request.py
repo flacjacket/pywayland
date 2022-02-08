@@ -78,10 +78,10 @@ class Request(Method):
                     continue
                 # A `new_id` with no interface, c.f. wl_registry_bind
                 # Need a string (interface name) and int (interface version)
-                yield NO_IFACE
-                yield NO_IFACE_VERSION
+                yield f"{NO_IFACE}: Type[T]"
+                yield f"{NO_IFACE_VERSION}: int"
             else:
-                yield arg.name
+                yield arg.signature
 
     @property
     def marshal_args(self) -> Iterable[str]:
@@ -142,3 +142,13 @@ class Request(Method):
             printer("self._marshal({})".format(args))
             if self.type == "destructor":
                 printer("self._destroy()")
+
+    @property
+    def return_type(self) -> str:
+        """The return type for the request."""
+        if self.new_id:
+            if self.new_id.interface:
+                return f"Proxy[{self.new_id.interface_class}]"
+            else:
+                return "Proxy[T]"
+        return "None"

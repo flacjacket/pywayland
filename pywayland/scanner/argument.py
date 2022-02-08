@@ -99,14 +99,48 @@ class Argument(Element):
         assert self.interface is not None
         return "".join(x.capitalize() for x in self.interface.split("_"))
 
-    def output(self, printer: Printer) -> None:
+    @property
+    def signature(self) -> str:
+        """Output as the argument appears in the signature."""
+        return f"{self.name}: {self._annotation}"
+
+    @property
+    def _annotation(self) -> str:
+        """The type annotation for the argument."""
+        if self.type == ArgumentType.Int:
+            base_annotation = "int"
+        elif self.type == ArgumentType.Uint:
+            base_annotation = "int"
+        elif self.type == ArgumentType.Fixed:
+            base_annotation = "float"
+        elif self.type == ArgumentType.String:
+            base_annotation = "str"
+        elif self.type == ArgumentType.Object:
+            if self.interface:
+                base_annotation = self.interface_class
+            else:
+                base_annotation = "Any"
+        elif self.type == ArgumentType.NewId:
+            base_annotation = "Any"
+        elif self.type == ArgumentType.Array:
+            base_annotation = "list"
+        elif self.type == ArgumentType.FileDescriptor:
+            base_annotation = "int"
+
+        if self.allow_null:
+            return f"{base_annotation} | None"
+        return base_annotation
+
+    @property
+    def argument(self) -> str:
+        """Output as an Argument"""
         args = [f"ArgumentType.{self.type.name}"]
         if self.interface is not None:
             args.append(f"interface={self.interface_class}")
         if self.allow_null:
             args.append("nullable=True")
 
-        printer(f"Argument({', '.join(args)}),")
+        return f"Argument({', '.join(args)})"
 
     def output_doc_param(self, printer: Printer) -> None:
         """Document the argument as a parameter"""

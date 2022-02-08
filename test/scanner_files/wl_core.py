@@ -14,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import enum
+from typing import Any
 
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_requests import WlRequests
@@ -35,7 +38,7 @@ class WlCore(Interface):
         hex_two = 0x2
 
 
-class WlCoreProxy(Proxy):
+class WlCoreProxy(Proxy[WlCore]):
     interface = WlCore
 
     @WlCore.request(
@@ -44,7 +47,7 @@ class WlCoreProxy(Proxy):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.Fixed),
     )
-    def make_request(self, the_int, the_uint, the_fixed):
+    def make_request(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
         """A request
 
         The request asks the server for an event.
@@ -71,7 +74,7 @@ class WlCoreProxy(Proxy):
         Argument(ArgumentType.Fixed),
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def make_request2(self, the_int, the_uint, the_fixed):
+    def make_request2(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
         """A request
 
         The request asks the server for an event but move the args around.
@@ -100,7 +103,7 @@ class WlCoreResource(Resource):
         Argument(ArgumentType.NewId, interface=WlCore),
         Argument(ArgumentType.Object, interface=WlRequests),
     )
-    def send_event(self, id, object):
+    def send_event(self, id: Any, object: WlRequests) -> None:
         """A :class:`WlCore` event
 
         Send an event, but also put in some docs for our interface

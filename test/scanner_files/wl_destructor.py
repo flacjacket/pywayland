@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from typing import Any
+
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 
 
@@ -29,7 +33,7 @@ class WlDestructor(Interface):
     version = 1
 
 
-class WlDestructorProxy(Proxy):
+class WlDestructorProxy(Proxy[WlDestructor]):
     interface = WlDestructor
 
     @WlDestructor.request(
@@ -40,7 +44,7 @@ class WlDestructorProxy(Proxy):
         Argument(ArgumentType.Int),
         Argument(ArgumentType.Uint),
     )
-    def create_interface(self, x, y, width, height, format):
+    def create_interface(self, x: int, y: int, width: int, height: int, format: int) -> Proxy[WlDestructor]:
         """Create another interface
 
         Create a :class:`WlDestructor` interface object
@@ -67,7 +71,7 @@ class WlDestructorProxy(Proxy):
         return id
 
     @WlDestructor.request()
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy the interface
 
         Destroy the created interface.

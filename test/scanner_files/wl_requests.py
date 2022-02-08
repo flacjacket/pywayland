@@ -14,9 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from typing import Any, Type, TypeVar
+
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
 from .wl_core import WlCore
 from .wl_events import WlEvents
+
+T = TypeVar("T", bound=Interface)
 
 
 class WlRequests(Interface):
@@ -29,7 +35,7 @@ class WlRequests(Interface):
     version = 2
 
 
-class WlRequestsProxy(Proxy):
+class WlRequestsProxy(Proxy[WlRequests]):
     interface = WlRequests
 
     @WlRequests.request(
@@ -38,7 +44,7 @@ class WlRequestsProxy(Proxy):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.FileDescriptor),
     )
-    def make_request(self, the_int, the_uint, the_fd):
+    def make_request(self, the_int: int, the_uint: int, the_fd: int) -> Proxy[WlCore]:
         """A request
 
         The request asks the server for an event.
@@ -60,7 +66,7 @@ class WlRequestsProxy(Proxy):
         return id
 
     @WlRequests.request()
-    def no_args(self):
+    def no_args(self) -> None:
         """Request with no args
 
         A request method that does not have any arguments.
@@ -70,7 +76,7 @@ class WlRequestsProxy(Proxy):
     @WlRequests.request(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id(self):
+    def create_id(self) -> Proxy[WlCore]:
         """Create an id
 
         With a description
@@ -84,7 +90,7 @@ class WlRequestsProxy(Proxy):
     @WlRequests.request(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id2(self):
+    def create_id2(self) -> Proxy[WlCore]:
         """Create an id without a description
 
         :returns:
@@ -97,7 +103,7 @@ class WlRequestsProxy(Proxy):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.String, nullable=True),
     )
-    def allow_null(self, serial, mime_type):
+    def allow_null(self, serial: int, mime_type: str | None) -> None:
         """Request that allows for null arguments
 
         A request where one of the arguments is allowed to be null.
@@ -115,7 +121,7 @@ class WlRequestsProxy(Proxy):
         Argument(ArgumentType.NewId, interface=WlEvents),
         Argument(ArgumentType.Object, interface=WlCore, nullable=True),
     )
-    def make_import(self, object):
+    def make_import(self, object: WlCore | None) -> Proxy[WlEvents]:
         """Request that causes an import
 
         A request method that causes an imoprt of other interfaces, both as a
@@ -131,7 +137,7 @@ class WlRequestsProxy(Proxy):
         return id
 
     @WlRequests.request(version=2)
-    def versioned(self):
+    def versioned(self) -> None:
         """A versioned request
 
         A request that is versioned.
@@ -142,7 +148,7 @@ class WlRequestsProxy(Proxy):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.NewId),
     )
-    def new_id_no_interface(self, name, interface, version):
+    def new_id_no_interface(self, name: int, interface: Type[T], version: int) -> Proxy[T]:
         """Create a new id, but with no interface
 
         A method with an argument for a new_id, but with no corresponding
