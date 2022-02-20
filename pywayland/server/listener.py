@@ -62,16 +62,18 @@ class Listener:
         self.container = ffi.new("struct wl_listener_container *")  # type: ignore[assignment]
         self.container.handle = self._handle
 
-        self._ptr = ffi.addressof(self.container.destroy_listener)
+        self._ptr: ffi.ListenerCData | None = ffi.addressof(
+            self.container.destroy_listener
+        )
         self._ptr.notify = lib.notify_func
         self._notify = function
         self._signal = None
 
     def remove(self) -> None:
         """Remove the listener"""
-        if self._ptr.link != ffi.NULL:
+        if self._ptr and self._ptr.link != ffi.NULL:
             lib.wl_list_remove(ffi.addressof(self._ptr.link))
-            self.link = None
+            self._ptr = None
 
 
 class Signal:

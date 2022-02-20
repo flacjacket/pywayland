@@ -103,7 +103,7 @@ class Client:
         :param listener: The listener object
         :type listener: :class:`~pywayland.server.Listener`
         """
-        assert self._ptr is not None
+        assert self._ptr is not None and listener._ptr is not None
         lib.wl_client_add_destroy_listener(self._ptr, listener._ptr)
 
     @ensure_valid
