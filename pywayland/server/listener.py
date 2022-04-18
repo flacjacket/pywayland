@@ -14,10 +14,13 @@
 
 from __future__ import annotations
 
+from logging import getLogger
 from typing import Callable
 
 from pywayland import ffi, lib
 from pywayland.utils import wl_container_of
+
+logger = getLogger(__package__)
 
 
 # void (*wl_notify_func_t)(struct wl_listener *listener, void *data);
@@ -32,7 +35,11 @@ def notify_func(listener_ptr, data):
         data = listener._signal._data_wrapper(data)
 
     callback = listener._notify
-    callback(listener, data)
+
+    try:
+        callback(listener, data)
+    except Exception:
+        logger.exception("Exception in callback function")
 
 
 class Listener:
