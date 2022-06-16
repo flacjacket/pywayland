@@ -30,18 +30,10 @@ def import_object(module_name, class_name):
 
 
 def format_args(func):
-    arg_spec = inspect.getargspec(func)
-    if arg_spec[0][0] == "self":  # Should always be true
-        del arg_spec[0][0]
-    return formatargspec(*arg_spec)
-
-
-def formatargspec(*argspec):
-    # most recent version of sphinx.ext.autodoc uses:
-    # from sphinx.util.inspect import object_description
-    # return inspect.formatargspec(*argspec, formatvalue=lambda x: '=' + object_description(x))
-    # RTD uses an old sphinx version without object_description, but this doesn't seem to make any difference for this
-    return inspect.formatargspec(*argspec)
+    sig = inspect.signature(func)
+    parameters = [v for k, v in sig.parameters.items() if k != "self"]
+    sig = sig.replace(parameters=parameters)
+    return str(sig)
 
 
 wl_protocol_template = Template(
