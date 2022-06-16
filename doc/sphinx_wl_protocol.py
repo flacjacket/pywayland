@@ -20,7 +20,6 @@ from jinja2 import Template
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from sphinx.util.docstrings import prepare_docstring
-from sphinx.util.inspect import getargspec
 from sphinx.util.nodes import nested_parse_with_titles
 
 
@@ -31,7 +30,7 @@ def import_object(module_name, class_name):
 
 
 def format_args(func):
-    arg_spec = getargspec(func)
+    arg_spec = inspect.getargspec(func)
     if arg_spec[0][0] == "self":  # Should always be true
         del arg_spec[0][0]
     return formatargspec(*arg_spec)
