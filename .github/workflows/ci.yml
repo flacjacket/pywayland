@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        wayland-version: ["1.20.0"]
+        wayland-version: ["1.21.0"]
         wayland-protocols-version: ["1.25"]
     steps:
       - name: Setup environment
@@ -31,7 +31,7 @@ jobs:
           tar -xJf wayland-${{ matrix.wayland-version }}.tar.xz
           tar -xJf wayland-protocols-${{ matrix.wayland-protocols-version }}.tar.xz
         env:
-          WAYLAND_URL: https://wayland.freedesktop.org/releases/wayland-${{ matrix.wayland-version }}.tar.xz
+          WAYLAND_URL: https://gitlab.freedesktop.org/wayland/wayland/-/releases/${{ matrix.wayland-version }}/downloads/wayland-${{ matrix.wayland-version }}.tar.xz
           WAYLAND_PROTOCOLS_URL: https://wayland.freedesktop.org/releases/wayland-protocols-${{ matrix.wayland-protocols-version }}.tar.xz
       - name: Build wayland
         working-directory: wayland-${{ matrix.wayland-version }}
@@ -62,7 +62,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["pypy-3.7", "3.7", "3.8", "3.9", "3.10"]
-        wayland-version: ["1.20.0"]
+        wayland-version: ["1.21.0"]
         wayland-protocols-version: ["1.25"]
     steps:
       - uses: actions/checkout@v2
@@ -109,7 +109,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.10"
-      wayland-version: "1.20.0"
+      wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
       - uses: actions/checkout@v2
@@ -140,7 +140,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.10"
-      wayland-version: "1.20.0"
+      wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
       - uses: actions/checkout@v2
@@ -171,7 +171,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.10"
-      wayland-version: "1.20.0"
+      wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
       - uses: actions/checkout@v2
@@ -202,7 +202,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.10"
-      wayland-version: "1.20.0"
+      wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
       - uses: actions/checkout@v2
