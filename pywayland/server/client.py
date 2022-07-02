@@ -39,7 +39,8 @@ class Client:
     Given a file descriptor corresponding to one end of a socket, create a
     client struct and add the new client to the compositors client list.  At
     that point, the client is initialized and ready to run, as if the client
-    had connected to the servers listening socket.
+    had connected to the servers listening socket. Alternatively, pass a pointer to an
+    existing client and use that instead of creating a new one.
 
     The other end of the socket can be passed to
     :meth:`~pywayland.client.Display.connect()` on the client side or used with
@@ -49,24 +50,36 @@ class Client:
     :type display: :class:`Display`
     :param fd: The file descriptor for the socket to the client
     :type fd: `int`
+    :param ptr: A pointer to an existing wl_client
+    :type ptr: `ffi.ClientCData`
     """
 
-    def __init__(self, display: Display, fd: int) -> None:
-        if display.destroyed:
-            raise ValueError("Display has been destroyed")
+    def __init__(
+        self,
+        display: Display | None = None,
+        fd: int | None = None,
+        ptr: ffi.ClientCData | None = None,
+    ) -> None:
+        if ptr is None:
+            if display is None or fd is None:
+                raise ValueError("display and fd needed to create new client")
 
-        ptr = lib.wl_client_create(display._ptr, fd)
+            if display.destroyed:
+                raise ValueError("Display has been destroyed")
 
-        destructor = functools.partial(_client_destroy, display)
-        self._ptr: ffi.ClientCData | None = ffi.gc(ptr, destructor)
-        self._display: Display | None = display
+            ptr = lib.wl_client_create(display._ptr, fd)
+
+            destructor = functools.partial(_client_destroy, display)
+            self._ptr: ffi.ClientCData | None = ffi.gc(ptr, destructor)
+
+        else:
+            self._ptr = ptr
 
     def destroy(self) -> None:
         """Destroy the client"""
         if self._ptr is not None:
             ffi.release(self._ptr)
             self._ptr = None
-            self._display = None
 
     @ensure_valid
     def flush(self) -> None:
@@ -128,3 +141,18 @@ class Client:
 
         resource_handle = lib.wl_resource_get_user_data(res_ptr)
         return ffi.from_handle(resource_handle)
+
+    @classmethod
+    def from_resource(cls, resource: ffi.ResourceCData) -> Client:
+        """Look up the corresponding wl_client for a wl_resource
+
+        :param resource: The wl_resource
+        :type resource: pywayland.protocol_core.Resource
+        :returns:
+            A `Client` instance.
+        """
+        return cls(ptr=lib.wl_resource_get_client(resource))
+
+    def __eq__(self, other) -> bool:
+        """Compare this client with another"""
+        return hasattr(other, "_ptr") and self._ptr == other._ptr
