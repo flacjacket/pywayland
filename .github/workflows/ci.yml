@@ -49,7 +49,7 @@ jobs:
       - name: Create artifact
         run: tar czf ~/wayland.tar.gz -C ${HOME}/wayland/ .
       - name: Upload built libraries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
           path: ~/wayland.tar.gz
@@ -61,19 +61,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["pypy-3.7", "3.7", "3.8", "3.9", "3.10"]
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11-dev"
+          - "pypy-3.7"
+          - "pypy-3.8"
+          - "pypy-3.9"
         wayland-version: ["1.21.0"]
         wayland-protocols-version: ["1.25"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
@@ -112,15 +120,15 @@ jobs:
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -139,19 +147,19 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.10"
+      python-version: "3.11-dev"
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -170,19 +178,19 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.10"
+      python-version: "3.11-dev"
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -201,19 +209,19 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.10"
+      python-version: "3.11-dev"
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -234,11 +242,11 @@ jobs:
     name: black test
     runs-on: ubuntu-latest
     env:
-      python-version: "3.10"
+      python-version: "3.11-dev"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.python-version }}
       - name: Install Python dependencies

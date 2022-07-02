@@ -13,7 +13,7 @@ jobs:
     env:
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.25"
-      python-version: "3.10"
+      python-version: "3.11"
     steps:
       - name: Install dependencies
         run: |
@@ -67,7 +67,7 @@ jobs:
       - name: Create artifact
         run: tar czf /wayland.tar.gz -C /wayland/ .
       - name: Upload built libraries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wayland
           path: /wayland.tar.gz
@@ -79,10 +79,15 @@ jobs:
     needs: build-wayland
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
     steps:
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland
       - name: Unpack wayland artifact
@@ -94,7 +99,7 @@ jobs:
         shell: bash
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Python dependencies
         run: |
           python --version
@@ -105,7 +110,7 @@ jobs:
           python setup.py bdist_wheel --wayland-protocols
           auditwheel repair --plat manylinux2014_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wheels-${{ matrix.python-version }}
           path: output_wheels/*.whl
@@ -119,9 +124,13 @@ jobs:
         include:
           - python-version: "3.7"
             pypy-version: "7.3"
+          - python-version: "3.8"
+            pypy-version: "7.3"
+          - python-version: "3.9"
+            pypy-version: "7.3"
     steps:
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland
       - name: Unpack wayland artifact
@@ -134,7 +143,7 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
           PP_VERSION: ${{ matrix.pypy-version }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Python dependencies
         run: |
           python --version
@@ -145,7 +154,7 @@ jobs:
           python setup.py bdist_wheel --wayland-protocols
           auditwheel repair --plat manylinux2014_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wheels-pypy-${{ matrix.python-version }}
           path: output_wheels/*.whl
@@ -155,14 +164,21 @@ jobs:
     needs: [build-wheel-cpython, build-wheel-pypy]
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "pypy-3.7"]
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "pypy-3.7"
+          - "pypy-3.8"
+          - "pypy-3.9"
     steps:
       - name: Download wheels
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wheels-${{ matrix.python-version }}
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install wheel
@@ -178,10 +194,10 @@ jobs:
     container: quay.io/pypa/manylinux_2_24_x86_64
     needs: build-wayland
     env:
-      python-version: "3.10"
+      python-version: "3.11"
     steps:
       - name: Download wayland libraries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wayland
       - name: Unpack wayland artifact
@@ -193,7 +209,7 @@ jobs:
         shell: bash
         env:
           PYTHON_VERSION: ${{ env.python-version }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Python dependencies
         run: |
           python --version
@@ -202,7 +218,7 @@ jobs:
         run: |
           python setup.py sdist --wayland-protocols
       - name: Upload source
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: source
           path: dist/*.tar.gz
@@ -212,32 +228,47 @@ jobs:
     needs: [test-wheel, build-source]
     steps:
       - name: Download wheels CPython 3.7
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wheels-3.7
           path: dist/
       - name: Download wheels CPython 3.8
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wheels-3.8
           path: dist/
       - name: Download wheels CPython 3.9
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wheels-3.9
           path: dist/
       - name: Download wheels CPython 3.10
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wheels-3.10
           path: dist/
+      - name: Download wheels CPython 3.11
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-3.11
+          path: dist/
       - name: Download wheels PyPy 3.7
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: wheels-pypy-3.7
           path: dist/
+      - name: Download wheels PyPy 3.8
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-pypy-3.8
+          path: dist/
+      - name: Download wheels PyPy 3.9
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-pypy-3.9
+          path: dist/
       - name: Download source
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: source
           path: dist/

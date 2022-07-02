@@ -1,2 +1,1 @@
 cffi>=1.12.0
-dataclasses; python_version < '3.7'
