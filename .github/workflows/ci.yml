@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         wayland-version: ["1.21.0"]
-        wayland-protocols-version: ["1.25"]
+        wayland-protocols-version: ["1.26"]
     steps:
       - name: Setup environment
         run: |
@@ -71,7 +71,7 @@ jobs:
           - "pypy-3.8"
           - "pypy-3.9"
         wayland-version: ["1.21.0"]
-        wayland-protocols-version: ["1.25"]
+        wayland-protocols-version: ["1.26"]
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -118,7 +118,7 @@ jobs:
     env:
       python-version: "3.10"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.25"
+      wayland-protocols-version: "1.26"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -149,7 +149,7 @@ jobs:
     env:
       python-version: "3.11-dev"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.25"
+      wayland-protocols-version: "1.26"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -180,7 +180,7 @@ jobs:
     env:
       python-version: "3.11-dev"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.25"
+      wayland-protocols-version: "1.26"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -211,7 +211,7 @@ jobs:
     env:
       python-version: "3.11-dev"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.25"
+      wayland-protocols-version: "1.26"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
