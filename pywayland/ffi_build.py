@@ -293,6 +293,8 @@ wl_resource_get_user_data(struct wl_resource *resource);
 int
 wl_resource_get_version(struct wl_resource *resource);
 
+struct wl_client * wl_resource_get_client(struct wl_resource *resource);
+
 void
 wl_resource_add_destroy_listener(struct wl_resource *resource,
                                  struct wl_listener * listener);
