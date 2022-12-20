@@ -62,8 +62,8 @@ class Entry(Element):
             int(self.name)
             printer("{}_{} = {}".format(enum_name, self.name, value))
         except ValueError:
-            if self.name == "name":
-                name = "name_"
+            if self.name in ("name", "async"):
+                name = self.name + "_"
             else:
                 name = self.name
             printer("{} = {}".format(name, value))
