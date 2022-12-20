@@ -29,7 +29,7 @@ def _safe_extractall(tar, path=".", members=None, *, numeric_owner=False):
     """Helper to check for CVE-2007-4559"""
     for member in tar.getmembers():
         member_path = os.path.join(path, member.name)
-        if not is_within_directory(path, member_path):
+        if not _is_within_directory(path, member_path):
             raise Exception("Attempted Path Traversal in Tar File")
 
     tar.extractall(path, members, numeric_owner=numeric_owner)
