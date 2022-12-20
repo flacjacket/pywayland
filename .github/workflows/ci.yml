@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         wayland-version: ["1.21.0"]
-        wayland-protocols-version: ["1.26"]
+        wayland-protocols-version: ["1.31"]
     steps:
       - name: Setup environment
         run: |
@@ -32,7 +32,7 @@ jobs:
           tar -xJf wayland-protocols-${{ matrix.wayland-protocols-version }}.tar.xz
         env:
           WAYLAND_URL: https://gitlab.freedesktop.org/wayland/wayland/-/releases/${{ matrix.wayland-version }}/downloads/wayland-${{ matrix.wayland-version }}.tar.xz
-          WAYLAND_PROTOCOLS_URL: https://wayland.freedesktop.org/releases/wayland-protocols-${{ matrix.wayland-protocols-version }}.tar.xz
+          WAYLAND_PROTOCOLS_URL: https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/${{ matrix.wayland-protocols-version }}/downloads/wayland-protocols-${{ matrix.wayland-protocols-version }}.tar.xz
       - name: Build wayland
         working-directory: wayland-${{ matrix.wayland-version }}
         run: |
@@ -66,12 +66,12 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
-          - "3.11-dev"
+          - "3.11"
           - "pypy-3.7"
           - "pypy-3.8"
           - "pypy-3.9"
         wayland-version: ["1.21.0"]
-        wayland-protocols-version: ["1.26"]
+        wayland-protocols-version: ["1.31"]
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -118,7 +118,7 @@ jobs:
     env:
       python-version: "3.10"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.26"
+      wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -149,7 +149,7 @@ jobs:
     env:
       python-version: "3.11-dev"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.26"
+      wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -180,7 +180,7 @@ jobs:
     env:
       python-version: "3.11-dev"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.26"
+      wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries
@@ -211,7 +211,7 @@ jobs:
     env:
       python-version: "3.11-dev"
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.26"
+      wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
       - name: Download wayland libraries

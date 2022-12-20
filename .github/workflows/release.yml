@@ -12,7 +12,7 @@ jobs:
     container: quay.io/pypa/manylinux_2_24_x86_64
     env:
       wayland-version: "1.21.0"
-      wayland-protocols-version: "1.26"
+      wayland-protocols-version: "1.31"
       python-version: "3.11"
     steps:
       - name: Install dependencies
@@ -34,7 +34,7 @@ jobs:
           tar -xJf wayland-protocols-${{ env.wayland-protocols-version }}.tar.xz
         env:
           WAYLAND_URL: https://gitlab.freedesktop.org/wayland/wayland/-/releases/${{ env.wayland-version }}/downloads/wayland-${{ env.wayland-version }}.tar.xz
-          WAYLAND_PROTOCOLS_URL: https://wayland.freedesktop.org/releases/wayland-protocols-${{ env.wayland-protocols-version }}.tar.xz
+          WAYLAND_PROTOCOLS_URL: https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/${{ env.wayland-protocols-version }}/downloads/wayland-protocols-${{ env.wayland-protocols-version }}.tar.xz
       - name: Set environment variables
         run: |
           echo "CPATH=/wayland/usr/include" >> $GITHUB_ENV
