@@ -14,7 +14,7 @@ protocols_source = (
     )
 )
 
-    
+
 def _is_within_directory(directory, target):
     """Helper to check for CVE-2007-4559"""
     abs_directory = os.path.abspath(directory)
@@ -32,7 +32,7 @@ def _safe_extractall(tar, path=".", members=None, *, numeric_owner=False):
         if not is_within_directory(path, member_path):
             raise Exception("Attempted Path Traversal in Tar File")
 
-    tar.extractall(path, members, numeric_owner=numeric_owner) 
+    tar.extractall(path, members, numeric_owner=numeric_owner)
 
 
 def protocols_build(output_dir):
@@ -45,7 +45,7 @@ def protocols_build(output_dir):
     # download the protocols file and extract it
     protocol_dest = "wayland-protocols-{}".format(protocols_version)
     urllib.request.urlretrieve(protocols_source, protocol_dest + ".tar.xz")
-            
+
     with tarfile.open(protocol_dest + ".tar.xz") as f:
         _safe_extractall(f)
 
