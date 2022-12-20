@@ -19,6 +19,7 @@ import sys
 from setuptools import setup
 from setuptools.command.install import install
 from setuptools.command.sdist import sdist
+from setuptools.command.build import build
 
 try:
     from wheel.bdist_wheel import bdist_wheel
@@ -122,6 +123,7 @@ def get_protocol_command(klass):
 
 InstallCommand = get_protocol_command(install)
 SdistCommand = get_protocol_command(sdist)
+BuildCommand = get_protocol_command(build)
 
 cmdclass = {
     "install": InstallCommand,
