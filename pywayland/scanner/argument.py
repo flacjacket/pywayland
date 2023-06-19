@@ -76,7 +76,7 @@ class Argument(Element):
         elif arg_type_str == "fd":
             argument_type = ArgumentType.FileDescriptor
         else:
-            raise ValueError(f"Invalid argument type: {argument_type}")
+            raise ValueError(f"Invalid argument type: {arg_type_str}")
 
         allow_null = cls.parse_optional_attribute(element, "allow-null") == "true"
         return cls(
