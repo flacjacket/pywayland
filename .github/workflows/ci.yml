@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.11-dev"
+      python-version: "3.11"
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.31"
     steps:
@@ -181,7 +181,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.11-dev"
+      python-version: "3.11"
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.31"
     steps:
@@ -212,7 +212,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.11-dev"
+      python-version: "3.11"
       wayland-version: "1.21.0"
       wayland-protocols-version: "1.31"
     steps:
@@ -245,7 +245,7 @@ jobs:
     name: black test
     runs-on: ubuntu-latest
     env:
-      python-version: "3.11-dev"
+      python-version: "3.11"
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
