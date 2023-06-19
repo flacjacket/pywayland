@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        wayland-version: ["1.21.0"]
+        wayland-version: ["1.22.0"]
         wayland-protocols-version: ["1.31"]
     steps:
       - name: Setup environment
@@ -73,7 +73,8 @@ jobs:
           - "pypy-3.7"
           - "pypy-3.8"
           - "pypy-3.9"
-        wayland-version: ["1.21.0"]
+          - "pypy-3.10"
+        wayland-version: ["1.22.0"]
         wayland-protocols-version: ["1.31"]
     steps:
       - uses: actions/checkout@v3
@@ -120,7 +121,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.10"
-      wayland-version: "1.21.0"
+      wayland-version: "1.22.0"
       wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
@@ -151,7 +152,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.11"
-      wayland-version: "1.21.0"
+      wayland-version: "1.22.0"
       wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
@@ -182,7 +183,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.11"
-      wayland-version: "1.21.0"
+      wayland-version: "1.22.0"
       wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
@@ -213,7 +214,7 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.11"
-      wayland-version: "1.21.0"
+      wayland-version: "1.22.0"
       wayland-protocols-version: "1.31"
     steps:
       - uses: actions/checkout@v3
