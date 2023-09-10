@@ -234,13 +234,13 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
-          pip install check-manifest twine
+          pip install build check-manifest twine
           python pywayland/ffi_build.py
       - name: Run packaging test
         run: |
           check-manifest
           python setup.py check -m -s
-          python setup.py sdist
+          python -m build --sdist
           twine check dist/*
   black-test:
     name: black test
