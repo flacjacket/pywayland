@@ -17,8 +17,8 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 
-from .element import Element
 from .description import Description
+from .element import Element
 from .printer import Printer
 
 
@@ -54,16 +54,16 @@ class Entry(Element):
         # keep base 10 ints unchanged, but ensure that hexidecimal ints are
         # formatted 0xABC
         if self.value[:2] == "0x":
-            value = "0x{}".format(self.value[2:].upper())
+            value = f"0x{self.value[2:].upper()}"
         else:
             value = self.value
 
         try:
             int(self.name)
-            printer("{}_{} = {}".format(enum_name, self.name, value))
+            printer(f"{enum_name}_{self.name} = {value}")
         except ValueError:
             if self.name in ("name", "async"):
                 name = self.name + "_"
             else:
                 name = self.name
-            printer("{} = {}".format(name, value))
+            printer(f"{name} = {value}")

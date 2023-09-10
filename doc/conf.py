@@ -1,29 +1,25 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import importlib
 import os
 import shutil
 import sys
 
-import sphinx_rtd_theme
-
-
 # -- Mock necessary classes -----------------------------------------------
-
 from unittest.mock import MagicMock
 
-sys.path.insert(0, os.path.abspath("."))  # noqa: F402
-sys.path.insert(0, os.path.abspath(".."))  # noqa: F402
+import sphinx_rtd_theme
 
-MOCK_MODULES = ["pywayland._ffi"]  # noqa: F402
-sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)  # noqa: F402
+sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath(".."))
 
-from pywayland import __version__
+MOCK_MODULES = ["pywayland._ffi"]
+sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)
 
 # -- Build pywayland.protocol w/docs --------------------------------------
+from protocol_build import protocols_build, protocols_version, wayland_version
 
-from protocol_build import wayland_version, protocols_version, protocols_build
+from pywayland import __version__
 
 protocol_build_dir = "../pywayland/protocol/"
 protocol_doc_dir = "module/protocol"
@@ -88,9 +84,7 @@ def protocol_doc(input_dir, output_dir):
     else:
         existing_index = ""
 
-    generated_index = index_header + "".join(
-        "   {}\n".format(m) for m in sorted(modules)
-    )
+    generated_index = index_header + "".join(f"   {m}\n" for m in sorted(modules))
 
     if existing_index != generated_index:
         with open(index_file, "w") as f:
@@ -109,18 +103,14 @@ def protocol_doc(input_dir, output_dir):
 
         # build the rst for each protocol
         for doc_file in doc_files:
-            mod = importlib.import_module(
-                "pywayland.protocol.{}.{}".format(module, doc_file)
-            )
+            mod = importlib.import_module(f"pywayland.protocol.{module}.{doc_file}")
             # Get out the name of the class in the module
             class_name = "".join(x.capitalize() for x in doc_file.split("_"))
             for mod_upper in dir(mod):
                 if mod_upper == class_name:
                     break
             else:
-                raise RuntimeError(
-                    "Unable to find module: {}, {}".format(doc_file, mod)
-                )
+                raise RuntimeError(f"Unable to find module: {doc_file}, {mod}")
 
             output.append(
                 protocol_rst.format(
@@ -129,7 +119,7 @@ def protocol_doc(input_dir, output_dir):
             )
 
         # build the index.rst for the module
-        module_file = os.path.join(output_dir, "{}.rst".format(module))
+        module_file = os.path.join(output_dir, f"{module}.rst")
         protocol_output = "\n\n".join(output)
 
         # if file exists and is unchanged, skip

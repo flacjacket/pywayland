@@ -26,6 +26,7 @@ from pywayland.protocol_core import (
     Proxy,
     Resource,
 )
+
 from .wl_requests import WlRequests
 
 

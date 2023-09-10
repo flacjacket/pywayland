@@ -14,9 +14,9 @@
 
 from __future__ import annotations
 
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from typing import Iterable
-import xml.etree.ElementTree as ET
 
 from .argument import Argument, ArgumentType
 from .description import Description
@@ -89,7 +89,7 @@ class Request(Method):
         for arg in self.arg:
             if arg.type == ArgumentType.NewId:
                 if not arg.interface:
-                    yield "{}.name".format(NO_IFACE)
+                    yield f"{NO_IFACE}.name"
                     yield NO_IFACE_VERSION
             else:
                 yield arg.name
@@ -134,12 +134,12 @@ class Request(Method):
                 id_class = self.new_id.interface_class
             else:
                 id_class = NO_IFACE
-            args = ", ".join([str(opcode), id_class] + list(self.marshal_args))
-            printer("{} = self._marshal_constructor({})".format(self.new_id.name, args))
-            printer("return {}".format(self.new_id.name))
+            args = ", ".join([str(opcode), id_class, *list(self.marshal_args)])
+            printer(f"{self.new_id.name} = self._marshal_constructor({args})")
+            printer(f"return {self.new_id.name}")
         else:
-            args = ", ".join([str(opcode)] + list(self.marshal_args))
-            printer("self._marshal({})".format(args))
+            args = ", ".join([str(opcode), *list(self.marshal_args)])
+            printer(f"self._marshal({args})")
             if self.type == "destructor":
                 printer("self._destroy()")
 

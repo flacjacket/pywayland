@@ -14,9 +14,9 @@
 
 from __future__ import annotations
 
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from typing import Iterator
-import xml.etree.ElementTree as ET
 
 from .argument import Argument, ArgumentType
 from .description import Description
@@ -70,7 +70,7 @@ class Event(Method):
     def output_body(self, printer: Printer, opcode: int) -> None:
         """Output the body of the event to the printer"""
         args = ", ".join([str(opcode)] + [arg.name for arg in self.arg])
-        printer("self._post_event({})".format(args))
+        printer(f"self._post_event({args})")
 
     @property
     def return_type(self) -> str:

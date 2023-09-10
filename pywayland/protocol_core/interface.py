@@ -14,15 +14,16 @@
 
 from __future__ import annotations
 
-from typing import Callable, Type
+from typing import Callable
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi
+
 from .argument import Argument
+from .globals import Global
 from .message import Message
 from .proxy import Proxy
 from .resource import Resource
-from .globals import Global
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
@@ -55,9 +56,9 @@ class Interface(metaclass=InterfaceMeta):
     _ptr: ffi.InterfaceCData
     name: str
     version: int
-    proxy_class: Type[Proxy]
-    resource_class: Type[Resource]
-    global_class: Type[Global]
+    proxy_class: type[Proxy]
+    resource_class: type[Resource]
+    global_class: type[Global]
 
     @classmethod
     def event(cls, *arguments: Argument, version: int | None = None) -> Callable:
@@ -129,4 +130,4 @@ class Interface(metaclass=InterfaceMeta):
         for i, message in enumerate(cls.events):
             keep_alive.extend(message.build_message_struct(events_ptr[i]))
 
-        weakkeydict[cls._ptr] = (name, methods_ptr, events_ptr) + tuple(keep_alive)
+        weakkeydict[cls._ptr] = (name, methods_ptr, events_ptr, *tuple(keep_alive))

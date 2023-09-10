@@ -64,9 +64,9 @@ class Method(Element, abc.ABC):
             import_protocol = module_imports[arg.interface]
 
             if current_protocol == import_protocol:
-                import_path = ".{}".format(arg.interface)
+                import_path = f".{arg.interface}"
             else:
-                import_path = "..{}".format(import_protocol)
+                import_path = f"..{import_protocol}"
 
             imports.append((import_path, import_class))
 
@@ -118,7 +118,7 @@ class Method(Element, abc.ABC):
                 printer(f"@{in_class}.{self.method_type}()")
 
         # Generate the definition of the method and args
-        args = ", ".join(["self"] + list(self.method_args))
+        args = ", ".join(["self", *list(self.method_args)])
         printer(f"def {self.name}({args}) -> {self.return_type}:")
 
         with printer.indented():

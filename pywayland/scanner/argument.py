@@ -14,9 +14,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import enum
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 
 from .description import Description
 from .element import Element
@@ -148,7 +148,7 @@ class Argument(Element):
     def output_doc_param(self, printer: Printer) -> None:
         """Document the argument as a parameter"""
         # Output the parameter and summary
-        printer.doc(":param {}:".format(self.name))
+        printer.doc(f":param {self.name}:")
         if self.summary:
             with printer.indented():
                 printer.docstring(self.summary)
@@ -157,7 +157,7 @@ class Argument(Element):
         if self.interface:
             arg_type = self.interface
         else:
-            arg_type = "`{}`".format(self.type)
+            arg_type = f"`{self.type}`"
 
         # Output the parameter type
         printer.doc(f":type {self.name}:")
@@ -181,6 +181,6 @@ class Argument(Element):
         printer.doc(":returns:")
         with printer.indented():
             if self.summary:
-                printer.docstring("{} -- {}".format(arg_type, self.summary))
+                printer.docstring(f"{arg_type} -- {self.summary}")
             else:
-                printer.docstring("{}".format(arg_type))
+                printer.docstring(f"{arg_type}")

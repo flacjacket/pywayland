@@ -14,12 +14,12 @@
 
 from __future__ import annotations
 
-from typing import Generic, Type, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
-from pywayland.utils import ensure_valid
 from pywayland.server.client import Client
+from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
     from .interface import Interface
@@ -45,7 +45,7 @@ class Resource(Generic[T]):
     :type id: `int`
     """
 
-    interface: Type[T]
+    interface: type[T]
 
     def __init__(self, client, version: int | None = None, id: int = 0) -> None:
         if version is None:

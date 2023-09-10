@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.server.display import Display as ServerDisplay
-from pywayland.client.display import Display as ClientDisplay
-
 import pytest
+
+from pywayland.client.display import Display as ClientDisplay
+from pywayland.server.display import Display as ServerDisplay
 
 
 def test_display_socket():

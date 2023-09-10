@@ -15,13 +15,13 @@
 from __future__ import annotations
 
 import functools
-from weakref import WeakKeyDictionary
 from typing import TYPE_CHECKING
+from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
 
 if TYPE_CHECKING:
-    from pywayland.client import Display  # noqa: F401
+    from pywayland.client import Display
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 

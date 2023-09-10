@@ -17,8 +17,8 @@ from __future__ import annotations
 import traceback
 from typing import Callable, Optional
 
-from pywayland.protocol_core.message import Message
 from pywayland import ffi, lib
+from pywayland.protocol_core.message import Message
 
 CallbackT = Callable[..., Optional[int]]
 

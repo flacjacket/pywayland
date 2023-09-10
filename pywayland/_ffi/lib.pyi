@@ -1,4 +1,5 @@
-from typing import overload, Any, Callable, TypeVar
+from typing import Any
+
 from .ffi import (
     CData,
     CharCData,

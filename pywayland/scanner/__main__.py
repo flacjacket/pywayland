@@ -105,7 +105,7 @@ def main() -> None:
         input_files += protocols_files
 
     protocols = [Protocol.parse_file(input_file) for input_file in input_files]
-    logger.info("Parsed {} input xml files".format(len(protocols)))
+    logger.info(f"Parsed {len(protocols)} input xml files")
 
     protocol_imports = {
         interface.name: protocol.name
@@ -115,7 +115,7 @@ def main() -> None:
 
     for protocol in protocols:
         protocol.output(args.output_dir, protocol_imports)
-        logger.info("Generated protocol: {}".format(protocol.name))
+        logger.info(f"Generated protocol: {protocol.name}")
 
 
 if __name__ == "__main__":

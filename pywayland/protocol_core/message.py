@@ -18,6 +18,7 @@ from typing import Callable, Iterable
 from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
+
 from .argument import Argument, ArgumentType
 
 weakkeydict: WeakKeyDictionary = WeakKeyDictionary()

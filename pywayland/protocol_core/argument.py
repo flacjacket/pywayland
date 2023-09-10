@@ -15,12 +15,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from pywayland.scanner.argument import ArgumentType
 
 if TYPE_CHECKING:
-    from .interface import Interface  # noqa: F401
+    from .interface import Interface
 
 
 class classproperty:
@@ -35,7 +35,7 @@ class classproperty:
 class Argument:
     argument_type: ArgumentType
     nullable: bool = False
-    interface: Type["Interface"] | None = None
+    interface: type[Interface] | None = None
 
     @property
     def signature(self) -> str:

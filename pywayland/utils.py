@@ -26,9 +26,7 @@ def ensure_valid(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self._ptr is None:
-            raise ValueError(
-                "{cls} object has been destroyed".format(cls=self.__class__.__name__)
-            )
+            raise ValueError(f"{self.__class__.__name__} object has been destroyed")
         return func(self, *args, **kwargs)
 
     return wrapper
@@ -65,10 +63,10 @@ class AnonymousFile:
         descriptor that has been opened.
         """
         if self.fd is not None:
-            raise IOError("File is already open")
+            raise OSError("File is already open")
         self.fd = lib.os_create_anonymous_file(self.size)
         if self.fd < 0:
-            raise IOError("Unable to create anonymous file")
+            raise OSError("Unable to create anonymous file")
 
     def close(self) -> None:
         """Close the anonymous file

@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from cffi import FFI
 import re
 
 import pytest
+from cffi import FFI
 
 from pywayland.protocol.wayland import (
     WlBuffer,
     WlCallback,
     WlCompositor,
-    WlDataDeviceManager,
     WlDataDevice,
+    WlDataDeviceManager,
     WlDataOffer,
     WlDataSource,
     WlDisplay,
@@ -34,8 +34,8 @@ from pywayland.protocol.wayland import (
     WlSeat,
     WlShell,
     WlShellSurface,
-    WlShmPool,
     WlShm,
+    WlShmPool,
     WlSubcompositor,
     WlSubsurface,
     WlSurface,

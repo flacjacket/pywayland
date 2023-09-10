@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Generic, Type, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from pywayland import ffi, lib
 from pywayland.dispatcher import Dispatcher
@@ -30,7 +30,7 @@ else:
 
 
 class Proxy(Generic[T]):
-    interface: Type[T]
+    interface: type[T]
 
     def __init__(self, ptr, display=None):
         """Represents a protocol object on the client side.
@@ -105,7 +105,7 @@ class Proxy(Generic[T]):
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
     def _marshal_constructor(
-        self, opcode: int, interface: Type[InterfaceT], *args
+        self, opcode: int, interface: type[InterfaceT], *args
     ) -> Proxy[InterfaceT]:
         """Marshal the given arguments into the Wayland wire format for a constructor"""
         # Create a wl_argument array

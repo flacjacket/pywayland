@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.server import Client, Listener, Display
-from pywayland.protocol.wayland import WlDisplay
-
 import socket
+
+from pywayland.protocol.wayland import WlDisplay
+from pywayland.server import Client, Display, Listener
 
 
 def test_create_resource():

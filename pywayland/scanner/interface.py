@@ -108,7 +108,7 @@ class Interface(Element):
             )
 
         for module, import_ in sorted(imports):
-            printer("from {} import {}".format(module, import_))
+            printer(f"from {module} import {import_}")
         if define_t:
             printer()
             printer('T = TypeVar("T", bound=Interface)')
@@ -116,7 +116,7 @@ class Interface(Element):
         printer()
 
         # Class definition
-        printer("class {}(Interface):".format(self.class_name))
+        printer(f"class {self.class_name}(Interface):")
         with printer.indented():
             # Docstring
             if self.description:
@@ -125,8 +125,8 @@ class Interface(Element):
                 printer()
 
             # Class attributes
-            printer('name = "{}"'.format(self.name))
-            printer("version = {}".format(self.version))
+            printer(f'name = "{self.name}"')
+            printer(f"version = {self.version}")
 
             # Enums
             for enum in self.enum:
@@ -163,7 +163,7 @@ class Interface(Element):
 
         printer()
         printer()
-        printer("{}._gen_c()".format(self.class_name))
+        printer(f"{self.class_name}._gen_c()")
         printer(f"{self.class_name}.proxy_class = {proxy_class_name}")
         printer(f"{self.class_name}.resource_class = {resource_class_name}")
         printer(f"{self.class_name}.global_class = {global_class_name}")

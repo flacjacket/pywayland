@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
+
 from .eventloop import EventLoop
 
 if TYPE_CHECKING:

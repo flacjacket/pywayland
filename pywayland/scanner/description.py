@@ -14,8 +14,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 
 from .element import Element
 from .printer import Printer
@@ -34,7 +34,7 @@ class Description(Element):
         )
 
     def output(self, printer: Printer) -> None:
-        printer.doc('"""{}'.format(self.summary.capitalize()))
+        printer.doc(f'"""{self.summary.capitalize()}')
         if self.text:
             printer()
             printer.docstring(self.text)

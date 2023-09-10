@@ -15,15 +15,15 @@
 from __future__ import annotations
 
 import enum
-from weakref import WeakSet
 from collections import namedtuple
 from typing import TYPE_CHECKING
+from weakref import WeakSet
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
-    from pywayland.server import Display  # noqa: F401
+    from pywayland.server import Display
 
 CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
 

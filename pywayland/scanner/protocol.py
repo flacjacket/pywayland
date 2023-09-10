@@ -14,13 +14,13 @@
 
 from __future__ import annotations
 
-import xml.etree.ElementTree as ET
 import os
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 
-from .element import Element
 from .copyright import Copyright, copyright_default
 from .description import Description
+from .element import Element
 from .interface import Interface
 from .printer import Printer
 
@@ -47,11 +47,11 @@ class Protocol(Element):
     @classmethod
     def parse_file(cls, input_file: str) -> Protocol:
         if not os.path.exists(input_file):
-            raise ValueError("Input xml file does not exist: {}".format(input_file))
+            raise ValueError(f"Input xml file does not exist: {input_file}")
         xmlroot = ET.parse(input_file).getroot()
         if xmlroot.tag != "protocol":
             raise ValueError(
-                "Input file not a valid Wayland protocol file: {}".format(input_file)
+                f"Input file not a valid Wayland protocol file: {input_file}"
             )
 
         return cls.parse(xmlroot)
@@ -66,7 +66,7 @@ class Protocol(Element):
         )
 
     def __repr__(self) -> str:
-        return "Protocol({})".format(self.name)
+        return f"Protocol({self.name})"
 
     def output(self, output_dir: str, module_imports: dict[str, str]) -> None:
         """Output the scanned files to the given directory
@@ -89,9 +89,7 @@ class Protocol(Element):
 
         printer()
         for iface in sorted(self.interface, key=lambda x: x.name):
-            printer(
-                "from .{} import {}  # noqa: F401".format(iface.name, iface.class_name)
-            )
+            printer(f"from .{iface.name} import {iface.class_name}  # noqa: F401")
 
         init_path = os.path.join(output_dir, "__init__.py")
         with open(init_path, "wb") as f:

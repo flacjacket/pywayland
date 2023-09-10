@@ -15,10 +15,10 @@
 import importlib
 import inspect
 
-from docutils.statemachine import ViewList
-from jinja2 import Template
 from docutils import nodes
 from docutils.parsers.rst import Directive
+from docutils.statemachine import ViewList
+from jinja2 import Template
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.nodes import nested_parse_with_titles
 
@@ -89,15 +89,14 @@ class WlProtocol(Directive):
             "requests": reqs,
         }
         rst = wl_protocol_template.render(**context)
-        for line in rst.splitlines():
-            yield line
+        yield from rst.splitlines()
 
     def run(self):
         node = nodes.section()
         node.document = self.state.document
         result = ViewList()
         for line in self.make_rst():
-            result.append(line, "<{0}>".format(self.__class__.__name__))
+            result.append(line, f"<{self.__class__.__name__}>")
         nested_parse_with_titles(self.state, result, node)
         return node.children
 

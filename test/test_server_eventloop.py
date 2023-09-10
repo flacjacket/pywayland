@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.server.eventloop import EventLoop
-from pywayland.server.listener import Listener
-
 import os
 import signal
 import time
 
+from pywayland.server.eventloop import EventLoop
+from pywayland.server.listener import Listener
 
-class _GetCallback(object):
+
+class _GetCallback:
     def __init__(self):
         self.callback = None
         self.n_calls = 0

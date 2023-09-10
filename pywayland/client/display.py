@@ -19,8 +19,8 @@ from weakref import WeakSet
 
 from pywayland import ffi, lib
 from pywayland.client.eventqueue import EventQueue
-from pywayland.utils import ensure_valid
 from pywayland.protocol.wayland import WlDisplay
+from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
     # introduced in standard library in Python 3.8
@@ -194,7 +194,7 @@ class Display(WlDisplay.proxy_class):  # type: ignore
 
         if ret == -1:
             err = lib.wl_display_get_error(self._ptr)
-            raise RuntimeError("Failed with error: {}".format(err))
+            raise RuntimeError(f"Failed with error: {err}")
 
         return ret
 

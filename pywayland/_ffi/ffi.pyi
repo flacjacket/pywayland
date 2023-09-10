@@ -1,4 +1,4 @@
-from typing import overload, Any, Callable, TypeVar
+from typing import Any, Callable, TypeVar, overload
 
 class CData:
     def __getitem__(self, idx: int): ...

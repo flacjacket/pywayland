@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 
-
 from pywayland.protocol_core import (
     Argument,
     ArgumentType,
@@ -25,6 +24,7 @@ from pywayland.protocol_core import (
     Proxy,
     Resource,
 )
+
 from .wl_core import WlCore
 from .wl_requests import WlRequests
 

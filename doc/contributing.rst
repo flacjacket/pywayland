@@ -21,7 +21,7 @@ given in :ref:`install-source`.  A few things to be aware of when writing code:
 - Code coverage is assessed using Coveralls_.  Currently, coverage is fairly
   low, any work to help this would be greatly appreciated.
 
-- Code quality is assessed in the tests with flake8_, be sure any new code
+- Code quality is assessed in the tests with ruff_, be sure any new code
   meets Python standards.
 
 - Type annotations are included in much of the codebase and checked with mypy.
@@ -30,7 +30,7 @@ given in :ref:`install-source`.  A few things to be aware of when writing code:
 .. _Coveralls: https://coveralls.io/r/flacjacket/pywayland
 .. _GitHub: https://github.com/flacjacket/pywayland/
 .. _Travis: https://travis-ci.org/flacjacket/pywayland
-.. _flake8: https://flake8.readthedocs.org
+.. _ruff: https://beta.ruff.rs/docs/
 .. _nose: https://nose.readthedocs.org
 .. _pytest: https://pytest.org
 

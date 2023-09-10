@@ -14,12 +14,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 
 from .description import Description
-from .entry import Entry
 from .element import Element
+from .entry import Entry
 from .printer import Printer
 
 
@@ -53,9 +53,9 @@ class Enum(Element):
         """Generate the output for the enum to the printer"""
         name = self.name if self.name != "version" else "version_"
         if self.is_bitfield:
-            printer("class {0}(enum.IntFlag):".format(name))
+            printer(f"class {name}(enum.IntFlag):")
         else:
-            printer("class {0}(enum.IntEnum):".format(name))
+            printer(f"class {name}(enum.IntEnum):")
         with printer.indented():
             for entry in self.entry:
                 entry.output(self.name, printer)

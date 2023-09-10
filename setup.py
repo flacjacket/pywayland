@@ -17,9 +17,9 @@ import subprocess
 import sys
 
 from setuptools import setup
+from setuptools.command.build import build
 from setuptools.command.install import install
 from setuptools.command.sdist import sdist
-from setuptools.command.build import build
 
 try:
     from wheel.bdist_wheel import bdist_wheel
@@ -48,11 +48,13 @@ def get_protocol_command(klass):
                 None,
                 "Disable generation of external protocols from wayland-protocols",
             ),
-        ] + klass.user_options
+            *klass.user_options,
+        ]
         boolean_options = [
             "wayland-protocols",
             "no-wayland-protocols",
-        ] + klass.boolean_options
+            *klass.boolean_options,
+        ]
 
         def initialize_options(self):
             from scanner.__main__ import pkgconfig
@@ -74,8 +76,8 @@ def get_protocol_command(klass):
 
         def finalize_options(self):
             assert os.path.exists(self.xml_file), (
-                "Specified Wayland protocol file, {}, does not exist "
-                "please specify valid protocol file".format(self.xml_file)
+                f"Specified Wayland protocol file, {self.xml_file}, does not exist "
+                "please specify valid protocol file"
             )
 
             klass.finalize_options(self)
@@ -139,8 +141,10 @@ with open("README.rst") as f:
     rst_input = f.read().strip().split("\n")
 try:
     from pywayland import (
-        __wayland_version__ as wayland_version,
         __version__ as pywayland_version,
+    )
+    from pywayland import (
+        __wayland_version__ as wayland_version,
     )
 
     version_tag = f"v{pywayland_version}"
@@ -155,14 +159,14 @@ else:
     rst_input.extend(
         [
             f".. |ci| image:: https://github.com/flacjacket/pywayland/actions/workflows/ci.yml/badge.svg?branch={version_tag}",
-            f"    :target: https://github.com/flacjacket/pywayland/actions",
-            f"    :alt: Build Status",
+            "    :target: https://github.com/flacjacket/pywayland/actions",
+            "    :alt: Build Status",
             f".. |coveralls| image:: https://coveralls.io/repos/flacjacket/pywayland/badge.svg?branch={version_tag}",
             f"    :target: https://coveralls.io/github/flacjacket/pywayland?branch={version_tag}",
-            f"    :alt: Build Coverage",
+            "    :alt: Build Coverage",
             f".. |docs| image:: https://readthedocs.org/projects/pywayland/badge/?version={version_tag}",
             f"    :target: https://pywayland.readthedocs.io/en/{version_tag}/",
-            f"    :alt: Documentation Status",
+            "    :alt: Documentation Status",
         ]
     )
 

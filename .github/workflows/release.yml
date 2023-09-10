@@ -98,11 +98,10 @@ jobs:
       - name: Install Python dependencies
         run: |
           python --version
-          python -m pip install -r requirements-wheel-build.txt
+          python -m pip install auditwheel build
       - name: Build wheels
         run: |
-          python pywayland/ffi_build.py
-          python setup.py bdist_wheel --wayland-protocols
+          python -m build --wheel
           auditwheel repair --plat manylinux_2_28_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -140,11 +139,10 @@ jobs:
       - name: Install Python dependencies
         run: |
           python --version
-          python -m pip install -r requirements-wheel-build.txt
+          python -m pip install auditwheel build
       - name: Build wheels
         run: |
-          python pywayland/ffi_build.py
-          python setup.py bdist_wheel --wayland-protocols
+          python -m build --wheel
           auditwheel repair --plat manylinux_2_28_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -205,10 +203,10 @@ jobs:
       - name: Install Python dependencies
         run: |
           python --version
-          python -m pip install -r requirements-wheel-build.txt
+          python -m pip install build
       - name: Build source
         run: |
-          python setup.py sdist --wayland-protocols
+          python -m build --sdist
       - name: Upload source
         uses: actions/upload-artifact@v3
         with:

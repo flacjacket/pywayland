@@ -14,10 +14,10 @@
 
 from __future__ import annotations
 
-from typing import TypeVar, Type
 import abc
 import textwrap
 import xml.etree.ElementTree as ET
+from typing import TypeVar
 
 T = TypeVar("T", bound="Element")
 
@@ -25,7 +25,7 @@ T = TypeVar("T", bound="Element")
 class Element(abc.ABC):
     @classmethod
     @abc.abstractmethod
-    def parse(cls: Type[T], element: ET.Element) -> T:
+    def parse(cls: type[T], element: ET.Element) -> T:
         pass
 
     @staticmethod
@@ -42,7 +42,7 @@ class Element(abc.ABC):
         return obj
 
     @staticmethod
-    def parse_child(element: ET.Element, child_class: Type[T], name: str) -> T:
+    def parse_child(element: ET.Element, child_class: type[T], name: str) -> T:
         obj = Element.parse_optional_child(element, child_class, name)
         if obj is None:
             raise ValueError()
@@ -51,7 +51,7 @@ class Element(abc.ABC):
 
     @staticmethod
     def parse_optional_child(
-        element: ET.Element, child_class: Type[T], name: str
+        element: ET.Element, child_class: type[T], name: str
     ) -> T | None:
         obj = element.find(name)
         if obj is None:
@@ -61,7 +61,7 @@ class Element(abc.ABC):
 
     @staticmethod
     def parse_repeated_child(
-        element: ET.Element, child_class: Type[T], name: str
+        element: ET.Element, child_class: type[T], name: str
     ) -> list[T]:
         obj = [child_class.parse(elem) for elem in element.findall(name)]
         return obj

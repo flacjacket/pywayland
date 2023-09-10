@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.client import Display as ClientDisplay
-from pywayland.server import Display as ServerDisplay
-
-from pywayland.protocol.wayland import WlCompositor
-
-import time
 import threading
+import time
+
+from pywayland.client import Display as ClientDisplay
+from pywayland.protocol.wayland import WlCompositor
+from pywayland.server import Display as ServerDisplay
 
 
 def _get_registry_callback(registry, id, iface_name, version):

@@ -1,0 +1,98 @@
+[build-system]
+requires = [
+    "setuptools>=61.0.0",
+    "wheel",
+    "cffi>=1.12.0; platform_python_implementation != 'PyPy'",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pywayland"
+description = "Python bindings for the libwayland library written in pure Python"
+authors = [{name = "Sean Vig", email = "sean.v.775@gmail.com"}]
+requires-python = ">=3.8"
+license = {text = "Apache License 2.0"}
+readme = "README.rst"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Desktop Environment :: Window Managers",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "cffi >= 1.12.0; platform_python_implementation != 'PyPy'",
+]
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/flacjacket/pywayland"
+documentation = "https://pywayland.readthedocs.io"
+source = "https://github.com/flacjacket/pywayland"
+issues = "https://github.com/flacjacket/pywayland/issues"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+pywayland-scanner = "pywayland.pywayland_scanner:main"
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["pywayland*"]
+
+[tool.setuptools.package-data]
+pywayland = ["py.typed"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pywayland.version.__version__"}
+
+[tool.ruff]
+# E/W pycodestyle errors + warnings
+# F pyflakes
+# I isort
+# N pep8 naming
+# UP pyupgrade
+# RUF ruff specific rules
+select = ['E', 'F', 'I', 'W', 'UP', 'RUF']
+line-length = 88
+target-version = "py38"
+ignore = ["E501"]
+
+[tool.black]
+target-version = ["py38"]
+
+[tool.check-manifest]
+ignore = [
+    ".coveragerc",
+    "doc/**",
+    "example/**",
+    "pywayland/protocol/*/*.py",
+]
+
+[tool.mypy]
+python_version = 3.8
+disallow_subclassing_any = true
+no_implicit_optional = true
+show_error_codes = true
+strict_equality = true
+warn_incomplete_stub = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["cffi"]
+ignore_missing_imports = true

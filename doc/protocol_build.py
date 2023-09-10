@@ -43,22 +43,25 @@ def protocols_build(output_dir):
     urllib.request.urlretrieve(wayland_source, wayland_file)
 
     # download the protocols file and extract it
-    protocol_dest = "wayland-protocols-{}".format(protocols_version)
+    protocol_dest = f"wayland-protocols-{protocols_version}"
     urllib.request.urlretrieve(protocols_source, protocol_dest + ".tar.xz")
 
     with tarfile.open(protocol_dest + ".tar.xz") as f:
         _safe_extractall(f)
 
     # walk the directory and generate all the protocols
-    protocol_files = [wayland_file] + sorted(
-        [
-            os.path.join(dirpath, filename)
-            for dirpath, _, filenames in os.walk(protocol_dest)
-            for filename in filenames
-            if os.path.splitext(filename)[1] == ".xml"
-        ],
-        reverse=True,
-    )
+    protocol_files = [
+        wayland_file,
+        *sorted(
+            [
+                os.path.join(dirpath, filename)
+                for dirpath, _, filenames in os.walk(protocol_dest)
+                for filename in filenames
+                if os.path.splitext(filename)[1] == ".xml"
+            ],
+            reverse=True,
+        ),
+    ]
 
     protocols = [Protocol.parse_file(protocol_file) for protocol_file in protocol_files]
     protocol_imports = {

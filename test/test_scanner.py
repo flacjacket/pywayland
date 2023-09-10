@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pywayland.scanner import Protocol
-
 import os
-import pytest
 import tempfile
+
+import pytest
+
+from pywayland.scanner import Protocol
 
 this_dir = os.path.split(__file__)[0]
 scanner_dir = os.path.join(this_dir, "scanner_files")

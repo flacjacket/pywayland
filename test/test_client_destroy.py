@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import socket
+
 from pywayland.server.client import Client
 from pywayland.server.display import Display
 from pywayland.server.listener import Listener
-
-import socket
 
 
 def destroy_notify_a(*args):

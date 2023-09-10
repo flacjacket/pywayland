@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import, print_function
 
 import mmap
 import os
@@ -35,7 +34,7 @@ HEIGHT = 256
 MARGIN = 10
 
 
-class Window(object):
+class Window:
     def __init__(self):
         self.buffer = None
         self.compositor = None
@@ -62,7 +61,7 @@ def shm_format_handler(shm, format_):
         s = "RGB565"
     else:
         s = "other format"
-    print("Possible shmem format: {}".format(s))
+    print(f"Possible shmem format: {s}")
 
 
 def registry_global_handler(registry, id_, interface, version):
@@ -80,7 +79,7 @@ def registry_global_handler(registry, id_, interface, version):
 
 
 def registry_global_remover(registry, id_):
-    print("got a registry losing event for {}".format(id))
+    print(f"got a registry losing event for {id}")
 
 
 def create_buffer(window):

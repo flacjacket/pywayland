@@ -20,6 +20,7 @@ from typing import Any
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
+
 from .display import Display
 from .listener import Listener
 
