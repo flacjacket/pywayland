@@ -78,7 +78,7 @@ class Request(Method):
                     continue
                 # A `new_id` with no interface, c.f. wl_registry_bind
                 # Need a string (interface name) and int (interface version)
-                yield f"{NO_IFACE}: Type[T]"
+                yield f"{NO_IFACE}: type[T]"
                 yield f"{NO_IFACE_VERSION}: int"
             else:
                 yield arg.signature

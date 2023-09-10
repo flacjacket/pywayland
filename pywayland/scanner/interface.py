@@ -78,6 +78,7 @@ class Interface(Element):
         printer()
         if self.enum:
             printer("import enum")
+            printer()
 
         typing_imports = []
         define_t = any(req.new_id and not req.new_id.interface for req in self.request)
@@ -85,14 +86,14 @@ class Interface(Element):
             event.needs_any for event in self.event
         )
         if define_t:
-            typing_imports.extend(["Type", "TypeVar"])
+            typing_imports.extend(["TypeVar"])
         if needs_any:
             typing_imports.append("Any")
 
         if typing_imports:
             printer(f"from typing import {', '.join(sorted(typing_imports))}")
+            printer()
 
-        printer()
         if needs_argument_type:
             printer("from pywayland.protocol_core import (")
             printer("    Argument,")
@@ -102,17 +103,22 @@ class Interface(Element):
             printer("    Proxy,")
             printer("    Resource,")
             printer(")")
+            printer()
         else:
             printer(
                 "from pywayland.protocol_core import Global, Interface, Proxy, Resource"
             )
+            printer()
 
         for module, import_ in sorted(imports):
             printer(f"from {module} import {import_}")
-        if define_t:
+        if imports:
             printer()
+
+        if define_t:
             printer('T = TypeVar("T", bound=Interface)')
-        printer()
+            printer()
+
         printer()
 
         # Class definition
