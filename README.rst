@@ -41,7 +41,7 @@ Installing
 ----------
 
 Installation can be done through pip to pull the most recently tagged release.
-To see instructions on running from sounce, see the relevant documentation on
+To see instructions on running from source, see the relevant documentation on
 `installing from source`_.
 
 .. _installing from source: http://pywayland.readthedocs.org/en/latest/install.html#installing-from-source
