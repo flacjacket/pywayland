@@ -69,6 +69,7 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
           - "pypy-3.8"
           - "pypy-3.9"
           - "pypy-3.10"
@@ -91,6 +92,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
           python pywayland/ffi_build.py
@@ -118,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.11"
+      python-version: "3.12"
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
@@ -138,6 +140,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install -r doc/requirements.txt
           python pywayland/ffi_build.py
@@ -149,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.11"
+      python-version: "3.12"
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
@@ -169,6 +172,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install ruff
           python pywayland/ffi_build.py
@@ -182,7 +186,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.11"
+      python-version: "3.12"
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
@@ -202,6 +206,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install -r requirements-types.txt
           python pywayland/ffi_build.py
@@ -213,7 +218,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wayland
     env:
-      python-version: "3.11"
+      python-version: "3.12"
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
@@ -233,6 +238,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install build check-manifest twine
           python pywayland/ffi_build.py
@@ -246,7 +252,7 @@ jobs:
     name: black test
     runs-on: ubuntu-latest
     env:
-      python-version: "3.11"
+      python-version: "3.12"
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
