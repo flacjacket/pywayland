@@ -92,6 +92,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
           python pywayland/ffi_build.py
@@ -139,6 +140,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install -r doc/requirements.txt
           python pywayland/ffi_build.py
@@ -170,6 +172,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install ruff
           python pywayland/ffi_build.py
@@ -203,6 +206,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install -r requirements-types.txt
           python pywayland/ffi_build.py
@@ -234,6 +238,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
+          pip install setuptools
           pip install -r requirements.txt
           pip install build check-manifest twine
           python pywayland/ffi_build.py
