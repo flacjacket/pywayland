@@ -13,7 +13,7 @@ jobs:
     env:
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
-      python-version: "3.11"
+      python-version: "3.12"
     steps:
       - name: Install dependencies
         run: |
@@ -80,6 +80,7 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     steps:
       - name: Download wayland libraries
         uses: actions/download-artifact@v3
@@ -119,6 +120,8 @@ jobs:
           - python-version: "3.8"
             pypy-version: "7.3"
           - python-version: "3.9"
+            pypy-version: "7.3"
+          - python-version: "3.10"
             pypy-version: "7.3"
     steps:
       - name: Download wayland libraries
@@ -160,8 +163,10 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
           - "pypy-3.8"
           - "pypy-3.9"
+          - "pypy-3.10"
     steps:
       - name: Download wheels
         uses: actions/download-artifact@v3
@@ -184,7 +189,7 @@ jobs:
     container: quay.io/pypa/manylinux_2_28_x86_64
     needs: build-wayland
     env:
-      python-version: "3.11"
+      python-version: "3.12"
     steps:
       - name: Download wayland libraries
         uses: actions/download-artifact@v3
@@ -237,6 +242,11 @@ jobs:
         with:
           name: wheels-3.11
           path: dist/
+      - name: Download wheels CPython 3.12
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-3.12
+          path: dist/
       - name: Download wheels PyPy 3.8
         uses: actions/download-artifact@v3
         with:
@@ -246,6 +256,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: wheels-pypy-3.9
+          path: dist/
+      - name: Download wheels PyPy 3.10
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-pypy-3.10
           path: dist/
       - name: Download source
         uses: actions/download-artifact@v3
