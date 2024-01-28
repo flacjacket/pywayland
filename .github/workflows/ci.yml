@@ -52,7 +52,7 @@ jobs:
       - name: Create artifact
         run: tar czf ~/wayland.tar.gz -C ${HOME}/wayland/ .
       - name: Upload built libraries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
           path: ~/wayland.tar.gz
@@ -76,15 +76,15 @@ jobs:
         wayland-version: ["1.22.0"]
         wayland-protocols-version: ["1.32"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download wayland libraries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
@@ -124,15 +124,15 @@ jobs:
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download wayland libraries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -156,15 +156,15 @@ jobs:
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download wayland libraries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -190,15 +190,15 @@ jobs:
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download wayland libraries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -222,15 +222,15 @@ jobs:
       wayland-version: "1.22.0"
       wayland-protocols-version: "1.32"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download wayland libraries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -254,9 +254,9 @@ jobs:
     env:
       python-version: "3.12"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
       - name: Install Python dependencies
