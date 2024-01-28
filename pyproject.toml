@@ -43,7 +43,7 @@ issues = "https://github.com/flacjacket/pywayland/issues"
 test = ["pytest"]
 
 [project.scripts]
-pywayland-scanner = "pywayland.pywayland_scanner:main"
+pywayland-scanner = "pywayland.scanner.__main__:main"
 
 [tool.setuptools]
 zip-safe = false
