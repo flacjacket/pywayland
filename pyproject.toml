@@ -64,10 +64,10 @@ version = {attr = "pywayland.version.__version__"}
 # N pep8 naming
 # UP pyupgrade
 # RUF ruff specific rules
-select = ['E', 'F', 'I', 'W', 'UP', 'RUF']
+lint.select = ['E', 'F', 'I', 'W', 'UP', 'RUF']
+lint.ignore = ["E501"]
 line-length = 88
 target-version = "py38"
-ignore = ["E501"]
 
 [tool.black]
 target-version = ["py38"]
