@@ -77,7 +77,6 @@ def add_seat_info(
     seat = registry.bind(id_num, WlSeat, version)
     seat.dispatcher["name"] = handle_name
     seat.dispatcher["capabilities"] = handle_capabilities
-    info.roundtrip_needed = True
 
 
 def add_output_info(
@@ -132,7 +131,6 @@ def add_output_info(
     output.dispatcher["geometry"] = handle_geometry
     output.dispatcher["scale"] = handle_scale
     output.dispatcher["mode"] = handle_mode
-    info.roundtrip_needed = True
 
 
 def add_shm_info(
@@ -148,7 +146,6 @@ def add_shm_info(
     append("formats:")
     shm = registry.bind(id_num, WlShm, version)
     shm.dispatcher["format"] = handle_format
-    info.roundtrip_needed = True
 
 
 def handle_registry_global(
@@ -158,6 +155,7 @@ def handle_registry_global(
         globals()[f"add_{interface[3:]}_info"](
             info, registry, id_num, interface, version
         )
+        info.roundtrip_needed = True
     else:
         _add_interface_info(
             info.common, interface=interface, version=version, name=id_num
