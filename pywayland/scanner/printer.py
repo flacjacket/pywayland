@@ -206,12 +206,7 @@ class Printer:
             and interface_name in self._interface_imports
         ):
             protocol_path = self._interface_imports[interface_name]
-            return ":func:`{class_name}{func}() <{base_path}.{iface}.{class_name}{func}>`".format(
-                class_name=interface_class,
-                func=function_name,
-                base_path=BASE_PATH,
-                iface=protocol_path,
-            )
+            return f":func:`{interface_class}{function_name}() <{BASE_PATH}.{protocol_path}.{interface_class}{function_name}>`"
 
         return f"`{interface_class}{function_name}()`"
 

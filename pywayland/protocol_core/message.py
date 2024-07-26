@@ -14,8 +14,8 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterable
 from operator import attrgetter
+from typing import Callable, Iterable
 from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
@@ -130,9 +130,7 @@ class Message:
             elif argument.argument_type == ArgumentType.Object:
                 if arg_ptr.o == ffi.NULL:
                     if not argument.nullable:
-                        message = "Got null object parsing arguments for '{}' message, may already be destroyed".format(
-                            self.name
-                        )
+                        message = f"Got null object parsing arguments for '{self.name}' message, may already be destroyed"
                         raise RuntimeError(message)
                     args.append(None)
                 else:
@@ -141,14 +139,17 @@ class Message:
                     obj = iface.registry.get(proxy_ptr)
                     if obj is None:
                         raise RuntimeError(
-                            "Unable to get object for {}, was it garbage collected?".format(
-                                proxy_ptr
-                            )
+                            f"Unable to get object for {proxy_ptr}, was it garbage collected?"
                         )
                     args.append(obj)
             elif argument.argument_type == ArgumentType.NewId:
                 from pywayland.protocol.wayland.wl_registry import WlRegistry
-                if (display := next(map(attrgetter("_display"), WlRegistry.registry.values()), None)) is None:
+
+                if (
+                    display := next(
+                        map(attrgetter("_display"), WlRegistry.registry.values()), None
+                    )
+                ) is None:
                     raise RuntimeError("Cannot find display")
                 iface = argument.interface
                 assert iface
