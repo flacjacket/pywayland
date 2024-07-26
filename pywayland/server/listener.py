@@ -101,7 +101,7 @@ class Signal:
             self._ptr = ptr
 
         self._data_wrapper = data_wrapper
-        self._link = []
+        self._link: list[Listener] = []
 
     def add(self, listener):
         """Add the specified listener to this signal
@@ -126,3 +126,12 @@ class Signal:
         else:
             data_ptr = ffi.NULL
         lib.wl_signal_emit(self._ptr, data_ptr)
+
+    def remove_listeners(self) -> None:
+        """Removes all listeners from this signal.
+
+        This can be useful when an object is about to be destroyed
+        and all listeners need to be removed from that object.
+        """
+        for listener in self._link[:]:
+            listener.remove()
