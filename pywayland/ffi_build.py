@@ -166,6 +166,7 @@ struct wl_signal {
     struct wl_list listener_list;
 };
 
+void wl_signal_init(struct wl_signal *signal);
 void wl_signal_add(struct wl_signal *signal, struct wl_listener *listener);
 void wl_signal_emit(struct wl_signal *signal, void *data);
 """

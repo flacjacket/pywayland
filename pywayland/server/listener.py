@@ -77,9 +77,16 @@ class Listener:
         self._signal = None
 
     def remove(self) -> None:
-        """Remove the listener"""
+        """Remove the listener.
+
+        After removal the listener must not be used anymore.
+        """
         if self._ptr and self._ptr.link != ffi.NULL:
             lib.wl_list_remove(ffi.addressof(self._ptr.link))
+            assert self._signal
+            self._signal._link.remove(self)
+            self._signal = None
+            self._notify = None
             self._ptr = None
 
 
@@ -95,7 +102,7 @@ class Signal:
 
     def __init__(self, *, ptr=None, data_wrapper=None):
         if ptr is None:
-            self._ptr = ffi.new("struct wl_listener *")
+            self._ptr = ffi.new("struct wl_signal *")
             lib.wl_signal_init(self._ptr)
         else:
             self._ptr = ptr
