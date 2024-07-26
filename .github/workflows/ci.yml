@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        wayland-version: ["1.22.0"]
-        wayland-protocols-version: ["1.32"]
+        wayland-version: ["1.23.0"]
+        wayland-protocols-version: ["1.36"]
     steps:
       - name: Setup environment
         run: |
@@ -73,8 +73,8 @@ jobs:
           - "pypy-3.8"
           - "pypy-3.9"
           - "pypy-3.10"
-        wayland-version: ["1.22.0"]
-        wayland-protocols-version: ["1.32"]
+        wayland-version: ["1.23.0"]
+        wayland-protocols-version: ["1.36"]
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
@@ -121,8 +121,8 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.12"
-      wayland-version: "1.22.0"
-      wayland-protocols-version: "1.32"
+      wayland-version: "1.23.0"
+      wayland-protocols-version: "1.36"
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
@@ -153,8 +153,8 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.12"
-      wayland-version: "1.22.0"
-      wayland-protocols-version: "1.32"
+      wayland-version: "1.23.0"
+      wayland-protocols-version: "1.36"
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
@@ -187,8 +187,8 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.12"
-      wayland-version: "1.22.0"
-      wayland-protocols-version: "1.32"
+      wayland-version: "1.23.0"
+      wayland-protocols-version: "1.36"
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
@@ -219,8 +219,8 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.12"
-      wayland-version: "1.22.0"
-      wayland-protocols-version: "1.32"
+      wayland-version: "1.23.0"
+      wayland-protocols-version: "1.36"
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
