@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 from typing import Callable, Iterable
+from operator import attrgetter
 from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
@@ -146,8 +147,14 @@ class Message:
                         )
                     args.append(obj)
             elif argument.argument_type == ArgumentType.NewId:
-                # TODO
-                raise NotImplementedError
+                from pywayland.protocol.wayland.wl_registry import WlRegistry
+                if (display := next(map(attrgetter("_display"), WlRegistry.registry.values()), None)) is None:
+                    raise RuntimeError("Cannot find display")
+                iface = argument.interface
+                assert iface
+                proxy_ptr = ffi.cast("struct wl_proxy *", arg_ptr.o)
+                obj = iface.proxy_class(proxy_ptr, display)
+                args.append(obj)
             elif argument.argument_type == ArgumentType.Array:
                 array_ptr = arg_ptr.a
                 args.append(ffi.buffer(array_ptr.data, array_ptr.size)[:])
