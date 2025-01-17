@@ -115,12 +115,10 @@ jobs:
     container: quay.io/pypa/manylinux_2_28_x86_64
     needs: build-wayland
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - python-version: "3.9"
-            pypy-version: "7.3"
-          - python-version: "3.10"
-            pypy-version: "7.3"
+        python-version: ["3.10"]
+        pypy-version: ["7.3"]
     steps:
       - name: Download wayland libraries
         uses: actions/download-artifact@v4
@@ -128,9 +126,11 @@ jobs:
           name: wayland
       - name: Unpack wayland artifact
         run: tar xf wayland.tar.gz -C /
-      - name: Set environment variables
+      - name: Set python version
         run: |
+          ls /opt/python/
           PYTHON_ROOT=$(find /opt/python -name pp${PYTHON_VERSION/./}-*_pp${PP_VERSION/./})
+          echo "${PYTHON_ROOT}"
           echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
         shell: bash
         env:
@@ -162,7 +162,6 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
-          - "pypy-3.9"
           - "pypy-3.10"
     steps:
       - name: Download wheels
