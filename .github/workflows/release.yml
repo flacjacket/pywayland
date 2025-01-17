@@ -8,7 +8,7 @@ on:
 jobs:
   build-wayland:
     name: Build Wayland libraries
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     env:
       wayland-version: "1.23.0"
@@ -70,7 +70,7 @@ jobs:
           if-no-files-found: error
   build-wheel-cpython:
     name: Build CPython wheels
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     strategy:
@@ -110,7 +110,7 @@ jobs:
           path: output_wheels/*.whl
   build-wheel-pypy:
     name: Build PyPy wheels
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     strategy:
@@ -151,7 +151,7 @@ jobs:
           path: output_wheels/*.whl
   test-wheel:
     name: Test wheels
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [build-wheel-cpython, build-wheel-pypy]
     strategy:
       matrix:
@@ -179,7 +179,7 @@ jobs:
           print(pywayland.__wayland_version__)
   build-source:
     name: Build source package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     env:
@@ -213,7 +213,7 @@ jobs:
           path: dist/*.tar.gz
   upload-wheel:
     name: Upload wheels
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [test-wheel, build-source]
     steps:
       - name: Download wheels
