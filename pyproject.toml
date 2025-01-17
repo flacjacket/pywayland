@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 name = "pywayland"
 description = "Python bindings for the libwayland library written in pure Python"
 authors = [{name = "Sean Vig", email = "sean.v.775@gmail.com"}]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "Apache License 2.0"}
 readme = "README.rst"
 classifiers = [
@@ -19,10 +19,10 @@ classifiers = [
     "Operating System :: POSIX",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Desktop Environment :: Window Managers",
@@ -67,10 +67,9 @@ version = {attr = "pywayland.version.__version__"}
 lint.select = ['E', 'F', 'I', 'W', 'UP', 'RUF']
 lint.ignore = ["E501"]
 line-length = 88
-target-version = "py38"
 
 [tool.black]
-target-version = ["py38"]
+line-length = 88
 
 [tool.check-manifest]
 ignore = [
@@ -81,7 +80,6 @@ ignore = [
 ]
 
 [tool.mypy]
-python_version = 3.8
 disallow_subclassing_any = true
 no_implicit_optional = true
 show_error_codes = true
