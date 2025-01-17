@@ -14,8 +14,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from operator import attrgetter
-from typing import Callable, Iterable
+from typing import Callable
 from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
