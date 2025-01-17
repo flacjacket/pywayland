@@ -9,7 +9,7 @@ jobs:
   build-wayland:
     name: Build Wayland libraries
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_28_x86_64
+    container: quay.io/pypa/manylinux_2_34_x86_64
     env:
       wayland-version: "1.23.0"
       wayland-protocols-version: "1.36"
@@ -71,7 +71,7 @@ jobs:
   build-wheel-cpython:
     name: Build CPython wheels
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_28_x86_64
+    container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     strategy:
       matrix:
@@ -103,7 +103,7 @@ jobs:
       - name: Build wheels
         run: |
           python -m build --wheel
-          auditwheel repair --plat manylinux_2_28_x86_64 -w output_wheels dist/pywayland-*.whl
+          auditwheel repair --plat manylinux_2_34_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -112,7 +112,7 @@ jobs:
   build-wheel-pypy:
     name: Build PyPy wheels
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_28_x86_64
+    container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     strategy:
       fail-fast: false
@@ -144,7 +144,7 @@ jobs:
       - name: Build wheels
         run: |
           python -m build --wheel
-          auditwheel repair --plat manylinux_2_28_x86_64 -w output_wheels dist/pywayland-*.whl
+          auditwheel repair --plat manylinux_2_34_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -182,7 +182,7 @@ jobs:
   build-source:
     name: Build source package
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_28_x86_64
+    container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     env:
       python-version: "3.12"
