@@ -147,33 +147,16 @@ jobs:
   ruff-test:
     name: ruff test
     runs-on: ubuntu-24.04
-    needs: build-wayland
     env:
       python-version: "3.12"
       wayland-version: "1.23.0"
       wayland-protocols-version: "1.36"
     steps:
       - uses: actions/checkout@v4
-      - name: Download wayland libraries
-        uses: actions/download-artifact@v4
-        with:
-          name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
-      - name: Unpack wayland artifact
-        run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.python-version }}
-      - name: Set environment variables
-        run: |
-          echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
-      - name: Install Python dependencies
-        run: |
-          pip install setuptools
-          pip install -r requirements.txt
-          pip install ruff
-          python pywayland/ffi_build.py
-          python -m pywayland.scanner --with-protocols
       - name: Run ruff check
         uses: chartboost/ruff-action@v1
         with:
