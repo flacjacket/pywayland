@@ -2,4 +2,4 @@
 pytest
 pytest-cov
 coverage
-coveralls
+coveralls>=3.3.1
