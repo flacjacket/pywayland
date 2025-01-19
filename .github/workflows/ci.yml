@@ -12,6 +12,7 @@ jobs:
     name: Build Wayland libraries
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         wayland-version: ["1.23.0"]
         wayland-protocols-version: ["1.36"]

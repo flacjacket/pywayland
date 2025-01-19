@@ -74,12 +74,9 @@ jobs:
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     strategy:
+      fail-fast: false
       matrix:
-        python-version:
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Download wayland libraries
         uses: actions/download-artifact@v4
@@ -87,7 +84,7 @@ jobs:
           name: wayland
       - name: Unpack wayland artifact
         run: tar xf wayland.tar.gz -C /
-      - name: Set environment variables
+      - name: Set python version
         run: |
           PYTHON_ROOT=$(find /opt/python -name cp${PYTHON_VERSION/./}-*)
           echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
@@ -154,6 +151,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [build-wheel-cpython, build-wheel-pypy]
     strategy:
+      fail-fast: false
       matrix:
         python-version:
           - "3.9"
@@ -191,7 +189,7 @@ jobs:
           name: wayland
       - name: Unpack wayland artifact
         run: tar xf wayland.tar.gz -C /
-      - name: Set environment variables
+      - name: Set python version
         run: |
           PYTHON_ROOT=$(find /opt/python -name cp${PYTHON_VERSION/./}-*)
           echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
