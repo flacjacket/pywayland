@@ -16,8 +16,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from functools import wraps
-from typing import Callable, Iterator
+from typing import Callable
 
 from . import ffi, lib
 

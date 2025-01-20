@@ -28,11 +28,8 @@ Dependencies
 
 Installing PyWayland requires the Wayland library and the headers to be installed.
 
-PyWayland requires the cffi_ package to be installed.  PyWayland runs and is
-tested against Python 3.6+, including sufficient versions of PyPy3 (see
-`Running Tests`_).
-
-See the `installation guide`_ for more information on installing required dependencies
+PyWayland requires the cffi_ package to be installed. See the `installation guide`_
+for more information on installing required dependencies
 
 .. _cffi: https://cffi.readthedocs.org/
 .. _installation guide: http://pywayland.readthedocs.org/en/latest/install.html#installation

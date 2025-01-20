@@ -15,8 +15,8 @@
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator
 
 from .argument import Argument, ArgumentType
 from .description import Description
