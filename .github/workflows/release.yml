@@ -39,7 +39,7 @@ jobs:
           echo "PKG_CONFIG_PATH=/wayland/usr/share/pkgconfig:/wayland/usr/lib/pkgconfig" >> $GITHUB_ENV
       - name: Set python version
         run: |
-          PYTHON_ROOT=$(find /opt/python -name cp${PYTHON_VERSION/./}-*)
+          PYTHON_ROOT=$(find /opt/python -name "cp${PYTHON_VERSION/./}-*" -not -name "*t")
           echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
         shell: bash
         env:
@@ -86,7 +86,7 @@ jobs:
         run: tar xf wayland.tar.gz -C /
       - name: Set python version
         run: |
-          PYTHON_ROOT=$(find /opt/python -name cp${PYTHON_VERSION/./}-*)
+          PYTHON_ROOT=$(find /opt/python -name "cp${PYTHON_VERSION/./}-*" -not -name "*t")
           echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
         shell: bash
         env:
@@ -125,7 +125,7 @@ jobs:
       - name: Set python version
         run: |
           ls /opt/python/
-          PYTHON_ROOT=$(find /opt/python -name pp${PYTHON_VERSION/./}-*_pp${PP_VERSION/./})
+          PYTHON_ROOT=$(find /opt/python -name "pp${PYTHON_VERSION/./}-*_pp${PP_VERSION/./}" -not -name "*t")
           echo "${PYTHON_ROOT}"
           echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
         shell: bash
@@ -192,7 +192,7 @@ jobs:
         run: tar xf wayland.tar.gz -C /
       - name: Set python version
         run: |
-          PYTHON_ROOT=$(find /opt/python -name cp${PYTHON_VERSION/./}-*)
+          PYTHON_ROOT=$(find /opt/python -name "cp${PYTHON_VERSION/./}-*" -not -name "*t")
           echo "${PYTHON_ROOT}/bin" >> $GITHUB_PATH
         shell: bash
         env:
