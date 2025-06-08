@@ -70,7 +70,7 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
-          - "pypy-3.10"
+          - "pypy-3.11"
         wayland-version: ["1.23.0"]
         wayland-protocols-version: ["1.36"]
     steps:
