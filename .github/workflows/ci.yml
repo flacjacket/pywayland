@@ -70,6 +70,7 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
           - "pypy-3.11"
         wayland-version: ["1.23.0"]
         wayland-protocols-version: ["1.36"]
@@ -118,7 +119,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.12"
+      python-version: "3.13"
       wayland-version: "1.23.0"
       wayland-protocols-version: "1.36"
     steps:
@@ -149,7 +150,7 @@ jobs:
     name: ruff test
     runs-on: ubuntu-24.04
     env:
-      python-version: "3.12"
+      python-version: "3.13"
       wayland-version: "1.23.0"
       wayland-protocols-version: "1.36"
     steps:
@@ -167,7 +168,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.12"
+      python-version: "3.13"
       wayland-version: "1.23.0"
       wayland-protocols-version: "1.36"
     steps:
@@ -199,7 +200,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.12"
+      python-version: "3.13"
       wayland-version: "1.23.0"
       wayland-protocols-version: "1.36"
     steps:
@@ -233,7 +234,7 @@ jobs:
     name: black test
     runs-on: ubuntu-24.04
     env:
-      python-version: "3.12"
+      python-version: "3.13"
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
