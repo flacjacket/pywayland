@@ -27,6 +27,7 @@ if os.path.exists(pywayland_dir):
 from pywayland.client import Display  # noqa: E402
 from pywayland.protocol.wayland import WlCompositor, WlShell, WlShm  # noqa: E402
 from pywayland.utils import AnonymousFile  # noqa: E402
+from pywayland.protocol.xdg_shell.xdg_wm_base import XdgWmBase  # noqa: E402
 
 WIDTH = 480
 HEIGHT = 256
@@ -42,9 +43,12 @@ class Window:
         self.shm = None
         self.shm_data = None
         self.surface = None
+        self.wm_base = None
 
         self.line_pos = MARGIN
         self.line_speed = +1
+
+        self.should_quit = False
 
 
 def shell_surface_ping_handler(shell_surface, serial):
@@ -55,6 +59,10 @@ def shell_surface_ping_handler(shell_surface, serial):
 def shm_format_handler(shm, format_):
     format_enum = WlShm.format(format_)
     print(f"Possible shmem format: {format_enum.name}")
+
+
+def wm_base_ping_handler(xdg_wm_base, serial):
+    xdg_wm_base.pong(serial)
 
 
 def registry_global_handler(registry, id_, interface, version):
@@ -69,7 +77,9 @@ def registry_global_handler(registry, id_, interface, version):
         print("got shm")
         window.shm = registry.bind(id_, WlShm, version)
         window.shm.dispatcher["format"] = shm_format_handler
-
+    elif interface == "xdg_wm_base":
+        window.wm_base = registry.bind(id_, XdgWmBase, version)
+        window.wm_base.dispatcher["ping"] = wm_base_ping_handler
 
 def registry_global_remover(registry, id_):
     print(f"got a registry losing event for {id}")
@@ -126,6 +136,18 @@ def paint(window):
     if window.line_pos >= HEIGHT - MARGIN or window.line_pos <= MARGIN:
         window.line_speed = -window.line_speed
 
+def xdg_surface_configure_handler(xdg_surface, serial):
+    xdg_surface.ack_configure(serial)
+
+
+def xdg_toplevel_configure_handler(toplevel, width, height, states):
+    print(f"Configure with {width}x{height}")
+
+
+def xdg_toplevel_close_handler(toplevel):
+    window = toplevel.user_data
+    window.should_quit = True
+
 
 def main():
     window = Window()
@@ -144,16 +166,27 @@ def main():
 
     if window.compositor is None:
         raise RuntimeError("no compositor found")
-    elif window.shell is None:
+    elif window.shell is None and window.wm_base is None:
         raise RuntimeError("no shell found")
     elif window.shm is None:
         raise RuntimeError("no shm found")
 
     window.surface = window.compositor.create_surface()
 
-    shell_surface = window.shell.get_shell_surface(window.surface)
-    shell_surface.set_toplevel()
-    shell_surface.dispatcher["ping"] = shell_surface_ping_handler
+    if window.wm_base:
+        xdg_surface = window.wm_base.get_xdg_surface(window.surface)
+        xdg_surface.dispatcher["configure"] = xdg_surface_configure_handler
+
+        toplevel = xdg_surface.get_toplevel()
+        toplevel.set_app_id("pywayland_surface_example")
+        toplevel.set_title("pywayland Surface Example")
+        toplevel.dispatcher["configure"] = xdg_toplevel_configure_handler
+        toplevel.dispatcher["close"] = xdg_toplevel_close_handler
+        toplevel.user_data = window
+    elif window.shell:
+        shell_surface = window.shell.get_shell_surface(window.surface)
+        shell_surface.set_toplevel()
+        shell_surface.dispatcher["ping"] = shell_surface_ping_handler
 
     frame_callback = window.surface.frame()
     frame_callback.dispatcher["done"] = redraw
@@ -162,7 +195,7 @@ def main():
     create_window(window)
     redraw(frame_callback, 0, destroy_callback=False)
 
-    while display.dispatch(block=True) != -1:
+    while display.dispatch(block=True) != -1 and not window.should_quit:
         pass
 
     import time
