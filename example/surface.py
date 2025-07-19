@@ -53,15 +53,8 @@ def shell_surface_ping_handler(shell_surface, serial):
 
 
 def shm_format_handler(shm, format_):
-    if format_ == WlShm.format.argb8888.value:
-        s = "ARGB8888"
-    elif format_ == WlShm.format.xrgb8888.value:
-        s = "XRGB8888"
-    elif format_ == WlShm.format.rgb565.value:
-        s = "RGB565"
-    else:
-        s = "other format"
-    print(f"Possible shmem format: {s}")
+    format_enum = WlShm.format(format_)
+    print(f"Possible shmem format: {format_enum.name}")
 
 
 def registry_global_handler(registry, id_, interface, version):
