@@ -13,12 +13,15 @@
 # limitations under the License.
 
 from .version import __version__  # noqa: F401
+import os
 
 try:
     from ._ffi import ffi, lib  # noqa: F401
+    __wayland_version__ = f"{lib.WAYLAND_VERSION_MAJOR}.{lib.WAYLAND_VERSION_MINOR}.{lib.WAYLAND_VERSION_MICRO}"
 except ImportError:
-    raise ImportError(
-        "No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`"
-    )
+    if not os.getenv("PYTHON_CROSSENV"):
+        raise ImportError(
+            "No module named pywayland._ffi, be sure to run `python ./pywayland/ffi_build.py`"
+        )
+    __wayland_version__ = os.getenv("PYTHON_CROSSENV_WAYLAND_VERSION")
 
-__wayland_version__ = f"{lib.WAYLAND_VERSION_MAJOR}.{lib.WAYLAND_VERSION_MINOR}.{lib.WAYLAND_VERSION_MICRO}"
