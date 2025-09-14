@@ -93,7 +93,7 @@ class Signal:
     is removed by wl_list_remove() (or whenever the signal is destroyed).
     """
 
-    def __init__(self, *, ptr=None, data_wrapper=None):
+    def __init__(self, *, ptr=None, data_wrapper=None) -> None:
         if ptr is None:
             self._ptr = ffi.new("struct wl_listener *")
             lib.wl_signal_init(self._ptr)
@@ -103,7 +103,7 @@ class Signal:
         self._data_wrapper = data_wrapper
         self._link: list[Listener] = []
 
-    def add(self, listener):
+    def add(self, listener) -> None:
         """Add the specified listener to this signal
 
         :param listener: The listener to add
@@ -116,7 +116,7 @@ class Signal:
 
         lib.wl_signal_add(self._ptr, listener._ptr)
 
-    def emit(self, data=None):
+    def emit(self, data=None) -> None:
         """Emits this signal, notifying all registered listeners
 
         :param data: The data that will be emitted with the signal
