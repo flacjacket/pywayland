@@ -44,7 +44,7 @@ def get_wayland_protocols() -> list[str]:
     # walk the wayland-protocol dir
     for dirpath, _, filenames in os.walk(protocols_dir):
         for filename in filenames:
-            file_base, file_ext = os.path.splitext(filename)
+            _, file_ext = os.path.splitext(filename)
             # only generate protocols for xml files
             if file_ext == ".xml":
                 protocols.append(os.path.join(dirpath, filename))
