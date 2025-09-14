@@ -50,14 +50,14 @@ jobs:
       - name: Build Wayland
         working-directory: wayland-${{ env.wayland-version }}
         run: |
-          meson build --prefix=/usr -Ddocumentation=false
+          meson setup build --prefix=/usr -Ddocumentation=false
           ninja -C build
           DESTDIR=/wayland ninja -C build install
           ninja -C build install
       - name: Build Wayland protocols
         working-directory: wayland-protocols-${{ env.wayland-protocols-version }}
         run: |
-          meson build --prefix=/usr
+          meson setup build --prefix=/usr
           ninja -C build
           DESTDIR=/wayland ninja -C build install
       - name: Create artifact
