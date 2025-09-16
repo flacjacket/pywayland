@@ -23,14 +23,7 @@ this_dir = os.path.split(__file__)[0]
 scanner_dir = os.path.join(this_dir, "scanner_files")
 input_file = os.path.join(scanner_dir, "test_scanner_input.xml")
 
-interface_tests = [
-    "__init__.py",
-    "wl_core.py",
-    "wl_events.py",
-    "wl_requests.py",
-    "wl_destructor.py",
-    pytest.param("wl_xfail.py", marks=pytest.mark.xfail),
-]
+interface_tests = ["__init__.py"]
 
 
 @pytest.fixture(scope="session")

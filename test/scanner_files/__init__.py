@@ -14,8 +14,545 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .wl_core import WlCore  # noqa: F401
-from .wl_destructor import WlDestructor  # noqa: F401
-from .wl_events import WlEvents  # noqa: F401
-from .wl_requests import WlRequests  # noqa: F401
-from .wl_xfail import WlXfail  # noqa: F401
+from __future__ import annotations
+
+import enum
+
+from typing import TypeVar
+
+from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
+
+T = TypeVar("T", bound=Interface)
+
+
+
+class WlCore(Interface):
+    """Interface object
+
+    The interface object with the most basic content.
+    """
+
+    name = "wl_core"
+    version = 1
+
+    class the_enum(enum.IntEnum):
+        zero = 0
+        one = 1
+        hex_two = 0x2
+
+
+class WlDestructor(Interface):
+    """Destructor object
+
+    An interface object with a destructor request.
+
+    And a multiline description.
+    """
+
+    name = "wl_destructor"
+    version = 1
+
+
+class WlEvents(Interface):
+    """Events object
+
+    The interface object with the different types of events.
+    """
+
+    name = "wl_events"
+    version = 2
+
+
+class WlRequests(Interface):
+    """Request object
+
+    The interface object with the different types of requests.
+    """
+
+    name = "wl_requests"
+    version = 2
+
+
+class WlXfail(Interface):
+    """Xfailing interface
+
+    Items that do not really work yet are put in here, they should be moved
+    once they shart working.
+    """
+
+    name = "wl_xfail"
+    version = 1
+
+
+class WlCoreResource(Resource):
+    interface = WlCore
+
+    @WlCore.event(
+        Argument(ArgumentType.NewId, interface=WlCore),
+        Argument(ArgumentType.Object, interface=WlRequests),
+    )
+    def send_event(self, id: WlCore, object: WlRequests) -> None:
+        """A :class:`WlCore` event
+
+        Send an event, but also put in some docs for our interface
+        :class:`WlCore`, some other interface wl_other, a local function call
+        :func:`WlCore.func()`, and another function call wl_other.func.
+
+        :param id:
+            a :class:`WlCore` object
+        :type id:
+            :class:`WlCore`
+        :param object:
+            a :class:`~pywayland.protocol.scanner_test.WlRequests` object
+        :type object:
+            :class:`~pywayland.protocol.scanner_test.WlRequests`
+        """
+        self._post_event(0, id, object)
+
+
+WlCore.resource_class = WlCoreResource
+
+
+class WlDestructorResource(Resource):
+    interface = WlDestructor
+
+
+WlDestructor.resource_class = WlDestructorResource
+
+
+class WlEventsResource(Resource):
+    interface = WlEvents
+
+    @WlEvents.event(
+        Argument(ArgumentType.NewId, interface=WlRequests),
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Uint),
+        Argument(ArgumentType.FileDescriptor),
+    )
+    def send_event(self, id: WlRequests, the_int: int, the_uint: int, the_fd: int) -> None:
+        """Send the data
+
+        Request for data from the client.  Send the data as the specified mime
+        type over the passed file descriptor, then close it.
+
+        :param id:
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlRequests`
+        :param the_int:
+        :type the_int:
+            `ArgumentType.Int`
+        :param the_uint:
+            the arg summary
+        :type the_uint:
+            `ArgumentType.Uint`
+        :param the_fd:
+        :type the_fd:
+            `ArgumentType.FileDescriptor`
+        """
+        self._post_event(0, id, the_int, the_uint, the_fd)
+
+    @WlEvents.event()
+    def no_args(self) -> None:
+        """Event with no args
+
+        An event method that does not have any arguments.
+        """
+        self._post_event(1)
+
+    @WlEvents.event(
+        Argument(ArgumentType.NewId, interface=WlCore),
+    )
+    def create_id(self, id: WlCore) -> None:
+        """Create an id
+
+        With a description
+
+        :param id:
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlCore`
+        """
+        self._post_event(2, id)
+
+    @WlEvents.event(
+        Argument(ArgumentType.NewId, interface=WlCore),
+    )
+    def create_id2(self, id: WlCore) -> None:
+        """Create an id without a description
+
+        :param id:
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlCore`
+        """
+        self._post_event(3, id)
+
+    @WlEvents.event(
+        Argument(ArgumentType.String, nullable=True),
+    )
+    def allow_null_event(self, null_string: str | None) -> None:
+        """A event with an allowed null argument
+
+        An event where one of the arguments is allowed to be null.
+
+        :param null_string:
+        :type null_string:
+            `ArgumentType.String` or `None`
+        """
+        self._post_event(4, null_string)
+
+    @WlEvents.event(
+        Argument(ArgumentType.NewId, interface=WlRequests),
+        Argument(ArgumentType.Object, interface=WlCore, nullable=True),
+    )
+    def make_import(self, id: WlRequests, object: WlCore | None) -> None:
+        """Event that causes an import
+
+        An event method that causes an imoprt of other interfaces
+
+        :param id:
+        :type id:
+            :class:`~pywayland.protocol.scanner_test.WlRequests`
+        :param object:
+        :type object:
+            :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
+        """
+        self._post_event(5, id, object)
+
+    @WlEvents.event(version=2)
+    def versioned(self) -> None:
+        """A versioned event
+
+        An event that is versioned.
+        """
+        self._post_event(6)
+
+
+WlEvents.resource_class = WlEventsResource
+
+
+class WlRequestsResource(Resource):
+    interface = WlRequests
+
+
+WlRequests.resource_class = WlRequestsResource
+
+
+class WlXfailResource(Resource):
+    interface = WlXfail
+
+
+WlXfail.resource_class = WlXfailResource
+
+
+class WlCoreProxy(Proxy[WlCore]):
+    interface = WlCore
+
+    @WlCore.request(
+        Argument(ArgumentType.NewId, interface=WlCore),
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Uint),
+        Argument(ArgumentType.Fixed),
+    )
+    def make_request(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
+        """A request
+
+        The request asks the server for an event.
+
+        :param the_int:
+            the arg summary
+        :type the_int:
+            `ArgumentType.Int`
+        :param the_uint:
+        :type the_uint:
+            `ArgumentType.Uint`
+        :param the_fixed:
+        :type the_fixed:
+            `ArgumentType.Fixed`
+        :returns:
+            :class:`WlCore`
+        """
+        id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fixed)
+        return id
+
+    @WlCore.request(
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Uint),
+        Argument(ArgumentType.Fixed),
+        Argument(ArgumentType.NewId, interface=WlCore),
+    )
+    def make_request2(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
+        """A request
+
+        The request asks the server for an event but move the args around.
+
+        :param the_int:
+            the arg summary
+        :type the_int:
+            `ArgumentType.Int`
+        :param the_uint:
+        :type the_uint:
+            `ArgumentType.Uint`
+        :param the_fixed:
+        :type the_fixed:
+            `ArgumentType.Fixed`
+        :returns:
+            :class:`WlCore` -- a :class:`WlCore` object
+        """
+        id = self._marshal_constructor(1, WlCore, the_int, the_uint, the_fixed)
+        return id
+
+
+WlCore.proxy_class = WlCoreProxy
+
+
+class WlDestructorProxy(Proxy[WlDestructor]):
+    interface = WlDestructor
+
+    @WlDestructor.request(
+        Argument(ArgumentType.NewId, interface=WlDestructor),
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Uint),
+    )
+    def create_interface(self, x: int, y: int, width: int, height: int, format: int) -> Proxy[WlDestructor]:
+        """Create another interface
+
+        Create a :class:`WlDestructor` interface object
+
+        :param x:
+        :type x:
+            `ArgumentType.Int`
+        :param y:
+        :type y:
+            `ArgumentType.Int`
+        :param width:
+        :type width:
+            `ArgumentType.Int`
+        :param height:
+        :type height:
+            `ArgumentType.Int`
+        :param format:
+        :type format:
+            `ArgumentType.Uint`
+        :returns:
+            :class:`WlDestructor`
+        """
+        id = self._marshal_constructor(0, WlDestructor, x, y, width, height, format)
+        return id
+
+    @WlDestructor.request()
+    def destroy(self) -> None:
+        """Destroy the interface
+
+        Destroy the created interface.
+        """
+        self._marshal(1)
+        self._destroy()
+
+
+WlDestructor.proxy_class = WlDestructorProxy
+
+
+class WlEventsProxy(Proxy[WlEvents]):
+    interface = WlEvents
+
+
+WlEvents.proxy_class = WlEventsProxy
+
+
+class WlRequestsProxy(Proxy[WlRequests]):
+    interface = WlRequests
+
+    @WlRequests.request(
+        Argument(ArgumentType.NewId, interface=WlCore),
+        Argument(ArgumentType.Int),
+        Argument(ArgumentType.Uint),
+        Argument(ArgumentType.FileDescriptor),
+    )
+    def make_request(self, the_int: int, the_uint: int, the_fd: int) -> Proxy[WlCore]:
+        """A request
+
+        The request asks the server for an event.
+
+        :param the_int:
+        :type the_int:
+            `ArgumentType.Int`
+        :param the_uint:
+            the arg summary
+        :type the_uint:
+            `ArgumentType.Uint`
+        :param the_fd:
+        :type the_fd:
+            `ArgumentType.FileDescriptor`
+        :returns:
+            :class:`~pywayland.protocol.scanner_test.WlCore`
+        """
+        id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fd)
+        return id
+
+    @WlRequests.request()
+    def no_args(self) -> None:
+        """Request with no args
+
+        A request method that does not have any arguments.
+        """
+        self._marshal(1)
+
+    @WlRequests.request(
+        Argument(ArgumentType.NewId, interface=WlCore),
+    )
+    def create_id(self) -> Proxy[WlCore]:
+        """Create an id
+
+        With a description
+
+        :returns:
+            :class:`~pywayland.protocol.scanner_test.WlCore`
+        """
+        id = self._marshal_constructor(2, WlCore)
+        return id
+
+    @WlRequests.request(
+        Argument(ArgumentType.NewId, interface=WlCore),
+    )
+    def create_id2(self) -> Proxy[WlCore]:
+        """Create an id without a description
+
+        :returns:
+            :class:`~pywayland.protocol.scanner_test.WlCore`
+        """
+        id = self._marshal_constructor(3, WlCore)
+        return id
+
+    @WlRequests.request(
+        Argument(ArgumentType.Uint),
+        Argument(ArgumentType.String, nullable=True),
+    )
+    def allow_null(self, serial: int, mime_type: str | None) -> None:
+        """Request that allows for null arguments
+
+        A request where one of the arguments is allowed to be null.
+
+        :param serial:
+        :type serial:
+            `ArgumentType.Uint`
+        :param mime_type:
+        :type mime_type:
+            `ArgumentType.String` or `None`
+        """
+        self._marshal(4, serial, mime_type)
+
+    @WlRequests.request(
+        Argument(ArgumentType.NewId, interface=WlEvents),
+        Argument(ArgumentType.Object, interface=WlCore, nullable=True),
+    )
+    def make_import(self, object: WlCore | None) -> Proxy[WlEvents]:
+        """Request that causes an import
+
+        A request method that causes an imoprt of other interfaces, both as a
+        new_id and as an object.
+
+        :param object:
+        :type object:
+            :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
+        :returns:
+            :class:`~pywayland.protocol.scanner_test.WlEvents`
+        """
+        id = self._marshal_constructor(5, WlEvents, object)
+        return id
+
+    @WlRequests.request(version=2)
+    def versioned(self) -> None:
+        """A versioned request
+
+        A request that is versioned.
+        """
+        self._marshal(6)
+
+    @WlRequests.request(
+        Argument(ArgumentType.Uint),
+        Argument(ArgumentType.NewId),
+    )
+    def new_id_no_interface(self, name: int, interface: type[T], version: int) -> Proxy[T]:
+        """Create a new id, but with no interface
+
+        A method with an argument for a new_id, but with no corresponding
+        interface (c.f. wl_registry.bind).
+
+        :param name:
+        :type name:
+            `ArgumentType.Uint`
+        :param interface:
+            Interface name
+        :type interface:
+            `string`
+        :param version:
+            Interface version
+        :type version:
+            `int`
+        :returns:
+            :class:`pywayland.client.proxy.Proxy` of specified Interface
+        """
+        id = self._marshal_constructor(7, interface, name, interface.name, version)
+        return id
+
+
+WlRequests.proxy_class = WlRequestsProxy
+
+
+class WlXfailProxy(Proxy[WlXfail]):
+    interface = WlXfail
+
+
+WlXfail.proxy_class = WlXfailProxy
+
+
+class WlCoreGlobal(Global):
+    interface = WlCore
+
+
+WlCore.global_class = WlCoreGlobal
+
+
+WlCore._gen_c()
+
+
+class WlDestructorGlobal(Global):
+    interface = WlDestructor
+
+
+WlDestructor.global_class = WlDestructorGlobal
+
+
+WlDestructor._gen_c()
+
+
+class WlEventsGlobal(Global):
+    interface = WlEvents
+
+
+WlEvents.global_class = WlEventsGlobal
+
+
+WlEvents._gen_c()
+
+
+class WlRequestsGlobal(Global):
+    interface = WlRequests
+
+
+WlRequests.global_class = WlRequestsGlobal
+
+
+WlRequests._gen_c()
+
+
+class WlXfailGlobal(Global):
+    interface = WlXfail
+
+
+WlXfail.global_class = WlXfailGlobal
+
+
+WlXfail._gen_c()
