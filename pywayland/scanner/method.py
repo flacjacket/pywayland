@@ -67,7 +67,9 @@ class Method(Element, abc.ABC):
             if current_protocol == import_protocol:
                 continue
 
-            import_path = f"..{import_protocol}"
+            # all protocol files are now in the same directory
+            import_path = f".{import_protocol}"
+
             imports.append((import_path, import_class))
 
         return imports

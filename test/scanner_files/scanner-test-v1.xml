@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<protocol name="scanner_test">
+<protocol name="scanner_test_v1">
 
   <copyright>
     Copyright 2015 Sean Vig

@@ -74,12 +74,11 @@ class Protocol(Element):
         :param output_dir: Path of directory to output protocol files to
         :type output_dir: string
         """
-        protocol_name = self.name.replace("-", "_")
-
-        output_dir = os.path.join(output_dir, protocol_name)
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
-        init_path = os.path.join(output_dir, "__init__.py")
+
+        protocol_name = self.name.replace("-", "_")
+        protocol_path = os.path.join(output_dir, f"{protocol_name}.py")
 
         printer = Printer(protocol_name, all_imports)
         if self.copyright:
@@ -116,7 +115,7 @@ class Protocol(Element):
         )
         printer()
 
-        interface_imports = set()  # type: ignore
+        interface_imports = set()
         for iface in self.interface:
             interface_imports |= iface.get_imports(all_imports)
 
@@ -129,7 +128,7 @@ class Protocol(Element):
             printer('T = TypeVar("T", bound=Interface)')
             printer()
 
-        with open(init_path, "wb") as f:
+        with open(protocol_path, "wb") as f:
             printer.write(f)
         printer.clear()
 
@@ -146,6 +145,6 @@ class Protocol(Element):
                 iface_method = getattr(iface, output_method)
                 iface_method(printer)
 
-            with open(init_path, "ab") as f:
+            with open(protocol_path, "ab") as f:
                 printer.write(f)
             printer.clear()

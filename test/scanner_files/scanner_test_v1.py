@@ -103,9 +103,9 @@ class WlCoreResource(Resource):
         :type id:
             :class:`WlCore`
         :param object:
-            a :class:`~pywayland.protocol.scanner_test.WlRequests` object
+            a :class:`~pywayland.protocol.scanner_test_v1.WlRequests` object
         :type object:
-            :class:`~pywayland.protocol.scanner_test.WlRequests`
+            :class:`~pywayland.protocol.scanner_test_v1.WlRequests`
         """
         self._post_event(0, id, object)
 
@@ -137,7 +137,7 @@ class WlEventsResource(Resource):
 
         :param id:
         :type id:
-            :class:`~pywayland.protocol.scanner_test.WlRequests`
+            :class:`~pywayland.protocol.scanner_test_v1.WlRequests`
         :param the_int:
         :type the_int:
             `ArgumentType.Int`
@@ -169,7 +169,7 @@ class WlEventsResource(Resource):
 
         :param id:
         :type id:
-            :class:`~pywayland.protocol.scanner_test.WlCore`
+            :class:`~pywayland.protocol.scanner_test_v1.WlCore`
         """
         self._post_event(2, id)
 
@@ -181,7 +181,7 @@ class WlEventsResource(Resource):
 
         :param id:
         :type id:
-            :class:`~pywayland.protocol.scanner_test.WlCore`
+            :class:`~pywayland.protocol.scanner_test_v1.WlCore`
         """
         self._post_event(3, id)
 
@@ -210,10 +210,10 @@ class WlEventsResource(Resource):
 
         :param id:
         :type id:
-            :class:`~pywayland.protocol.scanner_test.WlRequests`
+            :class:`~pywayland.protocol.scanner_test_v1.WlRequests`
         :param object:
         :type object:
-            :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
+            :class:`~pywayland.protocol.scanner_test_v1.WlCore` or `None`
         """
         self._post_event(5, id, object)
 
@@ -386,7 +386,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         :type the_fd:
             `ArgumentType.FileDescriptor`
         :returns:
-            :class:`~pywayland.protocol.scanner_test.WlCore`
+            :class:`~pywayland.protocol.scanner_test_v1.WlCore`
         """
         id = self._marshal_constructor(0, WlCore, the_int, the_uint, the_fd)
         return id
@@ -408,7 +408,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         With a description
 
         :returns:
-            :class:`~pywayland.protocol.scanner_test.WlCore`
+            :class:`~pywayland.protocol.scanner_test_v1.WlCore`
         """
         id = self._marshal_constructor(2, WlCore)
         return id
@@ -420,7 +420,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         """Create an id without a description
 
         :returns:
-            :class:`~pywayland.protocol.scanner_test.WlCore`
+            :class:`~pywayland.protocol.scanner_test_v1.WlCore`
         """
         id = self._marshal_constructor(3, WlCore)
         return id
@@ -455,9 +455,9 @@ class WlRequestsProxy(Proxy[WlRequests]):
 
         :param object:
         :type object:
-            :class:`~pywayland.protocol.scanner_test.WlCore` or `None`
+            :class:`~pywayland.protocol.scanner_test_v1.WlCore` or `None`
         :returns:
-            :class:`~pywayland.protocol.scanner_test.WlEvents`
+            :class:`~pywayland.protocol.scanner_test_v1.WlEvents`
         """
         id = self._marshal_constructor(5, WlEvents, object)
         return id
