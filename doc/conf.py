@@ -4,6 +4,7 @@ import importlib
 import os
 import shutil
 import sys
+import re
 
 # -- Mock necessary classes -----------------------------------------------
 from unittest.mock import MagicMock
@@ -55,9 +56,9 @@ protocol_rst = """\
 def protocol_doc(input_dir, output_dir):
     modules = os.listdir(input_dir)
     modules = [
-        module
+        module.rstrip(".py")
         for module in modules
-        if os.path.isdir(os.path.join(input_dir, module)) and module != "__pycache__"
+        if os.path.isfile(os.path.join(input_dir, module)) and module != "__init__.py"
     ]
 
     existing_files = [
@@ -91,28 +92,25 @@ def protocol_doc(input_dir, output_dir):
     for module in modules:
         output = [protocol_header.format(module=module, len=len(module), empty="")]
 
-        # get all the python files that we want to document
-        doc_files = os.listdir(os.path.join(input_dir, module))
-        doc_files = [
-            os.path.splitext(doc_file)[0]
-            for doc_file in doc_files
-            if doc_file != "__init__.py" and os.path.splitext(doc_file)[1] == ".py"
-        ]
+        # get all the interfaces that we want to document
+        protocol_file = os.path.join(input_dir, f"{module}.py")
+        interfaces = []
+        with open(protocol_file) as f:
+            for line in f:
+                match = re.search(r"class (\w+)\(Interface\):", line)
+                if match:
+                    interfaces.append(match.group(1))
 
-        # build the rst for each protocol
-        for doc_file in doc_files:
-            mod = importlib.import_module(f"pywayland.protocol.{module}.{doc_file}")
-            # Get out the name of the class in the module
-            class_name = "".join(x.capitalize() for x in doc_file.split("_"))
-            for mod_upper in dir(mod):
-                if mod_upper == class_name:
-                    break
-            else:
-                raise RuntimeError(f"Unable to find module: {doc_file}, {mod}")
+        # build the rst for each interface
+        for interface in interfaces:
+            mod = importlib.import_module(f"pywayland.protocol.{module}")
+
+            if interface not in dir(mod):
+                raise RuntimeError(f"Unable to find module: {interface}, {mod}")
 
             output.append(
                 protocol_rst.format(
-                    module=module, protocol=mod_upper, len=len(mod_upper), empty=""
+                    module=module, protocol=interface, len=len(interface), empty=""
                 )
             )
 
