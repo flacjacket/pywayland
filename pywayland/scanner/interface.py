@@ -35,6 +35,9 @@ class Interface(Element):
     event: list[Event]
     request: list[Request]
 
+    def __lt__(self, other):
+        return self.name < other.name
+
     @classmethod
     def parse(cls, element: ET.Element) -> Interface:
         """Scanner for interface objects
@@ -43,9 +46,8 @@ class Interface(Element):
 
         Child elements: `description`, `request`, `event`, `enum`
         """
-        name = cls.parse_attribute(element, "name")
         return cls(
-            name=name,
+            name=cls.parse_attribute(element, "name"),
             version=cls.parse_attribute(element, "version"),
             description=cls.parse_optional_child(element, Description, "description"),
             enum=cls.parse_repeated_child(element, Enum, "enum"),
@@ -61,66 +63,34 @@ class Interface(Element):
         """
         return "".join(x.capitalize() for x in self.name.split("_"))
 
-    def output(self, printer: Printer, module_imports: dict[str, str]) -> None:
-        """Generate the output for the interface to the printer"""
-        # Imports
-        imports = set(
-            _import
-            for method in itertools.chain(self.request, self.event)
-            for _import in method.imports(self.name, module_imports)
-        )
+    @property
+    def needs_t_type(self) -> bool:
+        return any(req.new_id and not req.new_id.interface for req in self.request)
 
-        needs_argument_type = any(
-            len(method.arg) > 0 for method in self.request
-        ) or any(len(method.arg) > 0 for method in self.event)
-
-        printer("from __future__ import annotations")
-        printer()
-        if self.enum:
-            printer("import enum")
-            printer()
-
-        typing_imports = []
-        define_t = any(req.new_id and not req.new_id.interface for req in self.request)
-        needs_any = any(req.needs_any for req in self.request) or any(
+    @property
+    def needs_any_type(self) -> bool:
+        return any(req.needs_any for req in self.request) or any(
             event.needs_any for event in self.event
         )
-        if define_t:
-            typing_imports.extend(["TypeVar"])
-        if needs_any:
-            typing_imports.append("Any")
 
-        if typing_imports:
-            printer(f"from typing import {', '.join(sorted(typing_imports))}")
-            printer()
+    @property
+    def needs_argument_type(self) -> bool:
+        return any(len(method.arg) > 0 for method in self.request) or any(
+            len(method.arg) > 0 for method in self.event
+        )
 
-        if needs_argument_type:
-            printer("from pywayland.protocol_core import (")
-            printer("    Argument,")
-            printer("    ArgumentType,")
-            printer("    Global,")
-            printer("    Interface,")
-            printer("    Proxy,")
-            printer("    Resource,")
-            printer(")")
-            printer()
-        else:
-            printer(
-                "from pywayland.protocol_core import Global, Interface, Proxy, Resource"
-            )
-            printer()
+    def get_imports(self, all_imports: dict[str, str]) -> set:
+        """Return necessary imports for this interface"""
+        return set(
+            _import
+            for method in itertools.chain(self.request, self.event)
+            for _import in method.imports(self.name, all_imports)
+        )
 
-        for module, import_ in sorted(imports):
-            printer(f"from {module} import {import_}")
-        if imports:
-            printer()
-
-        if define_t:
-            printer('T = TypeVar("T", bound=Interface)')
-            printer()
-
+    def output_interface(self, printer: Printer) -> None:
+        """Generate the output only of the interface class"""
         printer()
-
+        printer()
         # Class definition
         printer(f"class {self.class_name}(Interface):")
         with printer.indented():
@@ -129,47 +99,56 @@ class Interface(Element):
                 self.description.output(printer)
                 printer('"""')
                 printer()
-
             # Class attributes
             printer(f'name = "{self.name}"')
             printer(f"version = {self.version}")
-
             # Enums
             for enum in self.enum:
                 printer()
                 enum.output(printer)
 
+    def output_requests(self, printer: Printer) -> None:
+        """Generate the output only of the proxy class"""
+        printer()
+        printer()
         proxy_class_name = f"{self.class_name}Proxy"
-        resource_class_name = f"{self.class_name}Resource"
-        global_class_name = f"{self.class_name}Global"
-
-        printer()
-        printer()
         printer(f"class {proxy_class_name}(Proxy[{self.class_name}]):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
             for opcode, request in enumerate(self.request):
                 printer()
-                request.output(printer, opcode, self.class_name, module_imports)
+                request.output(printer, opcode, self.class_name)
+        printer()
+        printer()
+        printer(f"{self.class_name}.proxy_class = {proxy_class_name}")
 
+    def output_events(self, printer: Printer) -> None:
+        """Generate the output only of the proxy class"""
         printer()
         printer()
+        resource_class_name = f"{self.class_name}Resource"
         printer(f"class {resource_class_name}(Resource):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
             for opcode, event in enumerate(self.event):
                 printer()
-                event.output(printer, opcode, self.class_name, module_imports)
+                event.output(printer, opcode, self.class_name)
+        printer()
+        printer()
+        printer(f"{self.class_name}.resource_class = {resource_class_name}")
 
+    def output_global(self, printer: Printer) -> None:
+        """Generate the output only of the proxy class"""
         printer()
         printer()
+        global_class_name = f"{self.class_name}Global"
         printer(f"class {global_class_name}(Global):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
+        printer()
+        printer()
+        printer(f"{self.class_name}.global_class = {global_class_name}")
 
         printer()
         printer()
         printer(f"{self.class_name}._gen_c()")
-        printer(f"{self.class_name}.proxy_class = {proxy_class_name}")
-        printer(f"{self.class_name}.resource_class = {resource_class_name}")
-        printer(f"{self.class_name}.global_class = {global_class_name}")

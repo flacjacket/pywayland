@@ -41,18 +41,16 @@ def get_wayland_protocols() -> list[str]:
         raise OSError("Unable to find wayland-protocols using pkgconfig")
 
     protocols = []
-    # walk the wayland-protocol dir
-    for dirpath, _, filenames in os.walk(protocols_dir):
-        for filename in filenames:
-            _, file_ext = os.path.splitext(filename)
-            # only generate protocols for xml files
-            if file_ext == ".xml":
-                protocols.append(os.path.join(dirpath, filename))
-
-    # this is pretty brittle, there is an xdg_popup in both the unstable and
-    # stable xdg_shell implementations. process the unstable version first so
-    # the import is correct when the pop-up tries to import other interfaces.
-    return sorted(protocols, reverse=True)
+    # wayland protocols stages in incremental importance
+    for stages in ("unstable", "staging", "stable"):
+        # walk the wayland-protocol dir
+        for dirpath, _, filenames in os.walk(os.path.join(protocols_dir, stages)):
+            for filename in filenames:
+                _, file_ext = os.path.splitext(filename)
+                # only generate protocols for xml files
+                if file_ext == ".xml":
+                    protocols.append(os.path.join(dirpath, filename))
+    return protocols
 
 
 def main() -> None:
@@ -98,23 +96,40 @@ def main() -> None:
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir, 0o775)
 
-    input_files = args.input
+    input_files = []
 
     if args.with_protocols:
         protocols_files = get_wayland_protocols()
         input_files += protocols_files
 
+    # add wayland.xml at last
+    input_files += args.input
+
     protocols = [Protocol.parse_file(input_file) for input_file in input_files]
     logger.info(f"Parsed {len(protocols)} input xml files")
 
-    protocol_imports = {
+    # items are created in order of importance (unstable -> staging -> stable)
+    # in case duplicates appear in the protocols
+    all_imports = {
         interface.name: protocol.name
         for protocol in protocols
         for interface in protocol.interface
     }
 
     for protocol in protocols:
-        protocol.output(args.output_dir, protocol_imports)
+        # create a new copy so that we can overwrite created interface keys with
+        # the interfaces in the current protocol, this is in case an interface name
+        # is repeated multiple times fixing the issue of importing and redifining
+        # the interface in the same protocol file
+        # if a protocol other than the ones with repeated interfaces where to referece
+        # the interface name, it would resolve to the interface with highest priority
+        # (unstable -> staging -> stable) since the xml files does not have a hard
+        # referece to the wanted interface protocol
+        current_protocol_imports = all_imports.copy()
+        current_protocol_imports.update(
+            {interface.name: protocol.name for interface in protocol.interface}
+        )
+        protocol.output(args.output_dir, current_protocol_imports)
         logger.info(f"Generated protocol: {protocol.name}")
 
 

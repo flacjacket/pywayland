@@ -68,7 +68,7 @@ class Protocol(Element):
     def __repr__(self) -> str:
         return f"Protocol({self.name})"
 
-    def output(self, output_dir: str, module_imports: dict[str, str]) -> None:
+    def output(self, output_dir: str, all_imports: dict[str, str]) -> None:
         """Output the scanned files to the given directory
 
         :param output_dir: Path of directory to output protocol files to
@@ -79,34 +79,73 @@ class Protocol(Element):
         output_dir = os.path.join(output_dir, protocol_name)
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
+        init_path = os.path.join(output_dir, "__init__.py")
 
-        # First, we'll create the __init__.py file
-        printer = Printer(protocol_name)
+        printer = Printer(protocol_name, all_imports)
         if self.copyright:
             self.copyright.output(printer)
         else:
             printer(copyright_default)
-
         printer()
-        for iface in sorted(self.interface, key=lambda x: x.name):
-            printer(f"from .{iface.name} import {iface.class_name}  # noqa: F401")
 
-        init_path = os.path.join(output_dir, "__init__.py")
-        with open(init_path, "wb") as f:
-            printer.write(f)
+        printer("from __future__ import annotations")
+        printer()
 
-        # Now build all the modules
-        for iface in self.interface:
-            module_path = os.path.join(output_dir, iface.name + ".py")
-
-            printer = Printer(self.name.replace("-", "_"), iface.name, module_imports)
-            if self.copyright:
-                self.copyright.output(printer)
-            else:
-                printer(copyright_default)
+        if any([iface.enum for iface in self.interface]):
+            printer("import enum")
             printer()
 
-            iface.output(printer, module_imports)
+        typing_imports = []
+        if any([iface.needs_any_type for iface in self.interface]):
+            typing_imports.extend(["Any"])
 
-            with open(module_path, "wb") as f:
+        pywayland_imports = []
+        if any([iface.needs_t_type for iface in self.interface]):
+            typing_imports.extend(["TypeVar"])
+
+        if typing_imports:
+            printer(f"from typing import {', '.join(sorted(typing_imports))}")
+            printer()
+
+        if any([iface.needs_argument_type for iface in self.interface]):
+            pywayland_imports.extend(["Argument", "ArgumentType"])
+
+        pywayland_imports.extend(["Interface", "Global", "Proxy", "Resource"])
+        printer(
+            f"from pywayland.protocol_core import {(', ').join(sorted(pywayland_imports))}"
+        )
+        printer()
+
+        interface_imports = set()  # type: ignore
+        for iface in self.interface:
+            interface_imports |= iface.get_imports(all_imports)
+
+        for module, import_ in sorted(interface_imports):
+            printer(f"from {module} import {import_}")
+        if interface_imports:
+            printer()
+
+        if "TypeVar" in typing_imports:
+            printer('T = TypeVar("T", bound=Interface)')
+            printer()
+
+        with open(init_path, "wb") as f:
+            printer.write(f)
+        printer.clear()
+
+        output_methods = [
+            "output_interface",
+            "output_events",
+            "output_requests",
+            "output_global",
+        ]
+
+        for output_method in output_methods:
+            for iface in sorted(self.interface):
+                printer.interface_name = iface.name
+                iface_method = getattr(iface, output_method)
+                iface_method(printer)
+
+            with open(init_path, "ab") as f:
                 printer.write(f)
+            printer.clear()
