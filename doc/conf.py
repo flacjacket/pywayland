@@ -24,20 +24,18 @@ from pywayland import __version__
 protocol_build_dir = "../pywayland/protocol/"
 protocol_doc_dir = "module/protocol"
 
-index_header = """\
+index_header = f"""\
 .. _protocol:
 
 Protocol Modules
 ================
 
-Wayland protocols built against Wayland {} and Wayland Protocols {}.
+Wayland protocols built against Wayland {wayland_version} and Wayland Protocols {protocols_version}.
 
 .. toctree::
    :maxdepth: 2
 
-""".format(
-    wayland_version, protocols_version
-)
+"""
 
 protocol_header = """\
 .. module:: pywayland.protocol.{module}

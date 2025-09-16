@@ -45,14 +45,15 @@ wl_protocol_template = Template(
         .. rubric:: Request -- opcode {{ opcode}} (attached to :class:`~pywayland.server.resource.Resource` instance)
 
 {% for doc in docs %}
-        {{ doc }}{% endfor %}{% endfor %}
+        {{ doc|replace('_ ',' ') }}{% endfor %}{% endfor %}
+
     {% for func, opcode, sig, docs in events %}
     .. method:: {{ func }} {{ sig }}
 
         .. rubric:: Event -- opcode {{ opcode}} (attached to :class:`~pywayland.client.proxy.Proxy` instance)
 
 {% for doc in docs %}
-        {{ doc }}{% endfor %}{% endfor %}
+        {{ doc|replace('_ ',' ') }}{% endfor %}{% endfor %}
 """
 )
 
