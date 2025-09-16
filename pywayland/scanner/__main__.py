@@ -33,12 +33,15 @@ def pkgconfig(package: str, variable: str) -> str:
     return subprocess.check_output(args).decode().strip()
 
 
-def get_wayland_protocols() -> list[str]:
-    # use pkg-config to try to find the wayland-protocol directory
-    try:
-        protocols_dir = pkgconfig("wayland-protocols", "pkgdatadir")
-    except subprocess.CalledProcessError:
-        raise OSError("Unable to find wayland-protocols using pkgconfig")
+def get_wayland_protocols(input_dir: str | None = None) -> list[str]:
+    if input_dir:
+        protocols_dir = input_dir
+    else:
+        # use pkg-config to try to find the wayland-protocol directory
+        try:
+            protocols_dir = pkgconfig("wayland-protocols", "pkgdatadir")
+        except subprocess.CalledProcessError:
+            raise OSError("Unable to find wayland-protocols using pkgconfig")
 
     protocols = []
     # wayland protocols stages in incremental importance
@@ -90,6 +93,12 @@ def main() -> None:
         type=str,
         help="Path to input xml file to scan",
     )
+    parser.add_argument(
+        "--input-protocols",
+        metavar="DIR",
+        type=str,
+        help="Custom directory to wayland-protocol xml files instead of pkg-config",
+    )
 
     args = parser.parse_args()
 
@@ -99,7 +108,7 @@ def main() -> None:
     input_files = []
 
     if args.with_protocols:
-        protocols_files = get_wayland_protocols()
+        protocols_files = get_wayland_protocols(args.input_protocols)
         input_files += protocols_files
 
     # add wayland.xml at last
