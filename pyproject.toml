@@ -76,7 +76,7 @@ ignore = [
     ".coveragerc",
     "doc/**",
     "example/**",
-    "pywayland/protocol/*/*.py",
+    "pywayland/protocol/*.py",
 ]
 
 [tool.mypy]
