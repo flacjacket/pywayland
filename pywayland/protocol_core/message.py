@@ -144,7 +144,7 @@ class Message:
                         )
                     args.append(obj)
             elif argument.argument_type == ArgumentType.NewId:
-                from pywayland.protocol.wayland.wl_registry import WlRegistry
+                from pywayland.protocol.wayland import WlRegistry
 
                 if (
                     display := next(

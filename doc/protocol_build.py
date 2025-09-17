@@ -1,12 +1,13 @@
 import os
+import subprocess
 import tarfile
 import urllib.request
 
-wayland_version = "1.21.0"
-protocols_version = "1.25"
+wayland_version = "1.24.0"
+protocols_version = "1.45"
 
 wayland_source = f"https://cgit.freedesktop.org/wayland/wayland/plain/protocol/wayland.xml?id={wayland_version}"
-protocols_source = f"https://wayland.freedesktop.org/releases/wayland-protocols-{protocols_version}.tar.xz"
+protocols_source = f"https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/{protocols_version}/downloads/wayland-protocols-{protocols_version}.tar.xz"
 
 
 def _is_within_directory(directory, target):
@@ -30,8 +31,6 @@ def _safe_extractall(tar, path=".", members=None, *, numeric_owner=False):
 
 
 def protocols_build(output_dir):
-    from pywayland.scanner import Protocol
-
     # first, we download the wayland.xml file
     wayland_file = "wayland.xml"
     urllib.request.urlretrieve(wayland_source, wayland_file)
@@ -43,25 +42,17 @@ def protocols_build(output_dir):
     with tarfile.open(protocol_dest + ".tar.xz") as f:
         _safe_extractall(f)
 
-    # walk the directory and generate all the protocols
-    protocol_files = [
-        wayland_file,
-        *sorted(
-            [
-                os.path.join(dirpath, filename)
-                for dirpath, _, filenames in os.walk(protocol_dest)
-                for filename in filenames
-                if os.path.splitext(filename)[1] == ".xml"
-            ],
-            reverse=True,
-        ),
-    ]
-
-    protocols = [Protocol.parse_file(protocol_file) for protocol_file in protocol_files]
-    protocol_imports = {
-        interface.name: protocol.name
-        for protocol in protocols
-        for interface in protocol.interface
-    }
-    for protocol in protocols:
-        protocol.output(output_dir, protocol_imports)
+    subprocess.run(
+        [
+            "python",
+            "-m",
+            "pywayland.scanner",
+            "--with-protocols",
+            "--output-dir",
+            output_dir,
+            "--input",
+            wayland_file,
+            "--input-protocols",
+            protocol_dest,
+        ]
+    )

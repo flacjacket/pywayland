@@ -21,48 +21,39 @@ from pywayland.scanner import Protocol
 
 this_dir = os.path.split(__file__)[0]
 scanner_dir = os.path.join(this_dir, "scanner_files")
-input_file = os.path.join(scanner_dir, "test_scanner_input.xml")
+input_file = os.path.join(scanner_dir, "scanner-test-v1.xml")
 
-interface_tests = [
-    "__init__.py",
-    "wl_core.py",
-    "wl_events.py",
-    "wl_requests.py",
-    "wl_destructor.py",
-    pytest.param("wl_xfail.py", marks=pytest.mark.xfail),
-]
+protocol_tests = ["scanner_test_v1.py"]
 
 
 @pytest.fixture(scope="session")
 def protocol_directory():
-    scanner = Protocol.parse_file(input_file)
+    protocol = Protocol.parse_file(input_file)
 
-    imports = {interface.name: scanner.name for interface in scanner.interface}
+    imports = {interface.name: protocol.name for interface in protocol.interface}
 
-    generated_files = [
-        iface if isinstance(iface, str) else iface.values[0]
-        for iface in interface_tests
+    test_files = [
+        file if isinstance(file, str) else file.values[0] for file in protocol_tests
     ]
 
     with tempfile.TemporaryDirectory() as output_dir:
-        scanner.output(output_dir, imports)
+        protocol.output(output_dir, imports)
 
-        test_dir = os.path.join(output_dir, "scanner_test")
-        assert os.path.exists(test_dir)
-        assert set(os.listdir(test_dir)) == set(generated_files)
+        assert os.path.exists(output_dir)
+        assert set(os.listdir(output_dir)) == set(test_files)
 
-        yield test_dir
+        yield output_dir
 
 
-@pytest.mark.parametrize("iface_name", interface_tests)
-def test_interface(protocol_directory, iface_name):
+@pytest.mark.parametrize("protocol_name", protocol_tests)
+def test_protocol(protocol_directory, protocol_name):
     # Get the generated file output
-    generated_file = os.path.join(protocol_directory, iface_name)
+    generated_file = os.path.join(protocol_directory, protocol_name)
     with open(generated_file) as f:
         gen_lines = [line.strip("\n") for line in f.readlines()]
 
     # Get output to check against
-    check_file = os.path.join(scanner_dir, iface_name)
+    check_file = os.path.join(scanner_dir, protocol_name)
     with open(check_file) as f:
         check_lines = [line.strip("\n") for line in f.readlines()]
 

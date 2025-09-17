@@ -37,20 +37,20 @@ class Method(Element, abc.ABC):
     arg: list[Argument]
 
     def imports(
-        self, interface: str, module_imports: dict[str, str]
+        self, interface: str, all_imports: dict[str, str]
     ) -> list[tuple[str, str]]:
         """Get the imports required for each of the interfaces
 
         :param interface:
             The name of the interface that the method is a part of.
-        :param module_imports:
+        :param all_imports:
             A mapping from the name of an interface in the associated
             module that the interface comes from.
         :return:
             A list of 2-tuples, each specifying the path to an imported
             module and the imported class.
         """
-        current_protocol = module_imports[interface]
+        current_protocol = all_imports[interface]
 
         imports = []
         for arg in self.arg:
@@ -61,12 +61,14 @@ class Method(Element, abc.ABC):
                 continue
 
             import_class = arg.interface_class
-            import_protocol = module_imports[arg.interface]
+            import_protocol = all_imports[arg.interface]
 
+            # all interfaces are now in the same file for each protocol
             if current_protocol == import_protocol:
-                import_path = f".{arg.interface}"
-            else:
-                import_path = f"..{import_protocol}"
+                continue
+
+            # all protocol files are now in the same directory
+            import_path = f".{import_protocol}"
 
             imports.append((import_path, import_class))
 
@@ -95,13 +97,7 @@ class Method(Element, abc.ABC):
     def output_body(self, printer: Printer, opcode: int) -> None:
         pass
 
-    def output(
-        self,
-        printer: Printer,
-        opcode: int,
-        in_class: str,
-        module_imports: dict[str, str],
-    ) -> None:
+    def output(self, printer: Printer, opcode: int, in_class: str) -> None:
         """Generate the output for the given method to the printer"""
         if len(self.arg) > 0:
             printer(f"@{in_class}.{self.method_type}(")

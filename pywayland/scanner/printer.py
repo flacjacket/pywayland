@@ -39,8 +39,8 @@ class Printer:
     def __init__(
         self,
         protocol: str,
+        all_imports: Mapping[str, str],
         interface_name: str | None = None,
-        interface_imports: Mapping[str, str] | None = None,
     ) -> None:
         """Base level printer object
 
@@ -50,22 +50,21 @@ class Printer:
         :param protocol:
             The name of the protocol that is currently being generated, used
             for determining import resolution.
+        :param all_imports:
+            The map to the protocol for resolving imports.
         :param interface_name:
             The name of the interface that is being generated, used for
             determining import resolution.
-        :param interface_imports:
-            The map from the interface name to the protocol it is defined in,
-            for resolving imports.
         """
         self._level = 0
         self._lines = [HEAD_MSG, ""]
         self._protocol_name = protocol
-        self._interface_name = interface_name
-        self._interface_imports = interface_imports
+        self._all_imports = all_imports
+        self.interface_name = interface_name
 
         self._re_doc = None
-        if interface_imports is not None:
-            interface_names = "|".join(sorted(interface_imports, key=len, reverse=True))
+        if all_imports is not None:
+            interface_names = "|".join(sorted(all_imports, key=len, reverse=True))
             self._re_doc = re.compile(RE_DOC.format(interface_names))
 
     def __call__(self, new_line: str | None = None) -> None:
@@ -176,14 +175,11 @@ class Printer:
         interface_name = match.group("interface")
         interface_class = "".join(x.capitalize() for x in interface_name.split("_"))
 
-        if interface_name == self._interface_name:
+        if interface_name == self.interface_name:
             return f":class:`{interface_class}`"
 
-        if (
-            self._interface_imports is not None
-            and interface_name in self._interface_imports
-        ):
-            protocol_path = self._interface_imports[interface_name]
+        if self._all_imports is not None and interface_name in self._all_imports:
+            protocol_path = self._all_imports[interface_name]
             return f":class:`~{BASE_PATH}.{protocol_path}.{interface_class}`"
 
         return f"`{interface_class}`"
@@ -200,14 +196,11 @@ class Printer:
         function_name = match.group("func")
         interface_class = "".join(x.capitalize() for x in interface_name.split("_"))
 
-        if interface_name == self._interface_name:
+        if interface_name == self.interface_name:
             return f":func:`{interface_class}{function_name}()`"
 
-        if (
-            self._interface_imports is not None
-            and interface_name in self._interface_imports
-        ):
-            protocol_path = self._interface_imports[interface_name]
+        if self._all_imports is not None and interface_name in self._all_imports:
+            protocol_path = self._all_imports[interface_name]
             return f":func:`{interface_class}{function_name}() <{BASE_PATH}.{protocol_path}.{interface_class}{function_name}>`"
 
         return f"`{interface_class}{function_name}()`"
@@ -224,3 +217,7 @@ class Printer:
         for line in self._lines:
             f.write(line.encode())
             f.write(b"\n")
+
+    def clear(self) -> None:
+        """Clear saved printer lines"""
+        self._lines = []

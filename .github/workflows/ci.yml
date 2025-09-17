@@ -160,7 +160,7 @@ jobs:
         with:
           python-version: ${{ env.python-version }}
       - name: Run ruff check
-        uses: chartboost/ruff-action@v1
+        uses: astral-sh/ruff-action@v3
         with:
           src: pywayland
   mypy-test:

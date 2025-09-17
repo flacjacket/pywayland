@@ -1,5 +1,5 @@
 # testing/CI libraries
 pytest
 pytest-cov
-coverage
+coverage>=6.5.0
 coveralls>=3.3.1
