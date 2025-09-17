@@ -85,48 +85,45 @@ class Protocol(Element):
             self.copyright.output(printer)
         else:
             printer(copyright_default)
-        printer()
 
+        printer()
         printer("from __future__ import annotations")
-        printer()
 
-        if any([iface.enum for iface in self.interface]):
-            printer("import enum")
+        if any(iface.enum for iface in self.interface):
             printer()
+            printer("import enum")
 
         typing_imports = []
-        if any([iface.needs_any_type for iface in self.interface]):
+        if any(iface.needs_any_type for iface in self.interface):
             typing_imports.extend(["Any"])
 
-        pywayland_imports = []
-        if any([iface.needs_t_type for iface in self.interface]):
+        if any(iface.needs_t_type for iface in self.interface):
             typing_imports.extend(["TypeVar"])
 
         if typing_imports:
-            printer(f"from typing import {', '.join(sorted(typing_imports))}")
             printer()
+            printer(f"from typing import {', '.join(sorted(typing_imports))}")
 
-        if any([iface.needs_argument_type for iface in self.interface]):
+        pywayland_imports = ["Interface", "Global", "Proxy", "Resource"]
+        if any(iface.needs_argument_type for iface in self.interface):
             pywayland_imports.extend(["Argument", "ArgumentType"])
-
-        pywayland_imports.extend(["Interface", "Global", "Proxy", "Resource"])
+        printer()
         printer(
             f"from pywayland.protocol_core import {(', ').join(sorted(pywayland_imports))}"
         )
-        printer()
 
         interface_imports = set()
         for iface in self.interface:
             interface_imports |= iface.get_imports(all_imports)
 
-        for module, import_ in sorted(interface_imports):
-            printer(f"from {module} import {import_}")
         if interface_imports:
             printer()
+        for module, import_ in sorted(interface_imports):
+            printer(f"from {module} import {import_}")
 
         if "TypeVar" in typing_imports:
-            printer('T = TypeVar("T", bound=Interface)')
             printer()
+            printer('T = TypeVar("T", bound=Interface)')
 
         with open(protocol_path, "wb") as f:
             printer.write(f)
@@ -137,6 +134,7 @@ class Protocol(Element):
             "output_events",
             "output_requests",
             "output_global",
+            "output_attributes",
         ]
 
         for output_method in output_methods:

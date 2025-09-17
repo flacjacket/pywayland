@@ -25,7 +25,6 @@ from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, P
 T = TypeVar("T", bound=Interface)
 
 
-
 class WlCore(Interface):
     """Interface object
 
@@ -110,14 +109,8 @@ class WlCoreResource(Resource):
         self._post_event(0, id, object)
 
 
-WlCore.resource_class = WlCoreResource
-
-
 class WlDestructorResource(Resource):
     interface = WlDestructor
-
-
-WlDestructor.resource_class = WlDestructorResource
 
 
 class WlEventsResource(Resource):
@@ -226,21 +219,12 @@ class WlEventsResource(Resource):
         self._post_event(6)
 
 
-WlEvents.resource_class = WlEventsResource
-
-
 class WlRequestsResource(Resource):
     interface = WlRequests
 
 
-WlRequests.resource_class = WlRequestsResource
-
-
 class WlXfailResource(Resource):
     interface = WlXfail
-
-
-WlXfail.resource_class = WlXfailResource
 
 
 class WlCoreProxy(Proxy[WlCore]):
@@ -301,9 +285,6 @@ class WlCoreProxy(Proxy[WlCore]):
         return id
 
 
-WlCore.proxy_class = WlCoreProxy
-
-
 class WlDestructorProxy(Proxy[WlDestructor]):
     interface = WlDestructor
 
@@ -351,14 +332,8 @@ class WlDestructorProxy(Proxy[WlDestructor]):
         self._destroy()
 
 
-WlDestructor.proxy_class = WlDestructorProxy
-
-
 class WlEventsProxy(Proxy[WlEvents]):
     interface = WlEvents
-
-
-WlEvents.proxy_class = WlEventsProxy
 
 
 class WlRequestsProxy(Proxy[WlRequests]):
@@ -498,61 +473,55 @@ class WlRequestsProxy(Proxy[WlRequests]):
         return id
 
 
-WlRequests.proxy_class = WlRequestsProxy
-
-
 class WlXfailProxy(Proxy[WlXfail]):
     interface = WlXfail
-
-
-WlXfail.proxy_class = WlXfailProxy
 
 
 class WlCoreGlobal(Global):
     interface = WlCore
 
 
-WlCore.global_class = WlCoreGlobal
-
-
-WlCore._gen_c()
-
-
 class WlDestructorGlobal(Global):
     interface = WlDestructor
-
-
-WlDestructor.global_class = WlDestructorGlobal
-
-
-WlDestructor._gen_c()
 
 
 class WlEventsGlobal(Global):
     interface = WlEvents
 
 
-WlEvents.global_class = WlEventsGlobal
-
-
-WlEvents._gen_c()
-
-
 class WlRequestsGlobal(Global):
     interface = WlRequests
-
-
-WlRequests.global_class = WlRequestsGlobal
-
-
-WlRequests._gen_c()
 
 
 class WlXfailGlobal(Global):
     interface = WlXfail
 
 
-WlXfail.global_class = WlXfailGlobal
+WlCore._gen_c()
+WlCore.proxy_class = WlCoreProxy
+WlCore.resource_class = WlCoreResource
+WlCore.global_class = WlCoreGlobal
+
+
+WlDestructor._gen_c()
+WlDestructor.proxy_class = WlDestructorProxy
+WlDestructor.resource_class = WlDestructorResource
+WlDestructor.global_class = WlDestructorGlobal
+
+
+WlEvents._gen_c()
+WlEvents.proxy_class = WlEventsProxy
+WlEvents.resource_class = WlEventsResource
+WlEvents.global_class = WlEventsGlobal
+
+
+WlRequests._gen_c()
+WlRequests.proxy_class = WlRequestsProxy
+WlRequests.resource_class = WlRequestsResource
+WlRequests.global_class = WlRequestsGlobal
 
 
 WlXfail._gen_c()
+WlXfail.proxy_class = WlXfailProxy
+WlXfail.resource_class = WlXfailResource
+WlXfail.global_class = WlXfailGlobal

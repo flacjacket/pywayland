@@ -64,6 +64,18 @@ class Interface(Element):
         return "".join(x.capitalize() for x in self.name.split("_"))
 
     @property
+    def proxy_class_name(self) -> str:
+        return f"{self.class_name}Proxy"
+
+    @property
+    def resource_class_name(self) -> str:
+        return f"{self.class_name}Resource"
+
+    @property
+    def global_class_name(self) -> str:
+        return f"{self.class_name}Global"
+
+    @property
     def needs_t_type(self) -> bool:
         return any(req.new_id and not req.new_id.interface for req in self.request)
 
@@ -111,44 +123,37 @@ class Interface(Element):
         """Generate the output only of the proxy class"""
         printer()
         printer()
-        proxy_class_name = f"{self.class_name}Proxy"
-        printer(f"class {proxy_class_name}(Proxy[{self.class_name}]):")
+        printer(f"class {self.proxy_class_name}(Proxy[{self.class_name}]):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
             for opcode, request in enumerate(self.request):
                 printer()
                 request.output(printer, opcode, self.class_name)
-        printer()
-        printer()
-        printer(f"{self.class_name}.proxy_class = {proxy_class_name}")
 
     def output_events(self, printer: Printer) -> None:
         """Generate the output only of the proxy class"""
         printer()
         printer()
-        resource_class_name = f"{self.class_name}Resource"
-        printer(f"class {resource_class_name}(Resource):")
+        printer(f"class {self.resource_class_name}(Resource):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
             for opcode, event in enumerate(self.event):
                 printer()
                 event.output(printer, opcode, self.class_name)
-        printer()
-        printer()
-        printer(f"{self.class_name}.resource_class = {resource_class_name}")
 
     def output_global(self, printer: Printer) -> None:
         """Generate the output only of the proxy class"""
         printer()
         printer()
-        global_class_name = f"{self.class_name}Global"
-        printer(f"class {global_class_name}(Global):")
+        printer(f"class {self.global_class_name}(Global):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
-        printer()
-        printer()
-        printer(f"{self.class_name}.global_class = {global_class_name}")
 
+    def output_attributes(self, printer: Printer) -> None:
+        """Generate the output only of the attributes of the interface"""
         printer()
         printer()
         printer(f"{self.class_name}._gen_c()")
+        printer(f"{self.class_name}.proxy_class = {self.proxy_class_name}")
+        printer(f"{self.class_name}.resource_class = {self.resource_class_name}")
+        printer(f"{self.class_name}.global_class = {self.global_class_name}")
