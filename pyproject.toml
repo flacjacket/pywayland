@@ -67,9 +67,7 @@ version = {attr = "pywayland.version.__version__"}
 lint.select = ['E', 'F', 'I', 'W', 'UP', 'RUF']
 lint.ignore = ["E501"]
 line-length = 88
-
-[tool.black]
-line-length = 88
+exclude = ["test/scanner_files/"]
 
 [tool.check-manifest]
 ignore = [

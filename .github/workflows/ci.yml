@@ -230,19 +230,3 @@ jobs:
           python setup.py check -m -s
           python -m build --sdist
           twine check dist/*
-  black-test:
-    name: black test
-    runs-on: ubuntu-24.04
-    env:
-      python-version: "3.13"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.python-version }}
-      - name: Install Python dependencies
-        run: |
-          pip install black
-      - name: Run black test
-        run: black --check pywayland
