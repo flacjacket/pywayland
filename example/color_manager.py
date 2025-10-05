@@ -4,37 +4,51 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from pywayland.client import Display
-from pywayland.protocol.wayland.wl_registry import WlRegistryProxy
-from pywayland.protocol.color_management_v1 import WpColorManagerV1
-from pywayland.protocol.color_management_v1.wp_color_manager_v1 import WpColorManagerV1Proxy
+from pywayland.protocol.color_management_v1 import (
+    WpColorManagerV1,
+    WpColorManagerV1Proxy,
+)
+from pywayland.protocol.wayland import WlRegistryProxy
 
 
 class App:
-    def __init__(self):
+    def __init__(self) -> None:
         self.color_manager = None
-        self.render_intents = []
-        self.features = []
-        self.transfer_functions = []
-        self.primaries = []
+        self.render_intents: list[int] = []
+        self.features: list[int] = []
+        self.transfer_functions: list[int] = []
+        self.primaries: list[int] = []
 
 
-def color_manager_supported_intent_cb(color_manager: WpColorManagerV1Proxy, render_intent: int):
+def color_manager_supported_intent_cb(
+    color_manager: WpColorManagerV1Proxy, render_intent: int
+) -> None:
     app = color_manager.user_data
     app.render_intents.append(WpColorManagerV1.render_intent(render_intent))
 
-def color_manager_supported_feature_cb(color_manager: WpColorManagerV1Proxy, feature: int):
+
+def color_manager_supported_feature_cb(
+    color_manager: WpColorManagerV1Proxy, feature: int
+) -> None:
     app = color_manager.user_data
     app.features.append(WpColorManagerV1.feature(feature))
 
-def color_manager_supported_tf_named_cb(color_manager: WpColorManagerV1Proxy, transfer_function: int):
+
+def color_manager_supported_tf_named_cb(
+    color_manager: WpColorManagerV1Proxy, transfer_function: int
+) -> None:
     app = color_manager.user_data
     app.transfer_functions.append(WpColorManagerV1.transfer_function(transfer_function))
 
-def color_manager_supported_primaries_named_cb(color_manager: WpColorManagerV1Proxy, primaries: int):
+
+def color_manager_supported_primaries_named_cb(
+    color_manager: WpColorManagerV1Proxy, primaries: int
+) -> None:
     app = color_manager.user_data
     app.primaries.append(WpColorManagerV1.primaries(primaries))
 
-def color_manager_done_cb(color_manager: WpColorManagerV1Proxy):
+
+def color_manager_done_cb(color_manager: WpColorManagerV1Proxy) -> None:
     app = color_manager.user_data
 
     print(f"Render intents ({len(app.render_intents)})")
@@ -54,18 +68,29 @@ def color_manager_done_cb(color_manager: WpColorManagerV1Proxy):
         print(f"\t{primaries.name}")
 
 
-def registry_global_cb(registry: WlRegistryProxy, name: int, interface: str, version: int):
+def registry_global_cb(
+    registry: WlRegistryProxy, name: int, interface: str, version: int
+) -> None:
     app = registry.user_data
     if interface == "wp_color_manager_v1":
         app.color_manager = registry.bind(name, WpColorManagerV1, version)
-        app.color_manager.dispatcher["supported_intent"] = color_manager_supported_intent_cb
-        app.color_manager.dispatcher["supported_feature"] = color_manager_supported_feature_cb
-        app.color_manager.dispatcher["supported_tf_named"] = color_manager_supported_tf_named_cb
-        app.color_manager.dispatcher["supported_primaries_named"] = color_manager_supported_primaries_named_cb
+        app.color_manager.dispatcher["supported_intent"] = (
+            color_manager_supported_intent_cb
+        )
+        app.color_manager.dispatcher["supported_feature"] = (
+            color_manager_supported_feature_cb
+        )
+        app.color_manager.dispatcher["supported_tf_named"] = (
+            color_manager_supported_tf_named_cb
+        )
+        app.color_manager.dispatcher["supported_primaries_named"] = (
+            color_manager_supported_primaries_named_cb
+        )
         app.color_manager.dispatcher["done"] = color_manager_done_cb
         app.color_manager.user_data = app
 
-def main():
+
+def main() -> None:
     app = App()
 
     display = Display()

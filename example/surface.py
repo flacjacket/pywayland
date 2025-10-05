@@ -17,17 +17,35 @@ import mmap
 import os
 import sys
 
+from pywayland.client import Display
+from pywayland.protocol.wayland import (
+    WlBufferProxy,
+    WlCompositor,
+    WlCompositorProxy,
+    WlRegistryProxy,
+    WlShell,
+    WlShellProxy,
+    WlShellSurfaceProxy,
+    WlShm,
+    WlShmPoolProxy,
+    WlShmProxy,
+    WlShmResource,
+    WlSurfaceProxy,
+)
+from pywayland.protocol.xdg_shell import (
+    XdgSurfaceProxy,
+    XdgToplevelProxy,
+    XdgWmBase,
+    XdgWmBaseProxy,
+)
+from pywayland.utils import AnonymousFile
+
 this_file = os.path.abspath(__file__)
 this_dir = os.path.split(this_file)[0]
 root_dir = os.path.split(this_dir)[0]
 pywayland_dir = os.path.join(root_dir, "pywayland")
 if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
-
-from pywayland.client import Display  # noqa: E402
-from pywayland.protocol.wayland import WlCompositor, WlShell, WlShm  # noqa: E402
-from pywayland.utils import AnonymousFile  # noqa: E402
-from pywayland.protocol.xdg_shell.xdg_wm_base import XdgWmBase  # noqa: E402
 
 WIDTH = 480
 HEIGHT = 256
@@ -36,36 +54,38 @@ MARGIN = 10
 
 
 class Window:
-    def __init__(self):
-        self.buffer = None
-        self.compositor = None
-        self.shell = None
-        self.shm = None
-        self.shm_data = None
-        self.surface = None
-        self.wm_base = None
+    def __init__(self) -> None:
+        self.buffer: WlBufferProxy | None = None
+        self.compositor: WlCompositorProxy | None = None
+        self.shell: WlShellProxy | None = None
+        self.shm: WlShmProxy | None = None
+        self.surface: WlSurfaceProxy | None = None
+        self.wm_base: XdgWmBaseProxy | None = None
 
+        self.shm_data: mmap.mmap
         self.line_pos = MARGIN
         self.line_speed = +1
 
         self.should_quit = False
 
 
-def shell_surface_ping_handler(shell_surface, serial):
+def shell_surface_ping_handler(shell_surface: WlShellSurfaceProxy, serial: int) -> None:
     shell_surface.pong(serial)
     print("pinged/ponged")
 
 
-def shm_format_handler(shm, format_):
+def shm_format_handler(shm: WlShmResource, format_: int) -> None:
     format_enum = WlShm.format(format_)
     print(f"Possible shmem format: {format_enum.name}")
 
 
-def wm_base_ping_handler(xdg_wm_base, serial):
+def wm_base_ping_handler(xdg_wm_base: XdgWmBaseProxy, serial: int) -> None:
     xdg_wm_base.pong(serial)
 
 
-def registry_global_handler(registry, id_, interface, version):
+def registry_global_handler(
+    registry: WlRegistryProxy, id_: int, interface: str, version: int
+) -> None:
     window = registry.user_data
     if interface == "wl_compositor":
         print("got compositor")
@@ -81,11 +101,13 @@ def registry_global_handler(registry, id_, interface, version):
         window.wm_base = registry.bind(id_, XdgWmBase, version)
         window.wm_base.dispatcher["ping"] = wm_base_ping_handler
 
-def registry_global_remover(registry, id_):
+
+def registry_global_remover(registry: WlRegistryProxy, id_: int) -> None:
     print(f"got a registry losing event for {id}")
 
 
-def create_buffer(window):
+def create_buffer(window: Window) -> WlBufferProxy | None:
+    assert window.shm is not None
     stride = WIDTH * 4
     size = stride * HEIGHT
 
@@ -93,19 +115,22 @@ def create_buffer(window):
         window.shm_data = mmap.mmap(
             fd, size, prot=mmap.PROT_READ | mmap.PROT_WRITE, flags=mmap.MAP_SHARED
         )
-        pool = window.shm.create_pool(fd, size)
-        buff = pool.create_buffer(0, WIDTH, HEIGHT, stride, WlShm.format.argb8888.value)
+        pool: WlShmPoolProxy = window.shm.create_pool(fd, size)
+        buff: WlBufferProxy = pool.create_buffer(
+            0, WIDTH, HEIGHT, stride, WlShm.format.argb8888.value
+        )
         pool.destroy()
     return buff
 
 
-def create_window(window):
+def create_window(window: Window) -> None:
+    assert window.surface is not None
     window.buffer = create_buffer(window)
     window.surface.attach(window.buffer, 0, 0)
     window.surface.commit()
 
 
-def redraw(callback, time, destroy_callback=True):
+def redraw(callback: WlSurfaceProxy, time: int, destroy_callback: bool = True) -> None:
     window = callback.user_data
     if destroy_callback:
         callback._destroy()
@@ -121,7 +146,7 @@ def redraw(callback, time, destroy_callback=True):
     window.surface.commit()
 
 
-def paint(window):
+def paint(window: Window) -> None:
     mm = window.shm_data
     # clear
     mm.seek(0)
@@ -136,27 +161,30 @@ def paint(window):
     if window.line_pos >= HEIGHT - MARGIN or window.line_pos <= MARGIN:
         window.line_speed = -window.line_speed
 
-def xdg_surface_configure_handler(xdg_surface, serial):
+
+def xdg_surface_configure_handler(xdg_surface: XdgSurfaceProxy, serial: int) -> None:
     xdg_surface.ack_configure(serial)
 
 
-def xdg_toplevel_configure_handler(toplevel, width, height, states):
+def xdg_toplevel_configure_handler(
+    toplevel: XdgSurfaceProxy, width: int, height: int, states: list[object]
+) -> None:
     print(f"Configure with {width}x{height}")
 
 
-def xdg_toplevel_close_handler(toplevel):
+def xdg_toplevel_close_handler(toplevel: XdgSurfaceProxy) -> None:
     window = toplevel.user_data
     window.should_quit = True
 
 
-def main():
+def main() -> None:
     window = Window()
 
     display = Display()
     display.connect()
     print("connected to display")
 
-    registry = display.get_registry()
+    registry: WlRegistryProxy = display.get_registry()
     registry.dispatcher["global"] = registry_global_handler
     registry.dispatcher["global_remove"] = registry_global_remover
     registry.user_data = window
@@ -174,10 +202,10 @@ def main():
     window.surface = window.compositor.create_surface()
 
     if window.wm_base:
-        xdg_surface = window.wm_base.get_xdg_surface(window.surface)
+        xdg_surface: XdgSurfaceProxy = window.wm_base.get_xdg_surface(window.surface)
         xdg_surface.dispatcher["configure"] = xdg_surface_configure_handler
 
-        toplevel = xdg_surface.get_toplevel()
+        toplevel: XdgToplevelProxy = xdg_surface.get_toplevel()
         toplevel.set_app_id("pywayland_surface_example")
         toplevel.set_title("pywayland Surface Example")
         toplevel.dispatcher["configure"] = xdg_toplevel_configure_handler

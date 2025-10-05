@@ -18,6 +18,26 @@ import mmap
 import os
 import sys
 import tempfile
+from typing import TypedDict
+
+from pywayland.client import Display
+from pywayland.protocol.wayland import (
+    WlBufferProxy,
+    WlCompositor,
+    WlCompositorProxy,
+    WlRegistryProxy,
+    WlSeat,
+    WlSeatProxy,
+    WlShell,
+    WlShellProxy,
+    WlShellSurfaceProxy,
+    WlShm,
+    WlShmProxy,
+    WlSurface,
+    WlSurfaceProxy,
+    WlTouch,
+    WlTouchProxy,
+)
 
 this_file = os.path.abspath(__file__)
 this_dir = os.path.split(this_file)[0]
@@ -26,16 +46,25 @@ pywayland_dir = os.path.join(root_dir, "pywayland")
 if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
 
-from pywayland.client import Display  # noqa: E402
-from pywayland.protocol.wayland import (  # noqa: E402
-    WlCompositor,
-    WlSeat,
-    WlShell,
-    WlShm,
-)
+
+class TouchDictT(TypedDict, total=False):
+    display: Display
+    registry: WlRegistryProxy
+    compositor: WlCompositorProxy
+    shell: WlShellProxy
+    shell_surface: WlShellSurfaceProxy
+    shm: WlShmProxy
+    has_argb: bool
+    surface: WlSurfaceProxy
+    buffer: WlBufferProxy
+    width: int
+    height: int
+    data: mmap.mmap
+    wl_touch: WlTouchProxy
+    seat: WlSeatProxy
 
 
-def create_shm_buffer(touch, width, height):
+def create_shm_buffer(touch: TouchDictT, width: int, height: int) -> None:
     stride = width * 4
     size = stride * height
 
@@ -54,28 +83,46 @@ def create_shm_buffer(touch, width, height):
         pool.destroy()
 
 
-def handle_touch_down(wl_touch, serial, time, surface, id, x, y):
+def handle_touch_down(
+    wl_touch: WlTouch,
+    serial: int,
+    time: int,
+    surface: WlSurface,
+    id: int,
+    x: float,
+    y: float,
+) -> int:
     # touch = wl_touch.user_data
     # touch_paint(touch, x, y, id)
     return 0
 
 
-def handle_touch_motion(wl_touch, time, id, x, y):
+def handle_touch_up(wl_touch: WlTouch, serial: int, time: int, id: int) -> int:
     # touch = wl_touch.user_data
     # touch_paint(touch, x, y, id)
     return 0
 
 
-def handle_seat_capabilities(wl_seat, capabilities):
+def handle_touch_motion(
+    wl_touch: WlTouch, time: int, id: int, x: float, y: float
+) -> int:
+    print(wl_touch, time, id, x, y)
+    # touch = wl_touch.user_data
+    # touch_paint(touch, x, y, id)
+    return 0
+
+
+def handle_seat_capabilities(wl_seat: WlSeatProxy, capabilities: int) -> int:
     print("capabilities")
     seat = wl_seat.user_data
     touch = seat["touch"]
 
     if (capabilities & WlSeat.capability.touch.value) and seat["wl_touch"] is None:
+        seat = {}
         seat["wl_touch"] = wl_seat.get_touch()
         seat["wl_touch"].user_data = touch
+        seat["wl_touch"].dispatcher["up"] = handle_touch_up
         seat["wl_touch"].dispatcher["down"] = handle_touch_down
-        # seat['wl_touch'].dispatcher['up'] = handle_touch_up
         seat["wl_touch"].dispatcher["motion"] = handle_touch_motion
     elif not (capabilities & WlSeat.capability.touch.value) and seat["wl_touch"]:
         seat["wl_touch"].destroy()
@@ -83,7 +130,7 @@ def handle_seat_capabilities(wl_seat, capabilities):
     return 1
 
 
-def handle_shm_format(wl_shm, fmt):
+def handle_shm_format(wl_shm: WlShmProxy, fmt: int) -> int:
     print("format")
     touch = wl_shm.user_data
 
@@ -92,13 +139,17 @@ def handle_shm_format(wl_shm, fmt):
     return 1
 
 
-def handle_shell_surface_ping(wl_shell_surface, serial):
+def handle_shell_surface_ping(
+    wl_shell_surface: WlShellSurfaceProxy, serial: int
+) -> int:
     print("ping")
     wl_shell_surface.pong(serial)
     return 1
 
 
-def handle_registry_global(wl_registry, id_num, iface_name, version):
+def handle_registry_global(
+    wl_registry: WlRegistryProxy, id_num: int, iface_name: str, version: int
+) -> int:
     print("global", id_num, iface_name)
 
     touch = wl_registry.user_data
@@ -125,8 +176,8 @@ def handle_registry_global(wl_registry, id_num, iface_name, version):
     return 1
 
 
-def touch_create(width, height):
-    touch = {}
+def touch_create(width: int, height: int) -> TouchDictT:
+    touch: TouchDictT = {}
 
     # Make the display and get the registry
     touch["display"] = Display()
@@ -143,21 +194,23 @@ def touch_create(width, height):
     if not touch["has_argb"]:
         print("WL_SHM_FORMAT_ARGB32 not available", file=sys.stderr)
         touch["display"].disconnect()
-        return
+        return touch
 
     touch["width"] = width
     touch["height"] = height
     touch["surface"] = touch["compositor"].create_surface()
-    touch["shell_surface"] = touch["shell"].get_shell_surface(touch["surface"])
-    create_shm_buffer(touch, width, height)
 
-    if touch["shell_surface"]:
+    if "shell" in touch:
+        touch["shell_surface"] = touch["shell"].get_shell_surface(touch["surface"])
+
+    if "shell_surface" in touch:
         print("shell")
         touch["shell_surface"].dispatcher["ping"] = handle_shell_surface_ping
         touch["shell_surface"].set_toplevel()
+        touch["shell_surface"].set_title("simple-touch")
 
     touch["surface"].user_data = touch
-    touch["shell_surface"].set_title("simple-touch")
+    create_shm_buffer(touch, width, height)
 
     touch["surface"].attach(touch["buffer"], 0, 0)
     touch["surface"].damage(0, 0, width, height)
@@ -166,7 +219,7 @@ def touch_create(width, height):
     return touch
 
 
-def main():
+def main() -> None:
     touch = touch_create(600, 500)
 
     while touch["display"].dispatch() != -1:
