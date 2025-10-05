@@ -15,17 +15,25 @@
 from __future__ import annotations
 
 import traceback
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 from pywayland import ffi, lib
-from pywayland.protocol_core.message import Message
+
+if TYPE_CHECKING:
+    from pywayland.protocol_core.message import Message
 
 CallbackT = Callable[..., Optional[int]]
 
 
 # int (*wl_dispatcher_func_t)(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *)
 @ffi.def_extern()
-def dispatcher_func(data, target, opcode, message, c_args):
+def dispatcher_func(
+    data: ffi.CData,
+    target: ffi.CData,
+    opcode: int,
+    message: Message,
+    c_args: ffi.WlArgumentCData,
+) -> int:
     # `data` is the handle to proxy/resource python object
     # `target` is the wl_proxy/wl_resource for self, this should be the same as self._ptr
     # `message` is the wl_message for self._interface.events/requests[opcode]
@@ -42,6 +50,7 @@ def dispatcher_func(data, target, opcode, message, c_args):
     # rebuild the args into python objects
     args = self.dispatcher.messages[opcode].c_to_arguments(c_args)
 
+    ret: int | None
     try:
         ret = func(self, *args)
     except Exception:
@@ -56,7 +65,7 @@ def dispatcher_func(data, target, opcode, message, c_args):
 
 # void (*wl_resource_destroy_func_t)(struct wl_resource *resource)
 @ffi.def_extern()
-def resource_destroy_func(res_ptr):
+def resource_destroy_func(res_ptr: ffi.WlResourceCData) -> None:
     # the user data to the resource is the handle to the resource
     resource_handle = lib.wl_resource_get_user_data(res_ptr)
     resource = ffi.from_handle(resource_handle)

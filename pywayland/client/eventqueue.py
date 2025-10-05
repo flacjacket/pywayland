@@ -23,10 +23,10 @@ from pywayland import ffi, lib
 if TYPE_CHECKING:
     from pywayland.client import Display
 
-weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
+weakkeydict: WeakKeyDictionary[ffi.WlQueueCData | None, Display] = WeakKeyDictionary()
 
 
-def _event_queue_destroy(display: Display, cdata: ffi.QueueCData) -> None:
+def _event_queue_destroy(display: Display, cdata: ffi.WlQueueCData) -> None:
     # we should be careful that the display is still around
     if display._ptr is None:
         return
@@ -55,7 +55,7 @@ class EventQueue:
 
         # create a destructor, save data and display
         destructor = functools.partial(_event_queue_destroy, display)
-        self._ptr: ffi.QueueCData | None = ffi.gc(ptr, destructor)
+        self._ptr: ffi.WlQueueCData | None = ffi.gc(ptr, destructor)
         self._display: Display | None = display
 
         display._children.add(self)

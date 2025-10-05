@@ -16,16 +16,19 @@ from __future__ import annotations
 
 import functools
 import logging
-from typing import Any
+from typing import TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
 
-from .display import Display
-from .listener import Listener
+if TYPE_CHECKING:
+    from typing import Any
+
+    from .display import Display
+    from .listener import Listener
 
 
-def _client_destroy(display: Display, cdata: ffi.ClientCData) -> None:
+def _client_destroy(display: Display, cdata: ffi.WlClientCData) -> None:
     # do nothing if the display is already destroyed
     if display.destroyed:
         logging.error("Display destroyed before client")
@@ -52,17 +55,17 @@ class Client:
     :param fd: The file descriptor for the socket to the client
     :type fd: `int`
     :param ptr: A pointer to an existing wl_client
-    :type ptr: `ffi.ClientCData`
+    :type ptr: cdata `struct wl_client *`
     """
 
     def __init__(
         self,
         display: Display | None = None,
         fd: int | None = None,
-        ptr: ffi.ClientCData | None = None,
+        ptr: ffi.WlClientCData | None = None,
     ) -> None:
         if ptr is None:
-            if display is None or fd is None:
+            if display is None or display._ptr is None or fd is None:
                 raise ValueError("display and fd needed to create new client")
 
             if display.destroyed:
@@ -71,7 +74,7 @@ class Client:
             ptr = lib.wl_client_create(display._ptr, fd)
 
             destructor = functools.partial(_client_destroy, display)
-            self._ptr: ffi.ClientCData | None = ffi.gc(ptr, destructor)
+            self._ptr: ffi.WlClientCData | None = ffi.gc(ptr, destructor)
 
         else:
             self._ptr = ptr
@@ -95,7 +98,7 @@ class Client:
         lib.wl_client_flush(self._ptr)
 
     @ensure_valid
-    def get_credentials(self) -> tuple[int, int, int]:
+    def get_credentials(self) -> tuple[ffi.CData, ffi.CData, ffi.CData]:
         """Return Unix credentials for the client.
 
         This function returns the process ID, the user ID and the group ID for the given
@@ -104,9 +107,9 @@ class Client:
         """
         assert self._ptr is not None
 
-        pid = ffi.new("pid_t *")
-        uid = ffi.new("uid_t *")
-        gid = ffi.new("gid_t *")
+        pid: ffi.CData = ffi.new("pid_t *")
+        uid: ffi.CData = ffi.new("uid_t *")
+        gid: ffi.CData = ffi.new("gid_t *")
         lib.wl_client_get_credentials(self._ptr, pid, uid, gid)
         return pid[0], uid[0], gid[0]
 
@@ -144,16 +147,15 @@ class Client:
         return ffi.from_handle(resource_handle)
 
     @classmethod
-    def from_resource(cls, resource: ffi.ResourceCData) -> Client:
+    def from_resource(cls, resource: ffi.WlResourceCData) -> Client:
         """Look up the corresponding wl_client for a wl_resource
 
         :param resource: The wl_resource
-        :type resource: pywayland.protocol_core.Resource
-        :returns:
-            A `Client` instance.
+        :type resource: cdata `struct wl_resource *`
+        :returns: A `Client` instance.
         """
         return cls(ptr=lib.wl_resource_get_client(resource))
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Compare this client with another"""
         return hasattr(other, "_ptr") and self._ptr == other._ptr
