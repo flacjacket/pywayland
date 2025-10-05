@@ -23,7 +23,7 @@ from pywayland.utils import ensure_valid
 if TYPE_CHECKING:
     from typing import Any, Self
 
-    from pywayland.client import Display
+    from pywayland.client import Display as ClientDisplay
 
     from .interface import Interface
 
@@ -50,10 +50,10 @@ class Proxy(Generic[T]):
     interface: type[T]
 
     def __init__(
-        self, ptr: ffi.WlProxyCData | None, display: Display | Self | None = None
+        self, ptr: ffi.WlProxyCData | None, display: ClientDisplay | Self | None = None
     ) -> None:
         self._ptr: ffi.WlProxyCData | None
-        self._display: Display | Self | None
+        self._display: ClientDisplay | Self | None
         self.user_data: Any = None
         self.dispatcher = Dispatcher(self.interface.events)
 

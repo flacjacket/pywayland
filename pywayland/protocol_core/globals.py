@@ -21,7 +21,7 @@ from weakref import WeakKeyDictionary
 from pywayland import ffi, lib
 
 if TYPE_CHECKING:
-    from pywayland.server import Display
+    from pywayland.server import Display as ServerDisplay
 
     from .interface import Interface
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 else:
     T = TypeVar("T")
 
-weakkeydict: WeakKeyDictionary[ffi.WlGlobalCData, Display] = WeakKeyDictionary()
+weakkeydict: WeakKeyDictionary[ffi.WlGlobalCData, ServerDisplay] = WeakKeyDictionary()
 
 
 # void (*wl_global_bind_func_t)(struct wl_client *client, void *data, uint32_t version, uint32_t id)
@@ -49,7 +49,7 @@ def global_bind_func(
         callback_info["bind_func"](resource)
 
 
-def _global_destroy(display: Display, cdata: ffi.CData) -> None:
+def _global_destroy(display: ServerDisplay, cdata: ffi.CData) -> None:
     if display._ptr is not None:
         # TODO: figure out how this can get run...
         # lib.wl_global_destroy(cdata)
@@ -72,7 +72,7 @@ class Global(Generic[T]):
 
     interface: type[T]
 
-    def __init__(self, display: Display, version: int | None = None):
+    def __init__(self, display: ServerDisplay, version: int | None = None):
         if display._ptr is None or display._ptr == ffi.NULL:
             raise ValueError("Display has been destroyed or couldn't initialize")
 
@@ -95,7 +95,7 @@ class Global(Generic[T]):
         )
         destructor = functools.partial(_global_destroy, display)
         self._ptr = ffi.gc(ptr, destructor)
-        self._display: Display | None = display
+        self._display: ServerDisplay | None = display
 
         # this c data should keep the display alive
         weakkeydict[self._ptr] = display
