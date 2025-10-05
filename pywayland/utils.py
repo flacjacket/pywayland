@@ -16,16 +16,20 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Iterator
 from functools import wraps
-from typing import Callable
+from typing import TYPE_CHECKING, cast
 
 from . import ffi, lib
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from types import TracebackType
+    from typing import Any, Callable
 
-def ensure_valid(func: Callable) -> Callable:
+
+def ensure_valid(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
         if self._ptr is None:
             raise ValueError(f"{self.__class__.__name__} object has been destroyed")
         return func(self, *args, **kwargs)
@@ -54,7 +58,12 @@ class AnonymousFile:
         assert self.fd is not None
         return self.fd
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         self.close()
 
     def open(self) -> None:
@@ -82,7 +91,9 @@ class AnonymousFile:
         self.fd = None
 
 
-def wl_container_of(ptr: ffi.CData, ctype: str, member: str, *, ffi=ffi) -> ffi.CData:
+def wl_container_of(
+    ptr: ffi._CDataT, ctype: str, member: str, *, ffi: Any = ffi
+) -> ffi._CDataO:  # type: ignore [type-var, misc]
     """
     #define wl_container_of(ptr, sample, member)				\
             (__typeof__(sample))((char *)(ptr) -				\
@@ -98,11 +109,12 @@ def wl_container_of(ptr: ffi.CData, ctype: str, member: str, *, ffi=ffi) -> ffi.
         ffi module to use. The default is pywayland, but this allows the use of this
         macro by other ffi modules that use `wl_list`s.
     """
-    return ffi.cast(ctype, ffi.cast("char *", ptr) - ffi.offsetof(ctype, member))  # type: ignore[no-any-return]
+    cdata = ffi.cast("char *", ptr) - ffi.offsetof(ctype, member)
+    return ffi.cast(ctype, cast(ffi.CData, cdata))  # type: ignore [no-any-return]
 
 
 def wl_list_for_each(
-    ctype: str, head: ffi.CData, member: str, *, ffi=ffi
+    ctype: str, head: ffi.WlListCData, member: str, *, ffi: Any = ffi
 ) -> Iterator[ffi.CData]:
     """
     #define wl_list_for_each(pos, head, member)				\
@@ -120,7 +132,7 @@ def wl_list_for_each(
         ffi module to use. The default is pywayland, but this allows the use of this
         macro by other ffi modules that use `wl_list`s.
     """
-    pos = wl_container_of(head.next, ctype, member, ffi=ffi)
+    pos: ffi.CData = wl_container_of(head.next, ctype, member, ffi=ffi)
 
     while getattr(pos, member) != head:
         yield pos
