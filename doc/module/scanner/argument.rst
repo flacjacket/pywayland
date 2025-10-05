@@ -1,7 +1,7 @@
-.. _scanner-argumer:
+.. _scanner-argument:
 
-Argumet
-=======
+Argument
+========
 
 .. automodule:: pywayland.scanner.argument
    :members:

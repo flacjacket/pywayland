@@ -6,9 +6,8 @@ Client Modules
 ==============
 
 The base set of objects used by Wayland clients.  Users should only be
-directly creating :class:`~pywayland.client.Display` and
-:class:`~pywayland.client.EventQueue` objects.  The
-:class:`~pywayland.client.proxy.Proxy` objects to interfaces should be returned
+directly creating :class:`Display` and :class:`EventQueue` objects. The
+:class:`~pywayland.protocol_core.Proxy` objects to interfaces should be returned
 by making request calls.
 
 Display
@@ -20,5 +19,5 @@ Display
 EventQueue
 ----------
 
-.. autoclass:: pywayland.client.EventQueue
+.. autoclass:: EventQueue
    :members:
