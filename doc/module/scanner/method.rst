@@ -5,3 +5,4 @@ Method
 
 .. automodule:: pywayland.scanner.method
    :members:
+   :noindex:

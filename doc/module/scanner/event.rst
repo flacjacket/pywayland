@@ -5,3 +5,4 @@ Event
 
 .. automodule:: pywayland.scanner.event
    :members:
+   :noindex:

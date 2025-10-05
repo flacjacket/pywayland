@@ -5,3 +5,4 @@ Argument
 
 .. automodule:: pywayland.scanner.argument
    :members:
+   :noindex:

@@ -5,3 +5,4 @@ Interface
 
 .. automodule:: pywayland.scanner.interface
    :members:
+   :noindex:

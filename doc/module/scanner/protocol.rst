@@ -5,3 +5,4 @@ Protocol
 
 .. autoclass:: pywayland.scanner.Protocol
    :members:
+   :noindex:

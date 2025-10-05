@@ -5,3 +5,4 @@ Entry
 
 .. automodule:: pywayland.scanner.entry
    :members:
+   :noindex:
