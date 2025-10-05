@@ -15,18 +15,21 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Callable
+from typing import TYPE_CHECKING
 
 from pywayland import ffi, lib
 from pywayland.utils import wl_container_of
+
+if TYPE_CHECKING:
+    from typing import Any, Callable
 
 logger = getLogger(__package__)
 
 
 # void (*wl_notify_func_t)(struct wl_listener *listener, void *data);
 @ffi.def_extern()
-def notify_func(listener_ptr, data):
-    container = wl_container_of(
+def notify_func(listener_ptr: ffi.WlListenerCData, data: ffi.CData) -> None:
+    container: ffi.WlListenerContainerCData = wl_container_of(
         listener_ptr, "struct wl_listener_container *", "destroy_listener"
     )
     listener = ffi.from_handle(container.handle)
@@ -58,23 +61,22 @@ class Listener:
     :type function: callable
     """
 
-    container: ffi.ListenerContainerCData
-
-    def __init__(self, function: Callable) -> None:
-        self._handle = ffi.new_handle(self)
+    def __init__(self, function: Callable[..., Any]) -> None:
+        self._ptr: ffi.WlListenerCData | None
+        self._handle: ffi.CData = ffi.new_handle(self)
 
         # we need a way to get this Python object from the `struct
         # wl_listener*`, so we put the pointer in a container struct that
         # contains both the wl_listener and a pointer to our ffi handle
-        self.container = ffi.new("struct wl_listener_container *")  # type: ignore[assignment]
+        self.container: ffi.WlListenerContainerCData = ffi.new(
+            "struct wl_listener_container *"
+        )
         self.container.handle = self._handle
 
-        self._ptr: ffi.ListenerCData | None = ffi.addressof(
-            self.container.destroy_listener
-        )
-        self._ptr.notify = lib.notify_func
+        self._ptr = ffi.addressof(self.container.destroy_listener)
+        self._ptr.notify = lib.notify_func  # type: ignore [assignment]
         self._notify = function
-        self._signal = None
+        self._signal: Signal | None = None
 
     def remove(self) -> None:
         """Remove the listener"""
@@ -93,9 +95,14 @@ class Signal:
     is removed by wl_list_remove() (or whenever the signal is destroyed).
     """
 
-    def __init__(self, *, ptr=None, data_wrapper=None) -> None:
+    def __init__(
+        self,
+        *,
+        ptr: ffi.WlSignalCData | None = None,
+        data_wrapper: Callable[..., Any] | None = None,
+    ) -> None:
         if ptr is None:
-            self._ptr = ffi.new("struct wl_listener *")
+            self._ptr: ffi.WlSignalCData = ffi.new("struct wl_signal *")
             lib.wl_signal_init(self._ptr)
         else:
             self._ptr = ptr
@@ -103,7 +110,7 @@ class Signal:
         self._data_wrapper = data_wrapper
         self._link: list[Listener] = []
 
-    def add(self, listener) -> None:
+    def add(self, listener: Listener) -> None:
         """Add the specified listener to this signal
 
         :param listener: The listener to add
@@ -114,13 +121,15 @@ class Signal:
         listener._signal = self
         self._link.append(listener)
 
-        lib.wl_signal_add(self._ptr, listener._ptr)
+        if listener._ptr is not None:
+            lib.wl_signal_add(self._ptr, listener._ptr)
 
-    def emit(self, data=None) -> None:
+    def emit(self, data: Any = None) -> None:
         """Emits this signal, notifying all registered listeners
 
         :param data: The data that will be emitted with the signal
         """
+        data_ptr: ffi.CData
         if data is not None:
             data_ptr = ffi.new_handle(data)
         else:
