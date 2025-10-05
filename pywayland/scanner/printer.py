@@ -158,13 +158,13 @@ class Printer:
         line = self._re_doc.sub(self._doc_replace, line)
         return line
 
-    def _doc_replace(self, match: Match) -> str:
+    def _doc_replace(self, match: Match[str]) -> str:
         """Perform interface and function name replacement on the given match"""
         if match.group("func") is None:
             return self._doc_class_replace(match)
         return self._doc_funcs_replace(match)
 
-    def _doc_class_replace(self, match: Match) -> str:
+    def _doc_class_replace(self, match: Match[str]) -> str:
         """Build the sphinx doc class import
 
         :param match:
@@ -184,7 +184,7 @@ class Printer:
 
         return f"`{interface_class}`"
 
-    def _doc_funcs_replace(self, match: Match) -> str:
+    def _doc_funcs_replace(self, match: Match[str]) -> str:
         """Build the sphinx doc function definition
 
         :param match:

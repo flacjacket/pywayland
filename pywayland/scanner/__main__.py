@@ -117,7 +117,7 @@ def main() -> None:
     protocols = [Protocol.parse_file(input_file) for input_file in input_files]
     logger.info(f"Parsed {len(protocols)} input xml files")
 
-    # items are created in order of importance (unstable -> staging -> stable)
+    # items are created in order of importance (1.stable, 2.staging, 3.unstable)
     # in case duplicates appear in the protocols
     all_imports = {
         interface.name: protocol.name
@@ -132,7 +132,7 @@ def main() -> None:
         # the interface in the same protocol file
         # if a protocol other than the ones with repeated interfaces where to referece
         # the interface name, it would resolve to the interface with highest priority
-        # (unstable -> staging -> stable) since the xml files does not have a hard
+        # (1.stable, 2.staging, 3.unstable) since the xml files does not have a hard
         # referece to the wanted interface protocol
         current_protocol_imports = all_imports.copy()
         current_protocol_imports.update(
