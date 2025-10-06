@@ -12,33 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
 
 import mmap
 import os
 import sys
+from typing import TYPE_CHECKING
 
 from pywayland.client import Display
-from pywayland.protocol.wayland import (
-    WlBufferProxy,
-    WlCompositor,
-    WlCompositorProxy,
-    WlRegistryProxy,
-    WlShell,
-    WlShellProxy,
-    WlShellSurfaceProxy,
-    WlShm,
-    WlShmPoolProxy,
-    WlShmProxy,
-    WlShmResource,
-    WlSurfaceProxy,
-)
-from pywayland.protocol.xdg_shell import (
-    XdgSurfaceProxy,
-    XdgToplevelProxy,
-    XdgWmBase,
-    XdgWmBaseProxy,
-)
+from pywayland.protocol.wayland import WlCompositor, WlShell, WlShm
+from pywayland.protocol.xdg_shell import XdgWmBase
 from pywayland.utils import AnonymousFile
+
+if TYPE_CHECKING:
+    from pywayland.protocol.wayland import (
+        WlBufferProxy,
+        WlCompositorProxy,
+        WlRegistryProxy,
+        WlShellProxy,
+        WlShellSurfaceProxy,
+        WlShmPoolProxy,
+        WlShmProxy,
+        WlShmResource,
+        WlSurfaceProxy,
+    )
+    from pywayland.protocol.xdg_shell import (
+        XdgSurfaceProxy,
+        XdgToplevelProxy,
+        XdgWmBaseProxy,
+    )
+
 
 this_file = os.path.abspath(__file__)
 this_dir = os.path.split(this_file)[0]

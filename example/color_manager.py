@@ -3,12 +3,16 @@
 # SPDX-FileCopyrightText: 2025 Lubosz Sarnecki <lubosz@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from pywayland.client import Display
-from pywayland.protocol.color_management_v1 import (
-    WpColorManagerV1,
-    WpColorManagerV1Proxy,
-)
-from pywayland.protocol.wayland import WlRegistryProxy
+from pywayland.protocol.color_management_v1 import WpColorManagerV1
+
+if TYPE_CHECKING:
+    from pywayland.protocol.color_management_v1 import WpColorManagerV1Proxy
+    from pywayland.protocol.wayland import WlRegistryProxy
 
 
 class App:

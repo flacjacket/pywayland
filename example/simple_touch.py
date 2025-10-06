@@ -12,32 +12,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
 
-# import collections
 import mmap
 import os
 import sys
 import tempfile
-from typing import TypedDict
+from typing import TYPE_CHECKING
 
 from pywayland.client import Display
-from pywayland.protocol.wayland import (
-    WlBufferProxy,
-    WlCompositor,
-    WlCompositorProxy,
-    WlRegistryProxy,
-    WlSeat,
-    WlSeatProxy,
-    WlShell,
-    WlShellProxy,
-    WlShellSurfaceProxy,
-    WlShm,
-    WlShmProxy,
-    WlSurface,
-    WlSurfaceProxy,
-    WlTouch,
-    WlTouchProxy,
-)
+from pywayland.protocol.wayland import WlCompositor, WlSeat, WlShell, WlShm
+
+if TYPE_CHECKING:
+    from typing import TypedDict
+
+    from pywayland.protocol.wayland import (
+        WlBufferProxy,
+        WlCompositorProxy,
+        WlRegistryProxy,
+        WlSeatProxy,
+        WlShellProxy,
+        WlShellSurfaceProxy,
+        WlShmProxy,
+        WlSurface,
+        WlSurfaceProxy,
+        WlTouch,
+        WlTouchProxy,
+    )
+
+    class TouchDictT(TypedDict, total=False):
+        display: Display
+        registry: WlRegistryProxy
+        compositor: WlCompositorProxy
+        shell: WlShellProxy
+        shell_surface: WlShellSurfaceProxy
+        shm: WlShmProxy
+        has_argb: bool
+        surface: WlSurfaceProxy
+        buffer: WlBufferProxy
+        width: int
+        height: int
+        data: mmap.mmap
+        wl_touch: WlTouchProxy
+        seat: WlSeatProxy
+
 
 this_file = os.path.abspath(__file__)
 this_dir = os.path.split(this_file)[0]
@@ -45,23 +63,6 @@ root_dir = os.path.split(this_dir)[0]
 pywayland_dir = os.path.join(root_dir, "pywayland")
 if os.path.exists(pywayland_dir):
     sys.path.append(root_dir)
-
-
-class TouchDictT(TypedDict, total=False):
-    display: Display
-    registry: WlRegistryProxy
-    compositor: WlCompositorProxy
-    shell: WlShellProxy
-    shell_surface: WlShellSurfaceProxy
-    shm: WlShmProxy
-    has_argb: bool
-    surface: WlSurfaceProxy
-    buffer: WlBufferProxy
-    width: int
-    height: int
-    data: mmap.mmap
-    wl_touch: WlTouchProxy
-    seat: WlSeatProxy
 
 
 def create_shm_buffer(touch: TouchDictT, width: int, height: int) -> None:

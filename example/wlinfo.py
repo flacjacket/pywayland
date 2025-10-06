@@ -11,16 +11,21 @@ Prints information about a Wayland compositor.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
 from dataclasses import dataclass, field
 from functools import partial
 from itertools import chain
 from operator import itemgetter
+from typing import TYPE_CHECKING
 
 from pywayland.client import Display
-from pywayland.protocol.wayland import WlOutput, WlRegistryProxy, WlSeat, WlShm
+from pywayland.protocol.wayland import WlOutput, WlSeat, WlShm
 
-FieldList = list[tuple[str, int, int] | str]
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from pywayland.protocol.wayland import WlRegistryProxy
+
+    FieldList = list[tuple[str, int, int] | str]
 
 
 @dataclass
