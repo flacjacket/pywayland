@@ -27,6 +27,7 @@ from pywayland.utils import AnonymousFile
 if TYPE_CHECKING:
     from pywayland.protocol.wayland import (
         WlBufferProxy,
+        WlCallbackProxy,
         WlCompositorProxy,
         WlRegistryProxy,
         WlShellProxy,
@@ -68,8 +69,6 @@ class Window:
         self.shm_data: mmap.mmap
         self.line_pos = MARGIN
         self.line_speed = +1
-
-        self.should_quit = False
 
 
 def shell_surface_ping_handler(shell_surface: WlShellSurfaceProxy, serial: int) -> None:
@@ -133,7 +132,7 @@ def create_window(window: Window) -> None:
     window.surface.commit()
 
 
-def redraw(callback: WlSurfaceProxy, time: int, destroy_callback: bool = True) -> None:
+def redraw(callback: WlCallbackProxy, time: int, destroy_callback: bool = True) -> None:
     window = callback.user_data
     if destroy_callback:
         callback._destroy()
@@ -175,11 +174,6 @@ def xdg_toplevel_configure_handler(
     print(f"Configure with {width}x{height}")
 
 
-def xdg_toplevel_close_handler(toplevel: XdgSurfaceProxy) -> None:
-    window = toplevel.user_data
-    window.should_quit = True
-
-
 def main() -> None:
     window = Window()
 
@@ -205,29 +199,34 @@ def main() -> None:
     window.surface = window.compositor.create_surface()
 
     if window.wm_base:
-        xdg_surface: XdgSurfaceProxy = window.wm_base.get_xdg_surface(window.surface)
+        xdg_surface: XdgSurfaceProxy
+        xdg_surface = window.wm_base.get_xdg_surface(window.surface)
         xdg_surface.dispatcher["configure"] = xdg_surface_configure_handler
 
         toplevel: XdgToplevelProxy = xdg_surface.get_toplevel()
         toplevel.set_app_id("pywayland_surface_example")
         toplevel.set_title("pywayland Surface Example")
         toplevel.dispatcher["configure"] = xdg_toplevel_configure_handler
-        toplevel.dispatcher["close"] = xdg_toplevel_close_handler
         toplevel.user_data = window
+
     elif window.shell:
+        shell_surface: WlShellSurfaceProxy
         shell_surface = window.shell.get_shell_surface(window.surface)
         shell_surface.set_toplevel()
         shell_surface.dispatcher["ping"] = shell_surface_ping_handler
 
-    frame_callback = window.surface.frame()
+    # trigger surface configure events
+    window.surface.commit()
+    display.roundtrip()
+
+    frame_callback: WlCallbackProxy = window.surface.frame()
     frame_callback.dispatcher["done"] = redraw
     frame_callback.user_data = window
 
     create_window(window)
     redraw(frame_callback, 0, destroy_callback=False)
 
-    while display.dispatch(block=True) != -1 and not window.should_quit:
-        pass
+    display.dispatch(block=True)
 
     import time
 
