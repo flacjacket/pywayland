@@ -188,13 +188,11 @@ def touch_create(width: int, height: int) -> TouchDictT:
     touch["registry"].user_data = touch
     touch["registry"].dispatcher["global"] = handle_registry_global
 
-    touch["display"].dispatch()
-    touch["display"].roundtrip()
+    touch["display"].dispatch(block=True)
     touch["display"].roundtrip()
 
     if not touch["has_argb"]:
         print("WL_SHM_FORMAT_ARGB32 not available", file=sys.stderr)
-        touch["display"].disconnect()
         return touch
 
     touch["width"] = width
@@ -223,8 +221,7 @@ def touch_create(width: int, height: int) -> TouchDictT:
 def main() -> None:
     touch = touch_create(600, 500)
 
-    while touch["display"].dispatch() != -1:
-        pass
+    touch["display"].dispatch(block=True)
 
     touch["display"].disconnect()
 
