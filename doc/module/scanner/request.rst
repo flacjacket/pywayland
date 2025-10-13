@@ -5,3 +5,4 @@ Request
 
 .. automodule:: pywayland.scanner.request
    :members:
+   :noindex:

@@ -35,7 +35,7 @@ class Interface(Element):
     event: list[Event]
     request: list[Request]
 
-    def __lt__(self, other):
+    def __lt__(self, other: Interface) -> bool:
         return self.name < other.name
 
     @classmethod
@@ -81,17 +81,13 @@ class Interface(Element):
 
     @property
     def needs_any_type(self) -> bool:
-        return any(req.needs_any for req in self.request) or any(
-            event.needs_any for event in self.event
-        )
+        return any(req.needs_any for req in self.request + self.event)
 
     @property
     def needs_argument_type(self) -> bool:
-        return any(len(method.arg) > 0 for method in self.request) or any(
-            len(method.arg) > 0 for method in self.event
-        )
+        return any(len(method.arg) > 0 for method in self.request + self.event)
 
-    def get_imports(self, all_imports: dict[str, str]) -> set:
+    def get_imports(self, all_imports: dict[str, str]) -> set[tuple[str, str]]:
         """Return necessary imports for this interface"""
         return set(
             _import
@@ -134,7 +130,7 @@ class Interface(Element):
         """Generate the output only of the proxy class"""
         printer()
         printer()
-        printer(f"class {self.resource_class_name}(Resource):")
+        printer(f"class {self.resource_class_name}(Resource[{self.class_name}]):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
             for opcode, event in enumerate(self.event):
@@ -145,7 +141,7 @@ class Interface(Element):
         """Generate the output only of the proxy class"""
         printer()
         printer()
-        printer(f"class {self.global_class_name}(Global):")
+        printer(f"class {self.global_class_name}(Global[{self.class_name}]):")
         with printer.indented():
             printer(f"interface = {self.class_name}")
 

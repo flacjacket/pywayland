@@ -20,14 +20,16 @@ from typing import TYPE_CHECKING
 from pywayland.scanner.argument import ArgumentType
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from .interface import Interface
 
 
 class classproperty:
-    def __init__(self, f):
+    def __init__(self, f: Any) -> None:
         self.f = f
 
-    def __get__(self, obj, owner):
+    def __get__(self, obj: Any, owner: Any) -> Any:
         return self.f(owner)
 
 

@@ -14,18 +14,24 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import TYPE_CHECKING
 from weakref import WeakKeyDictionary, WeakValueDictionary
 
 from pywayland import ffi
 
-from .argument import Argument
-from .globals import Global
 from .message import Message
-from .proxy import Proxy
-from .resource import Resource
 
-weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
+if TYPE_CHECKING:
+    from typing import Any, Callable
+
+    from .argument import Argument
+    from .globals import Global
+    from .proxy import Proxy
+    from .resource import Resource
+
+weakkeydict: WeakKeyDictionary[ffi.WlInterfaceCData, tuple[object, ...]] = (
+    WeakKeyDictionary()
+)
 
 
 class InterfaceMeta(type):
@@ -34,12 +40,12 @@ class InterfaceMeta(type):
     Initializes empty lists for events and requests for the given class.
     """
 
-    def __init__(self, name, bases, dct):
-        self.events = []
-        self.requests = []
+    def __init__(self, name: str, bases: tuple[Any], dct: dict[Any, Any]):
+        self.events: list[Message] = []
+        self.requests: list[Message] = []
 
         # Initialize the interface cdata
-        self._ptr = ffi.new("struct wl_interface *")
+        self._ptr: ffi.WlInterfaceCData = ffi.new("struct wl_interface *")
 
 
 class Interface(metaclass=InterfaceMeta):
@@ -53,57 +59,58 @@ class Interface(metaclass=InterfaceMeta):
     :func:`Interface.request` decorators.
     """
 
-    _ptr: ffi.InterfaceCData
+    _ptr: ffi.WlInterfaceCData
     name: str
     version: int
-    proxy_class: type[Proxy]
-    resource_class: type[Resource]
-    global_class: type[Global]
+    proxy_class: type[Proxy[Any]]
+    resource_class: type[Resource[Any]]
+    global_class: type[Global[Any]]
+    registry: WeakValueDictionary[ffi.WlObjectCData | ffi.WlProxyCData, Proxy[Any]]
 
     @classmethod
-    def event(cls, *arguments: Argument, version: int | None = None) -> Callable:
+    def event(
+        cls, *arguments: Argument, version: int | None = None
+    ) -> Callable[..., Any]:
         """Decorator for interface events
 
         Adds the decorated method to the list of events of the interface
         (server-side method).
 
-        :param signature: Encodes the types of the arguments to the decorated
-                          function.
-        :type signature: `string`
-        :param types: List of the types of any objects included in the argument
-                      list, None if otherwise.
-        :type types: `list`
+        :param arguments: Arguments for the event
+        :type arguments: :class:`~pywayland.protocol_core.Argument`
+        :param version: Version of the event (optional)
+        :type version: int or None
         """
 
-        def wrapper(func):
+        def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
             cls.events.append(Message(func, arguments, version))
             return func
 
         return wrapper
 
     @classmethod
-    def request(cls, *arguments: Argument, version: int | None = None):
+    def request(
+        cls, *arguments: Argument, version: int | None = None
+    ) -> Callable[..., Any]:
         """Decorator for interface requests
 
         Adds the decorated method to the list of requests of the interface
         (client-side method).
 
-        :param signature: Encodes the types of the arguments to the decorated
-                          function.
-        :type signature: `string`
-        :param types: List of the types of any objects included in the argument
-                      list, None if otherwise.
-        :type types: list
+        :param arguments: Arguments for the request
+        :type arguments: :class:`~pywayland.protocol_core.Argument`
+        :param version: Version of the request (optional)
+        :type version: int or None
         """
 
-        def wrapper(func):
+        def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
             cls.requests.append(Message(func, arguments, version))
             return func
 
         return wrapper
 
     @classmethod
-    def _gen_c(cls):
+    def _gen_c(cls) -> None:
         """Creates the wl_interface C struct
 
         Generates the CFFI cdata for the wl_interface struct given by the
@@ -111,23 +118,33 @@ class Interface(metaclass=InterfaceMeta):
         """
         cls.registry = WeakValueDictionary()
 
-        cls._ptr.name = name = ffi.new("char[]", cls.name.encode())
+        name: ffi.CharCData = ffi.new("char[]", cls.name.encode())
+        cls._ptr.name = name
         cls._ptr.version = cls.version
 
-        keep_alive = []
+        keep_alive: list[
+            tuple[
+                ffi.CharCData,
+                ffi.CharCData,
+                ffi.WlInterfaceCData,
+            ]
+        ] = []
         # Determine the number of methods to assign and assign them
         cls._ptr.method_count = len(cls.requests)
-        cls._ptr.methods = methods_ptr = ffi.new(
+        methods_ptr: ffi.WlMessageCData = ffi.new(
             "struct wl_message[]", len(cls.requests)
         )
+        cls._ptr.methods = methods_ptr
+
         # Iterate over the methods
         for i, message in enumerate(cls.requests):
-            keep_alive.extend(message.build_message_struct(methods_ptr[i]))
+            keep_alive.append(message.build_message_struct(methods_ptr[i]))
 
         cls._ptr.event_count = len(cls.events)
-        cls._ptr.events = events_ptr = ffi.new("struct wl_message[]", len(cls.events))
+        events_ptr: ffi.WlMessageCData = ffi.new("struct wl_message[]", len(cls.events))
+        cls._ptr.events = events_ptr
         # Iterate over the methods
         for i, message in enumerate(cls.events):
-            keep_alive.extend(message.build_message_struct(events_ptr[i]))
+            keep_alive.append(message.build_message_struct(events_ptr[i]))
 
         weakkeydict[cls._ptr] = (name, methods_ptr, events_ptr, *tuple(keep_alive))

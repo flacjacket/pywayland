@@ -14,7 +14,7 @@ Interface
 :class:`Interface` objects are only created as a subclass of Interface.  The
 Interface class wraps the protocol objects, and serves to initialize a set of
 parameters for the Interface and provide decorators for defining
-:class:`~pywayland.interface.Message` objects on the interface.
+:class:`Message` objects on the interface.
 
 .. autoclass:: Interface
    :members:
@@ -54,22 +54,22 @@ Global
 Message
 -------
 
-:class:`~pywayland.interface.Message` objects are used to wrap the method calls
+:class:`Message` objects are used to wrap the method calls
 on the protocol objects.  The Message objects are added to the
-:class:`~pywayland.interface.Interface`'s as either requests (client-side
+:class:`Interface`'s as either requests (client-side
 functions) or events (server-side functions).
 
-.. autoclass:: pywayland.protocol_core.message.Message
+.. autoclass:: Message
    :members:
 
 Argument
 --------
 
-.. autoclass:: pywayland.protocol_core.argument.Argument
+.. autoclass:: Argument
    :members:
 
 ArgumentType
 ------------
 
-.. autoclass:: pywayland.protocol_core.argument.ArgumentType
+.. autoclass:: ArgumentType
    :members:

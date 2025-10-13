@@ -12,17 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import functools
+from typing import TYPE_CHECKING, Generic, TypeVar
 from weakref import WeakKeyDictionary
 
 from pywayland import ffi, lib
 
-weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
+if TYPE_CHECKING:
+    from pywayland.server import Display as ServerDisplay
+
+    from .interface import Interface
+
+    T = TypeVar("T", bound=Interface)
+else:
+    T = TypeVar("T")
+
+weakkeydict: WeakKeyDictionary[ffi.WlGlobalCData, ServerDisplay] = WeakKeyDictionary()
 
 
 # void (*wl_global_bind_func_t)(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 @ffi.def_extern()
-def global_bind_func(client_ptr, data, version, id) -> None:
+def global_bind_func(
+    client_ptr: ffi.WlClientCData, data: ffi.CData, version: int, id: int
+) -> None:
     # `data` is the handle to Global
     callback_info = ffi.from_handle(data)
 
@@ -35,14 +49,14 @@ def global_bind_func(client_ptr, data, version, id) -> None:
         callback_info["bind_func"](resource)
 
 
-def _global_destroy(display, cdata) -> None:
+def _global_destroy(display: ServerDisplay, cdata: ffi.CData) -> None:
     if display._ptr is not None:
         # TODO: figure out how this can get run...
         # lib.wl_global_destroy(cdata)
         pass
 
 
-class Global:
+class Global(Generic[T]):
     """A server-side Interface object for the server
 
     Not created directly, created from the
@@ -56,10 +70,13 @@ class Global:
     :type version: `int`
     """
 
-    def __init__(self, display, version=None):
+    interface: type[T]
+
+    def __init__(self, display: ServerDisplay, version: int | None = None):
         if display._ptr is None or display._ptr == ffi.NULL:
             raise ValueError("Display has been destroyed or couldn't initialize")
 
+        self._ptr: ffi.WlGlobalCData | None
         if version is None:
             version = self.interface.version
 
@@ -67,7 +84,7 @@ class Global:
         # loop, so use this dict as the handle to pass to the global_bind_func
         # callback
         self._callback_info = {"interface": self.interface, "bind_func": None}
-        self._handle = ffi.new_handle(self._callback_info)
+        self._handle: ffi.CData = ffi.new_handle(self._callback_info)
 
         ptr = lib.wl_global_create(
             display._ptr,
@@ -78,22 +95,22 @@ class Global:
         )
         destructor = functools.partial(_global_destroy, display)
         self._ptr = ffi.gc(ptr, destructor)
-        self._display = display
+        self._display: ServerDisplay | None = display
 
         # this c data should keep the display alive
         weakkeydict[self._ptr] = display
 
     @property
-    def bind_func(self):
+    def bind_func(self) -> type[T] | None:
         return self._callback_info["bind_func"]
 
     @bind_func.setter
-    def bind_func(self, value):
+    def bind_func(self, value: type[T] | None) -> None:
         self._callback_info["bind_func"] = value
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy the global object"""
-        if self._ptr is not None:
+        if self._ptr is not None and self._display is not None:
             # run and remove destructor on c data
             _global_destroy(self._display, self._ptr)
             ffi.gc(self._ptr, None)

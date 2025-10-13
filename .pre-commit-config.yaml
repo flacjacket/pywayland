@@ -1,11 +1,4 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
-    hooks:
-      - id: black
-        # Use the latest supported version here
-        language_version: python3.13
-        exclude: ^test/scanner_files/
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.0
     hooks:

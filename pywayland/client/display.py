@@ -18,16 +18,20 @@ from typing import TYPE_CHECKING
 from weakref import WeakSet
 
 from pywayland import ffi, lib
-from pywayland.client.eventqueue import EventQueue
-from pywayland.protocol.wayland import WlDisplay
+from pywayland.protocol.wayland import WlDisplayProxy
 from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
-    # introduced in standard library in Python 3.8
+    from types import TracebackType
+    from typing import Any
+
     from typing_extensions import Literal
 
+    from pywayland.client.eventqueue import EventQueue
+    from pywayland.protocol_core import Proxy
 
-class Display(WlDisplay.proxy_class):  # type: ignore
+
+class Display(WlDisplayProxy):
     """Represents a connection to the compositor
 
     A :class:`Display` object represents a client connection to a Wayland
@@ -91,16 +95,21 @@ class Display(WlDisplay.proxy_class):  # type: ignore
         """Constructor for the Display object"""
         super().__init__(None)
 
-        self._children: WeakSet = WeakSet()
+        self._children: WeakSet[EventQueue | Proxy[Any]] = WeakSet()
         self._name_or_fd = name_or_fd
-        self._ptr: ffi.DisplayCData | None = None
+        self._ptr: ffi.WlDisplayCData | None = None  # type: ignore [assignment]
 
     def __enter__(self) -> Display:
         """Connect to the display in a context manager"""
         self.connect()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> Literal[False]:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> Literal[False]:
         """Disconnect from the display"""
         self.disconnect()
         return False
@@ -120,9 +129,10 @@ class Display(WlDisplay.proxy_class):  # type: ignore
             # argument passed is a file descriptor
             self._ptr = lib.wl_display_connect_to_fd(self._name_or_fd)
         else:
+            name: ffi.CharCData | bytes
             # connect using string by name, or use default
             if self._name_or_fd is None:
-                name: ffi.CData | bytes = ffi.NULL
+                name = ffi.NULL
             else:
                 name = self._name_or_fd.encode()
             self._ptr = lib.wl_display_connect(name)

@@ -5,3 +5,4 @@ Printer
 
 .. automodule:: pywayland.scanner.printer
    :members:
+   :noindex:

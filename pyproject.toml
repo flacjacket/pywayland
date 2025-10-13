@@ -67,9 +67,7 @@ version = {attr = "pywayland.version.__version__"}
 lint.select = ['E', 'F', 'I', 'W', 'UP', 'RUF']
 lint.ignore = ["E501"]
 line-length = 88
-
-[tool.black]
-line-length = 88
+exclude = ["test/scanner_files/"]
 
 [tool.check-manifest]
 ignore = [
@@ -80,16 +78,26 @@ ignore = [
 ]
 
 [tool.mypy]
-disallow_subclassing_any = true
-no_implicit_optional = true
-show_error_codes = true
-strict_equality = true
-warn_incomplete_stub = true
+warn_unused_configs = true
 warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+check_untyped_defs = true
+disallow_subclassing_any = true
+disallow_untyped_decorators = true
+disallow_any_generics = true
+no_implicit_optional = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+show_error_codes = true
+warn_incomplete_stub = true
 warn_return_any = true
 warn_unreachable = true
-warn_unused_configs = true
-warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "pywayland.protocol.*"
+disallow_any_generics = false
 
 [[tool.mypy.overrides]]
 module = ["cffi"]

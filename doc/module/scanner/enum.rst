@@ -5,3 +5,4 @@ Enum
 
 .. automodule:: pywayland.scanner.enum
    :members:
+   :noindex:

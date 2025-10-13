@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .display import Display  # noqa
-from .eventqueue import EventQueue  # noqa
+from .display import Display  # noqa: F401
+from .eventqueue import EventQueue  # noqa: F401

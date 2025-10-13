@@ -26,4 +26,4 @@ Script Invocation
 In addition to the command-line use, you can use the scanner from within Python
 scripts.  This is done, for example, when installing or building the docs to
 ensure the protocol modules are included in both.  For details on invoking the
-scanner module, see :class:`~pywayland.scanner.Scanner`.
+scanner module, see :ref:`scanner`.

@@ -83,7 +83,7 @@ class WlXfail(Interface):
     version = 1
 
 
-class WlCoreResource(Resource):
+class WlCoreResource(Resource[WlCore]):
     interface = WlCore
 
     @WlCore.event(
@@ -109,11 +109,11 @@ class WlCoreResource(Resource):
         self._post_event(0, id, object)
 
 
-class WlDestructorResource(Resource):
+class WlDestructorResource(Resource[WlDestructor]):
     interface = WlDestructor
 
 
-class WlEventsResource(Resource):
+class WlEventsResource(Resource[WlEvents]):
     interface = WlEvents
 
     @WlEvents.event(
@@ -219,11 +219,11 @@ class WlEventsResource(Resource):
         self._post_event(6)
 
 
-class WlRequestsResource(Resource):
+class WlRequestsResource(Resource[WlRequests]):
     interface = WlRequests
 
 
-class WlXfailResource(Resource):
+class WlXfailResource(Resource[WlXfail]):
     interface = WlXfail
 
 
@@ -477,23 +477,23 @@ class WlXfailProxy(Proxy[WlXfail]):
     interface = WlXfail
 
 
-class WlCoreGlobal(Global):
+class WlCoreGlobal(Global[WlCore]):
     interface = WlCore
 
 
-class WlDestructorGlobal(Global):
+class WlDestructorGlobal(Global[WlDestructor]):
     interface = WlDestructor
 
 
-class WlEventsGlobal(Global):
+class WlEventsGlobal(Global[WlEvents]):
     interface = WlEvents
 
 
-class WlRequestsGlobal(Global):
+class WlRequestsGlobal(Global[WlRequests]):
     interface = WlRequests
 
 
-class WlXfailGlobal(Global):
+class WlXfailGlobal(Global[WlXfail]):
     interface = WlXfail
 
 

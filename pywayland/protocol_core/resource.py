@@ -22,6 +22,10 @@ from pywayland.server.client import Client
 from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from pywayland.server.listener import Listener
+
     from .interface import Interface
 
     T = TypeVar("T", bound=Interface)
@@ -47,7 +51,12 @@ class Resource(Generic[T]):
 
     interface: type[T]
 
-    def __init__(self, client, version: int | None = None, id: int = 0) -> None:
+    def __init__(
+        self,
+        client: Client | ffi.WlClientCData,
+        version: int | None = None,
+        id: int = 0,
+    ) -> None:
         if version is None:
             version = self.interface.version
 
@@ -60,20 +69,19 @@ class Resource(Generic[T]):
             client_ptr = client
         assert client_ptr is not None
 
-        self._ptr: ffi.ResourceCData | None = lib.wl_resource_create(
+        self._ptr: ffi.WlResourceCData | None = lib.wl_resource_create(
             client_ptr, self.interface._ptr, version, id
         )
         self.id = lib.wl_resource_get_id(self._ptr)
 
-        if self.dispatcher is not None:
-            self._handle = ffi.new_handle(self)
-            lib.wl_resource_set_dispatcher(
-                self._ptr,
-                lib.dispatcher_func,
-                ffi.NULL,
-                self._handle,
-                lib.resource_destroy_func,
-            )
+        self._handle: ffi.CData = ffi.new_handle(self)
+        lib.wl_resource_set_dispatcher(
+            self._ptr,
+            lib.dispatcher_func,
+            ffi.NULL,
+            self._handle,
+            lib.resource_destroy_func,
+        )
 
     def destroy(self) -> None:
         """Destroy the Resource"""
@@ -82,26 +90,26 @@ class Resource(Generic[T]):
             self._ptr = None
 
     @ensure_valid
-    def add_destroy_listener(self, listener) -> None:
+    def add_destroy_listener(self, listener: Listener) -> None:
         """Add a listener for the destroy signal
 
         :param listener: The listener object
         :type listener: :class:`~pywayland.server.Listener`
         """
-        assert self._ptr is not None
+        assert self._ptr is not None and listener._ptr is not None
         lib.wl_resource_add_destroy_listener(self._ptr, listener._ptr)
 
     @ensure_valid
-    def _post_event(self, opcode, *args) -> None:
+    def _post_event(self, opcode: int, *args: Any) -> None:
+        assert self._ptr is not None
         # Create wl_argument array
         args_ptr = self.interface.events[opcode].arguments_to_c(*args)
-        # Make the cast to a wl_resource
-        assert self._ptr is not None
-        resource: ffi.ResourceCData = ffi.cast("struct wl_resource *", self._ptr)  # type: ignore[assignment]
 
+        # Write the event array to this object
+        resource: ffi.WlResourceCData = ffi.cast("struct wl_resource *", self._ptr)
         lib.wl_resource_post_event_array(resource, opcode, args_ptr)
 
     @ensure_valid
-    def _post_error(self, code, msg="") -> None:
+    def _post_error(self, code: int, msg: str = "") -> None:
         assert self._ptr is not None
         lib.wl_resource_post_error(self._ptr, code, msg.encode())
