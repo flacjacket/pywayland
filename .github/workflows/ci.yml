@@ -70,6 +70,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
           - "pypy-3.11"
         wayland-version: ["1.24.0"]
         wayland-protocols-version: ["1.45"]
@@ -118,7 +119,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.13"
+      python-version: "3.14"
       wayland-version: "1.24.0"
       wayland-protocols-version: "1.45"
     steps:
@@ -150,7 +151,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.13"
+      python-version: "3.14"
       wayland-version: "1.24.0"
       wayland-protocols-version: "1.45"
     steps:
@@ -180,7 +181,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.13"
+      python-version: "3.14"
       wayland-version: "1.24.0"
       wayland-protocols-version: "1.45"
     steps:
