@@ -23,8 +23,8 @@ from pywayland import ffi, lib
 from .argument import Argument, ArgumentType
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Any, Callable
+    from collections.abc import Callable, Iterable
+    from typing import Any
 
     from pywayland.protocol_core import Proxy
 

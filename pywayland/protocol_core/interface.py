@@ -22,7 +22,8 @@ from pywayland import ffi
 from .message import Message
 
 if TYPE_CHECKING:
-    from typing import Any, Callable
+    from collections.abc import Callable
+    from typing import Any
 
     from .argument import Argument
     from .globals import Global

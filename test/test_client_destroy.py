@@ -31,7 +31,7 @@ def destroy_notify_b(*args):
 
 def test_client_destroy_listener():
     global a, b
-    s1, s2 = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)
+    s1, s2 = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)  # noqa: RUF059
     a = 0
     b = 0
 

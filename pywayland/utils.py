@@ -22,9 +22,9 @@ from typing import TYPE_CHECKING, cast
 from . import ffi, lib
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
     from types import TracebackType
-    from typing import Any, Callable
+    from typing import Any
 
 
 def ensure_valid(func: Callable[..., Any]) -> Callable[..., Any]:

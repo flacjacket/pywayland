@@ -15,14 +15,15 @@
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING, Callable, Optional
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from pywayland import ffi, lib
 
 if TYPE_CHECKING:
     from pywayland.protocol_core.message import Message
 
-CallbackT = Callable[..., Optional[int]]
+CallbackT = Callable[..., int | None]
 
 
 # int (*wl_dispatcher_func_t)(const void *, void *, uint32_t, const struct wl_message *, union wl_argument *)
