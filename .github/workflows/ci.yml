@@ -148,6 +148,7 @@ jobs:
   ruff-test:
     name: ruff test
     runs-on: ubuntu-24.04
+    needs: build-wayland
     env:
       python-version: "3.13"
       wayland-version: "1.24.0"
@@ -160,8 +161,6 @@ jobs:
           python-version: ${{ env.python-version }}
       - name: Run ruff check
         uses: astral-sh/ruff-action@v3
-        with:
-          src: pywayland
   mypy-test:
     name: mypy test
     runs-on: ubuntu-24.04
