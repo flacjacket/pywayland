@@ -39,7 +39,22 @@ source = "https://github.com/flacjacket/pywayland"
 issues = "https://github.com/flacjacket/pywayland/issues"
 
 [project.optional-dependencies]
-test = ["pytest"]
+ci = ["setuptools>=77.0.0"]
+test = [
+    "pytest",
+    "pytest-cov",
+    "coverage>=6.5.0",
+    "coveralls>=3.3.1",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+]
+packaging = [
+    "build",
+    "check-manifest",
+    "twine",
+]
 
 [project.scripts]
 pywayland-scanner = "pywayland.scanner.__main__:main"

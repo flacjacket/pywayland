@@ -90,13 +90,13 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install .[ci]
           python pywayland/ffi_build.py
           python -m pywayland.scanner --with-protocols
       - name: Run unit tests
-        run: pytest --cov pywayland --cov-report term-missing
+        run: |
+          pip install .[test]
+          pytest --cov pywayland --cov-report term-missing
       - name: Push coverage
         run: coveralls --service=github
         env:
@@ -138,13 +138,13 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install -r doc/requirements.txt
+          pip install .[ci]
           python pywayland/ffi_build.py
           python -m pywayland.scanner --with-protocols
       - name: Build docs
-        run: sphinx-build -W -b html doc doc/_build/html
+        run: |
+          pip install .[docs]
+          sphinx-build -W -b html doc doc/_build/html
   pre-commit-test:
     name: pre-commit test
     runs-on: ubuntu-24.04
@@ -170,9 +170,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install -r requirements-types.txt
+          pip install .[ci]
           python pywayland/ffi_build.py
           python -m pywayland.scanner --with-protocols
       - name: Run pre-commit test
@@ -202,12 +200,12 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install build check-manifest twine
+          pip install .[ci]
           python pywayland/ffi_build.py
+          python -m pywayland.scanner --with-protocols
       - name: Run packaging test
         run: |
+          pip install .[packaging]
           check-manifest
           python setup.py check -m -s
           python -m build --sdist
