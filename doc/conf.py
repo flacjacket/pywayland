@@ -2,14 +2,14 @@
 
 import importlib
 import os
+import re
 import shutil
 import sys
-import re
 
 # -- Mock necessary classes -----------------------------------------------
 from unittest.mock import MagicMock
 
-import sphinx_rtd_theme
+import sphinx_rtd_theme  # noqa: F401
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath(".."))
@@ -18,9 +18,13 @@ MOCK_MODULES = ["pywayland._ffi"]
 sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)
 
 # -- Build pywayland.protocol w/docs --------------------------------------
-from protocol_build import protocols_build, protocols_version, wayland_version
+from protocol_build import (  # noqa: E402
+    protocols_build,
+    protocols_version,
+    wayland_version,
+)
 
-from pywayland import __version__
+from pywayland import __version__  # noqa: E402
 
 protocol_build_dir = "../pywayland/protocol/"
 protocol_doc_dir = "module/protocol"

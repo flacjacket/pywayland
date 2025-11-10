@@ -23,8 +23,7 @@ from .eventloop import EventLoop
 
 if TYPE_CHECKING:
     from types import TracebackType
-
-    from typing_extensions import Literal
+    from typing import Literal
 
     from pywayland.protocol.wayland import WlShm
 

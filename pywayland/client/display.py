@@ -23,9 +23,7 @@ from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
     from types import TracebackType
-    from typing import Any
-
-    from typing_extensions import Literal
+    from typing import Any, Literal
 
     from pywayland.client.eventqueue import EventQueue
     from pywayland.protocol_core import Proxy

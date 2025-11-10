@@ -66,11 +66,11 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
           - "pypy-3.11"
         wayland-version: ["1.24.0"]
         wayland-protocols-version: ["1.45"]
@@ -91,13 +91,13 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install .[ci]
           python pywayland/ffi_build.py
           python -m pywayland.scanner --with-protocols
       - name: Run unit tests
-        run: pytest --cov pywayland --cov-report term-missing
+        run: |
+          pip install .[test]
+          pytest --cov pywayland --cov-report term-missing
       - name: Push coverage
         run: coveralls --service=github
         env:
@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.13"
+      python-version: "3.14"
       wayland-version: "1.24.0"
       wayland-protocols-version: "1.45"
     steps:
@@ -139,36 +139,19 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install -r doc/requirements.txt
+          pip install .[ci]
           python pywayland/ffi_build.py
           python -m pywayland.scanner --with-protocols
       - name: Build docs
-        run: sphinx-build -W -b html doc doc/_build/html
-  ruff-test:
-    name: ruff test
-    runs-on: ubuntu-24.04
-    env:
-      python-version: "3.13"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.python-version }}
-      - name: Run ruff check
-        uses: astral-sh/ruff-action@v3
-        with:
-          src: pywayland
-  mypy-test:
-    name: mypy test
+        run: |
+          pip install .[docs]
+          sphinx-build -W -b html doc doc/_build/html
+  pre-commit-test:
+    name: pre-commit test
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.13"
+      python-version: "3.14"
       wayland-version: "1.24.0"
       wayland-protocols-version: "1.45"
     steps:
@@ -188,19 +171,17 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install -r requirements-types.txt
+          pip install .[ci]
           python pywayland/ffi_build.py
           python -m pywayland.scanner --with-protocols
-      - name: Run mypy test
-        run: mypy -p pywayland
+      - name: Run pre-commit test
+        uses: pre-commit/action@v3.0.1
   packaging-test:
     name: packaging test
     runs-on: ubuntu-24.04
     needs: build-wayland
     env:
-      python-version: "3.13"
+      python-version: "3.14"
       wayland-version: "1.24.0"
       wayland-protocols-version: "1.45"
     steps:
@@ -220,12 +201,12 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install "setuptools>=77.0.0"
-          pip install -r requirements.txt
-          pip install build check-manifest twine
+          pip install .[ci]
           python pywayland/ffi_build.py
+          python -m pywayland.scanner --with-protocols
       - name: Run packaging test
         run: |
+          pip install .[packaging]
           check-manifest
           python setup.py check -m -s
           python -m build --sdist

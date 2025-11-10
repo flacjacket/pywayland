@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 name = "pywayland"
 description = "Python bindings for the libwayland library written in pure Python"
 authors = [{name = "Sean Vig", email = "sean.v.775@gmail.com"}]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "Apache-2.0"
 readme = "README.rst"
 classifiers = [
@@ -18,11 +18,11 @@ classifiers = [
     "Operating System :: POSIX",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Desktop Environment :: Window Managers",
@@ -40,7 +40,22 @@ source = "https://github.com/flacjacket/pywayland"
 issues = "https://github.com/flacjacket/pywayland/issues"
 
 [project.optional-dependencies]
-test = ["pytest"]
+ci = ["setuptools>=77.0.0"]
+test = [
+    "pytest",
+    "pytest-cov",
+    "coverage>=6.5.0",
+    "coveralls>=3.3.1",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+]
+packaging = [
+    "build",
+    "check-manifest",
+    "twine",
+]
 
 [project.scripts]
 pywayland-scanner = "pywayland.scanner.__main__:main"
@@ -78,6 +93,7 @@ ignore = [
 ]
 
 [tool.mypy]
+packages = ["pywayland", "example"]
 warn_unused_configs = true
 warn_redundant_casts = true
 warn_unused_ignores = true

@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-24.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     env:
+      python-version: "3.14"
       wayland-version: "1.24.0"
       wayland-protocols-version: "1.45"
-      python-version: "3.13"
     steps:
       - name: Install dependencies
         run: |
@@ -76,7 +76,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - name: Download wayland libraries
         uses: actions/download-artifact@v4
@@ -154,11 +154,11 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
           - "pypy-3.11"
     steps:
       - name: Download wheels
@@ -182,7 +182,7 @@ jobs:
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     env:
-      python-version: "3.13"
+      python-version: "3.14"
     steps:
       - name: Download wayland libraries
         uses: actions/download-artifact@v4

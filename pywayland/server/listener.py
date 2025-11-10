@@ -21,7 +21,8 @@ from pywayland import ffi, lib
 from pywayland.utils import wl_container_of
 
 if TYPE_CHECKING:
-    from typing import Any, Callable
+    from collections.abc import Callable
+    from typing import Any
 
 logger = getLogger(__package__)
 
