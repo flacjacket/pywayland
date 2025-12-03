@@ -9,4 +9,5 @@ repos:
     rev: v1.18.2
     hooks:
       - id: mypy
+        args: []
         files: "^(pywayland|example)\/.*"
