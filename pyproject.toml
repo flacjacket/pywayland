@@ -44,8 +44,8 @@ ci = ["setuptools>=77.0.0"]
 test = [
     "pytest",
     "pytest-cov",
-    "coverage>=6.5.0",
-    "coveralls>=3.3.1",
+    "coverage>=7.13.0",
+    "coveralls>=4.0.2",
 ]
 docs = [
     "sphinx",
