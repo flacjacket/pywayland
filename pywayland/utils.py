@@ -93,7 +93,7 @@ class AnonymousFile:
 
 def wl_container_of(
     ptr: ffi._CDataT, ctype: str, member: str, *, ffi: Any = ffi
-) -> ffi._CDataO:  # type: ignore [type-var, misc]
+) -> ffi._CDataO:  # type: ignore [type-var]
     """
     #define wl_container_of(ptr, sample, member)				\
             (__typeof__(sample))((char *)(ptr) -				\

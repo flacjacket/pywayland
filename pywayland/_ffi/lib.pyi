@@ -1,5 +1,3 @@
-from typing import Any
-
 from .ffi import (
     CData,
     CharCData,
@@ -110,7 +108,7 @@ def wl_proxy_marshal_array_constructor(
     opcode: int,
     args_ptr: WlArgumentCData,
     interface_ptr: WlInterfaceCData,
-) -> Any: ...
+) -> WlProxyCData: ...
 def wl_proxy_destroy(proxy: WlProxyCData) -> None: ...
 def wl_proxy_add_dispatcher(
     proxy: WlProxyCData,
