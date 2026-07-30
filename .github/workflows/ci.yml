@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        wayland-version: ["1.24.0"]
-        wayland-protocols-version: ["1.45"]
+        wayland-version: ["1.26.0"]
+        wayland-protocols-version: ["1.49"]
     steps:
       - name: Setup environment
         run: |
@@ -71,8 +71,8 @@ jobs:
           - "3.13"
           - "3.14"
           - "pypy-3.11"
-        wayland-version: ["1.24.0"]
-        wayland-protocols-version: ["1.45"]
+        wayland-version: ["1.26.0"]
+        wayland-protocols-version: ["1.49"]
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
@@ -117,8 +117,8 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
@@ -147,8 +147,8 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries
@@ -172,8 +172,8 @@ jobs:
     needs: build-wayland
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
       - uses: actions/checkout@v4
       - name: Download wayland libraries

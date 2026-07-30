@@ -3,8 +3,8 @@ import subprocess
 import tarfile
 import urllib.request
 
-wayland_version = "1.24.0"
-protocols_version = "1.45"
+wayland_version = "1.26.0"
+protocols_version = "1.49"
 
 wayland_source = f"https://cgit.freedesktop.org/wayland/wayland/plain/protocol/wayland.xml?id={wayland_version}"
 protocols_source = f"https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/{protocols_version}/downloads/wayland-protocols-{protocols_version}.tar.xz"

@@ -12,8 +12,8 @@ jobs:
     container: quay.io/pypa/manylinux_2_34_x86_64
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
       - name: Install dependencies
         run: |
