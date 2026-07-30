@@ -4,7 +4,8 @@ requires = [
     "wheel",
     "cffi>=1.12.0; platform_python_implementation != 'PyPy'",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "build_backend"
+backend-path = ["."]
 
 [project]
 name = "pywayland"

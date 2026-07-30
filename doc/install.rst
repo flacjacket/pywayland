@@ -101,9 +101,6 @@ The package can be installed from source using typical pip mechanisms::
 
     $ pip install -e .
 
-The Wayland protocols will need to be manually generated with the scanner, as
-described above, or with the installed script ``pywayland-scanner``.
-
 If you have any problems or have any feedback, please report back to the `issue
 tracker`_, contribution is always welcome, see :ref:`contributing`.
 
