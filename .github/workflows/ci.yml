@@ -23,11 +23,11 @@ jobs:
           echo "LD_LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
           echo "LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${HOME}/wayland/usr/share/pkgconfig:${HOME}/wayland/usr/lib/pkgconfig" >> $GITHUB_ENV
-      - name: Install meson
+      - name: Install dependencies
         run: |
           sudo apt-get install -y --no-install-recommends \
+            meson \
             ninja-build
-          sudo pip install meson
       - name: Download and unpack Wayland source
         run: |
           wget --no-check-certificate $WAYLAND_URL
@@ -41,15 +41,14 @@ jobs:
         working-directory: wayland-${{ matrix.wayland-version }}
         run: |
           meson setup build --prefix=/usr -Ddocumentation=false
-          ninja -C build
           DESTDIR=~/wayland ninja -C build install
           sudo ninja -C build install
       - name: Build wayland-protocols
         working-directory: wayland-protocols-${{ matrix.wayland-protocols-version }}
         run: |
           meson setup build --prefix=/usr
-          ninja -C build
           DESTDIR=~/wayland ninja -C build install
+          sudo ninja -C build install
       - name: Create artifact
         run: tar czf ~/wayland.tar.gz -C ${HOME}/wayland/ .
       - name: Upload built libraries
@@ -91,12 +90,10 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
+          pip install -e .[test]
           python -m pywayland.scanner --with-protocols
       - name: Run unit tests
         run: |
-          pip install .[test]
           pytest --cov pywayland --cov-report term-missing
       - name: Push coverage
         run: coveralls --service=github
@@ -139,12 +136,10 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
+          pip install -e .[docs]
           python -m pywayland.scanner --with-protocols
       - name: Build docs
         run: |
-          pip install .[docs]
           sphinx-build -W -b html doc doc/_build/html
   pre-commit-test:
     name: pre-commit test
@@ -169,11 +164,6 @@ jobs:
       - name: Set environment variables
         run: |
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
-      - name: Install Python dependencies
-        run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
-          python -m pywayland.scanner --with-protocols
       - name: Run pre-commit test
         uses: pre-commit/action@v3.0.1
   packaging-test:
@@ -201,13 +191,10 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
+          pip install -e .[packaging]
           python -m pywayland.scanner --with-protocols
       - name: Run packaging test
         run: |
-          pip install .[packaging]
           check-manifest
-          python setup.py check -m -s
           python -m build --sdist
           twine check dist/*
