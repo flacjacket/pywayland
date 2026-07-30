@@ -67,7 +67,7 @@ zip-safe = false
 include = ["pywayland*"]
 
 [tool.setuptools.package-data]
-pywayland = ["py.typed"]
+pywayland = ["py.typed", "_ffi*.so"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pywayland.version.__version__"}

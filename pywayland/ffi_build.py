@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
+
 from cffi import FFI
 
 ###############################################################################
@@ -448,5 +450,11 @@ ffi_builder.set_source(
 ffi_builder.cdef(CDEF)
 
 
+def ffi_compile(verbose: bool = False) -> None:
+    # Build into the project root so the generated module lands at
+    # pywayland/_ffi.* regardless of the current working directory.
+    ffi_builder.compile(tmpdir=Path(__file__).parent.parent.as_posix(), verbose=verbose)
+
+
 if __name__ == "__main__":
-    ffi_builder.compile()
+    ffi_compile()
