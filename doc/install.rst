@@ -45,11 +45,8 @@ Any additional unfulfilled dependencies should be downloaded.
 Installing from Source
 ----------------------
 
-You can download and run PyWayland from source, which will not only give you
-the latest improvements and fixes, but will let you build the protocol files
-against a different version than is available through pip (the version of
-Wayland the protocol is compiled against is listed on the top of the PyPI_
-page).
+You can download and run PyWayland from source, which will let you build the
+protocol files against a different version than is available through pip.
 
 Getting the Source
 ^^^^^^^^^^^^^^^^^^
@@ -70,8 +67,8 @@ non-PyPy installations.  Note that PyPy platforms ship with cffi.
 
 .. _cffi: https://cffi.readthedocs.org/en/latest/
 
-Generating the Wayland Protocol
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Wayland Protocols
+^^^^^^^^^^^^^^^^^
 
 At this point, you have the base PyWayland module, which contains some core
 objects and objects specific to client and server implementations.  The client
@@ -79,46 +76,33 @@ and server exchange messages defined in the Wayland protocol, which is an XML
 file that ships with Wayland.  The scanner parses this XML file and generates
 the relevant objects.
 
-If the Wayland protocol file is in the default location
-(``/usr/share/wayland/wayland.xml``) or can be found with ``pkg-config``, you
-should be able to build the protocol files without any problems::
+Running PyWayland inplace
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    $ python -m pywayland.scanner
+If the libwayland header files are correctly installed and if the Wayland
+protocol file is in the default location (``/usr/share/wayland/wayland.xml``)
+or can be found with ``pkg-config``, you can build the cffi module and then
+generate the protocol files without any problems::
+
+    $ python pywayland/ffi_build.py
+    $ python -m pywayland.scanner --with-protocols
 
 This will output the protocol files to the directory ``./pywayland/protocol/``.
 The input file and the output directory can be set from the command line
 options, see ``python -m pywayland.scanner -h`` for more information.
 
-Running PyWayland inplace
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Once the protocol files are created, you can generate the cffi module.  Note:
-this is only required if you want to run from the source in place.  If the
-libwayland header files are correctly installed, you will just need to run::
-
-    $ python pywayland/ffi_build.py
-
-At this point, you should be able to use the PyWayland library.  You can check
-that you have everything installed correctly by running the associated
-test-suite (note that you will also need ``pytest`` to run the tests).  Simply
-run::
-
-    $ pytest
-
-from the root directory.
+You can check that you have everything installed correctly by running the
+associated test-suite .  Simply run ``pytest`` from the root directory.
 
 Installing PyWayland
 ^^^^^^^^^^^^^^^^^^^^
 
-The package can be installed from source using typical ``setup.py``
-mechanisms::
+The package can be installed from source using typical pip mechanisms::
 
-    $ python setup.py install
+    $ pip install -e .
 
-Additional arguments can be used to automatically generate the Wayland
-protocols for the standard Wayland package (which will fail if it cannot run)
-and the wayland-protocols package (which will be attempted by default, but will
-not raise an error if it fails).
+The Wayland protocols will need to be manually generated with the scanner, as
+described above, or with the installed script ``pywayland-scanner``.
 
 If you have any problems or have any feedback, please report back to the `issue
 tracker`_, contribution is always welcome, see :ref:`contributing`.
