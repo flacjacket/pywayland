@@ -1,4 +1,3 @@
-include *.txt
 include *.yaml
 recursive-include pywayland *.pyi
 recursive-include test *.py
