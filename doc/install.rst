@@ -99,7 +99,11 @@ Installing PyWayland
 
 The package can be installed from source using typical pip mechanisms::
 
-    $ pip install -e .
+    $ pip install .
+
+This uses the custom build backend, which runs protocol generation and cffi
+binding generation automatically. Manual pre-compilation is not required for
+regular pip builds.
 
 If you have any problems or have any feedback, please report back to the `issue
 tracker`_, contribution is always welcome, see :ref:`contributing`.

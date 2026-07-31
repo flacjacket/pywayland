@@ -162,6 +162,10 @@ jobs:
       - name: Set environment variables
         run: |
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
+      - name: Generate protocol files
+        working-directory: pywayland
+        run: |
+          python -m scanner --with-protocols
       - name: Run pre-commit test
         uses: pre-commit/action@v3.0.1
   packaging-test:
