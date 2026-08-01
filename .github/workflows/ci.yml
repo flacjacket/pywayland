@@ -190,7 +190,7 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install -e .[packaging]
+          pip install build check-manifest twine
       - name: Run packaging test
         run: |
           check-manifest

@@ -51,11 +51,6 @@ docs = [
     "sphinx",
     "sphinx_rtd_theme",
 ]
-packaging = [
-    "build",
-    "check-manifest",
-    "twine",
-]
 
 [project.scripts]
 pywayland-scanner = "pywayland.scanner.__main__:main"
