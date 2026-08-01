@@ -52,10 +52,7 @@ class Resource(Generic[T]):
     interface: type[T]
 
     def __init__(
-        self,
-        client: Client | ffi.WlClientCData,
-        version: int | None = None,
-        id: int = 0,
+        self, client: Client | ffi.WlClient, version: int | None = None, id: int = 0
     ) -> None:
         if version is None:
             version = self.interface.version
@@ -69,7 +66,7 @@ class Resource(Generic[T]):
             client_ptr = client
         assert client_ptr is not None
 
-        self._ptr: ffi.WlResourceCData | None = lib.wl_resource_create(
+        self._ptr: ffi.WlResource | None = lib.wl_resource_create(
             client_ptr, self.interface._ptr, version, id
         )
         self.id = lib.wl_resource_get_id(self._ptr)
@@ -106,7 +103,7 @@ class Resource(Generic[T]):
         args_ptr = self.interface.events[opcode].arguments_to_c(*args)
 
         # Write the event array to this object
-        resource: ffi.WlResourceCData = ffi.cast("struct wl_resource *", self._ptr)
+        resource: ffi.WlResource = ffi.cast("struct wl_resource *", self._ptr)
         lib.wl_resource_post_event_array(resource, opcode, args_ptr)
 
     @ensure_valid

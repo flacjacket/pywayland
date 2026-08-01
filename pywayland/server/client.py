@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from .listener import Listener
 
 
-def _client_destroy(display: Display, cdata: ffi.WlClientCData) -> None:
+def _client_destroy(display: Display, cdata: ffi.WlClient) -> None:
     # do nothing if the display is already destroyed
     if display.destroyed:
         logging.error("Display destroyed before client")
@@ -62,7 +62,7 @@ class Client:
         self,
         display: Display | None = None,
         fd: int | None = None,
-        ptr: ffi.WlClientCData | None = None,
+        ptr: ffi.WlClient | None = None,
     ) -> None:
         if ptr is None:
             if display is None or display._ptr is None or fd is None:
@@ -74,7 +74,7 @@ class Client:
             ptr = lib.wl_client_create(display._ptr, fd)
 
             destructor = functools.partial(_client_destroy, display)
-            self._ptr: ffi.WlClientCData | None = ffi.gc(ptr, destructor)
+            self._ptr: ffi.WlClient | None = ffi.gc(ptr, destructor)
 
         else:
             self._ptr = ptr
@@ -147,7 +147,7 @@ class Client:
         return ffi.from_handle(resource_handle)
 
     @classmethod
-    def from_resource(cls, resource: ffi.WlResourceCData) -> Client:
+    def from_resource(cls, resource: ffi.WlResource) -> Client:
         """Look up the corresponding wl_client for a wl_resource
 
         :param resource: The wl_resource

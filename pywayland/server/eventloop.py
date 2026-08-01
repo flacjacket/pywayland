@@ -81,9 +81,7 @@ class EventSource:
     :type cdata: `ffi cdata`
     """
 
-    def __init__(
-        self, eventloop: EventLoop, cdata: ffi.WlEventSourceCData | None
-    ) -> None:
+    def __init__(self, eventloop: EventLoop, cdata: ffi.WlEventSource | None) -> None:
         self._eventloop = eventloop
         self._ptr = cdata
 
@@ -129,7 +127,7 @@ class EventLoop:
 
     def __init__(self, display: Display | None = None) -> None:
         if display and display._ptr is not None:
-            self._ptr: ffi.WlEventLoopCData | None = lib.wl_display_get_event_loop(
+            self._ptr: ffi.WlEventLoop | None = lib.wl_display_get_event_loop(
                 display._ptr
             )
         else:
@@ -138,7 +136,7 @@ class EventLoop:
             self._ptr = ffi.gc(ptr, lib.wl_event_loop_destroy)
 
         self.event_sources: WeakSet[EventSource] = WeakSet()
-        self._callback_handles: list[ffi.WlEventSourceCData] = []
+        self._callback_handles: list[ffi.WlEventSource] = []
 
     def destroy(self) -> None:
         """Destroy the event loop"""
@@ -183,7 +181,7 @@ class EventLoop:
         """
         assert self._ptr is not None
         callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSourceCData = ffi.new_handle(callback)
+        handle: ffi.WlEventSource = ffi.new_handle(callback)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_fd(
@@ -196,10 +194,7 @@ class EventLoop:
 
     @ensure_valid
     def add_signal(
-        self,
-        signal_number: int,
-        callback: CallbackInfo,
-        data: ffi.CData | None = None,
+        self, signal_number: int, callback: CallbackInfo, data: ffi.CData | None = None
     ) -> EventSource:
         """Add signal callback
 
@@ -220,7 +215,7 @@ class EventLoop:
         """
         assert self._ptr is not None
         callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSourceCData = ffi.new_handle(callback)
+        handle: ffi.WlEventSource = ffi.new_handle(callback)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_signal(
@@ -233,9 +228,7 @@ class EventLoop:
 
     @ensure_valid
     def add_timer(
-        self,
-        callback: CallbackInfo,
-        data: ffi.CData | None = None,
+        self, callback: CallbackInfo, data: ffi.CData | None = None
     ) -> EventSource:
         """Add timer callback
 
@@ -257,7 +250,7 @@ class EventLoop:
         """
         assert self._ptr is not None
         callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSourceCData = ffi.new_handle(callback)
+        handle: ffi.WlEventSource = ffi.new_handle(callback)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_timer(
@@ -270,9 +263,7 @@ class EventLoop:
 
     @ensure_valid
     def add_idle(
-        self,
-        callback: CallbackInfo,
-        data: ffi.CData | None = None,
+        self, callback: CallbackInfo, data: ffi.CData | None = None
     ) -> EventSource:
         """Add idle callback
 
@@ -283,7 +274,7 @@ class EventLoop:
         """
         assert self._ptr is not None
         callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSourceCData = ffi.new_handle(callback)
+        handle: ffi.WlEventSource = ffi.new_handle(callback)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_idle(

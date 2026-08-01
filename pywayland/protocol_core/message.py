@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
     from pywayland.protocol_core import Proxy
 
-weakkeydict: WeakKeyDictionary[ffi.WlArgumentCData, tuple[ffi.CData, ...]] = (
+weakkeydict: WeakKeyDictionary[ffi.WlArgument, tuple[ffi.CData, ...]] = (
     WeakKeyDictionary()
 )
 
@@ -69,12 +69,8 @@ class Message:
             yield arg
 
     def build_message_struct(
-        self, wl_message_struct: ffi.WlMessageCData
-    ) -> tuple[
-        ffi.CharCData,
-        ffi.CharCData,
-        ffi.WlInterfaceCData,
-    ]:
+        self, wl_message_struct: ffi.WlMessage
+    ) -> tuple[ffi.CharCData, ffi.CharCData, ffi.WlInterface]:
         """Bulid the wl_message struct for this message
 
         :param wl_message_struct:
@@ -91,7 +87,7 @@ class Message:
         wl_message_struct.name = name
         cdata_signature: ffi.CharCData = ffi.new("char[]", signature.encode())
         wl_message_struct.signature = cdata_signature
-        types: ffi.WlInterfaceCData = ffi.new(
+        types: ffi.WlInterface = ffi.new(
             "struct wl_interface* []", len(list(self._marshaled_arguments))
         )
         wl_message_struct.types = types
@@ -106,7 +102,7 @@ class Message:
         return name, cdata_signature, types
 
     def c_to_arguments(
-        self, args_ptr: ffi.WlArgumentCData
+        self, args_ptr: ffi.WlArgument
     ) -> list[int | float | str | bytearray | Proxy[Any] | ffi.CData | None]:
         """Create a list of arguments
 
@@ -119,7 +115,7 @@ class Message:
         :returns: list of args
         """
         args: list[int | float | str | bytearray | Proxy[Any] | ffi.CData | None] = []
-        proxy_ptr: ffi.WlProxyCData
+        proxy_ptr: ffi.WlProxy
         for i, argument in enumerate(self.arguments):
             arg_ptr = args_ptr[i]
 
@@ -179,7 +175,7 @@ class Message:
 
         return args
 
-    def arguments_to_c(self, *args: Any) -> ffi.WlArgumentCData:
+    def arguments_to_c(self, *args: Any) -> ffi.WlArgument:
         """Create an array of `wl_argument` C structs
 
         Generate the CFFI cdata array of `wl_argument` structs that correspond
@@ -190,7 +186,7 @@ class Message:
         :returns: cdata `union wl_argument []` of args
         """
         nargs = len(list(self._marshaled_arguments))
-        args_ptr: ffi.WlArgumentCData = ffi.new("union wl_argument []", nargs)
+        args_ptr: ffi.WlArgument = ffi.new("union wl_argument []", nargs)
 
         arg_iter = iter(args)
         refs: list[ffi.CData] = []
@@ -226,7 +222,7 @@ class Message:
                     refs.append(new_string)
                 args_ptr[i].s = new_string
             elif argument.argument_type == ArgumentType.Object:
-                new_obj: ffi.WlObjectCData
+                new_obj: ffi.WlObject
                 if arg is None:
                     if not argument.nullable:
                         raise Exception
@@ -237,7 +233,7 @@ class Message:
                 args_ptr[i].o = new_obj
             elif argument.argument_type == ArgumentType.Array:
                 # TODO: this is a bit messy, we probably don't want to put everything in one buffer like this
-                new_array: ffi.WlArrayCData = ffi.new("struct wl_array *")
+                new_array: ffi.WlArray = ffi.new("struct wl_array *")
                 new_data: ffi.CData = ffi.new("void []", len(arg))
                 new_array.alloc = new_array.size = len(arg)
                 ffi.buffer(new_data)[:] = arg

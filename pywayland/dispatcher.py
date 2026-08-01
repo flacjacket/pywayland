@@ -33,7 +33,7 @@ def dispatcher_func(
     target: ffi.CData,
     opcode: int,
     message: Message,
-    c_args: ffi.WlArgumentCData,
+    c_args: ffi.WlArgument,
 ) -> int:
     # `data` is the handle to proxy/resource python object
     # `target` is the wl_proxy/wl_resource for self, this should be the same as self._ptr
@@ -66,7 +66,7 @@ def dispatcher_func(
 
 # void (*wl_resource_destroy_func_t)(struct wl_resource *resource)
 @ffi.def_extern()
-def resource_destroy_func(res_ptr: ffi.WlResourceCData) -> None:
+def resource_destroy_func(res_ptr: ffi.WlResource) -> None:
     # the user data to the resource is the handle to the resource
     resource_handle = lib.wl_resource_get_user_data(res_ptr)
     resource = ffi.from_handle(resource_handle)

@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from .proxy import Proxy
     from .resource import Resource
 
-weakkeydict: WeakKeyDictionary[ffi.WlInterfaceCData, tuple[object, ...]] = (
+weakkeydict: WeakKeyDictionary[ffi.WlInterface, tuple[object, ...]] = (
     WeakKeyDictionary()
 )
 
@@ -46,7 +46,7 @@ class InterfaceMeta(type):
         self.requests: list[Message] = []
 
         # Initialize the interface cdata
-        self._ptr: ffi.WlInterfaceCData = ffi.new("struct wl_interface *")
+        self._ptr: ffi.WlInterface = ffi.new("struct wl_interface *")
 
 
 class Interface(metaclass=InterfaceMeta):
@@ -60,13 +60,13 @@ class Interface(metaclass=InterfaceMeta):
     :func:`Interface.request` decorators.
     """
 
-    _ptr: ffi.WlInterfaceCData
+    _ptr: ffi.WlInterface
     name: str
     version: int
     proxy_class: type[Proxy[Any]]
     resource_class: type[Resource[Any]]
     global_class: type[Global[Any]]
-    registry: WeakValueDictionary[ffi.WlObjectCData | ffi.WlProxyCData, Proxy[Any]]
+    registry: WeakValueDictionary[ffi.WlObject | ffi.WlProxy, Proxy[Any]]
 
     @classmethod
     def event(
@@ -123,18 +123,10 @@ class Interface(metaclass=InterfaceMeta):
         cls._ptr.name = name
         cls._ptr.version = cls.version
 
-        keep_alive: list[
-            tuple[
-                ffi.CharCData,
-                ffi.CharCData,
-                ffi.WlInterfaceCData,
-            ]
-        ] = []
+        keep_alive: list[tuple[ffi.CharCData, ffi.CharCData, ffi.WlInterface]] = []
         # Determine the number of methods to assign and assign them
         cls._ptr.method_count = len(cls.requests)
-        methods_ptr: ffi.WlMessageCData = ffi.new(
-            "struct wl_message[]", len(cls.requests)
-        )
+        methods_ptr: ffi.WlMessage = ffi.new("struct wl_message[]", len(cls.requests))
         cls._ptr.methods = methods_ptr
 
         # Iterate over the methods
@@ -142,7 +134,7 @@ class Interface(metaclass=InterfaceMeta):
             keep_alive.append(message.build_message_struct(methods_ptr[i]))
 
         cls._ptr.event_count = len(cls.events)
-        events_ptr: ffi.WlMessageCData = ffi.new("struct wl_message[]", len(cls.events))
+        events_ptr: ffi.WlMessage = ffi.new("struct wl_message[]", len(cls.events))
         cls._ptr.events = events_ptr
         # Iterate over the methods
         for i, message in enumerate(cls.events):

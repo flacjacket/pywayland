@@ -5,74 +5,88 @@ class CData:
     def __getitem__(self, idx: int) -> Self: ...
     def __setitem__(self, idx: int, elem: Self) -> None: ...
 
-class DispatcherFuncT: ...
-class ResourceDestroyFuncT: ...
-class EventLoopFdFuncT: ...
-class EventLoopSignalFuncT: ...
-class EventLoopTimerFuncT: ...
-class EventLoopIdleFuncT: ...
-class GlobalBindFuncT: ...
-class NotifyFuncT: ...
-
 # built-in cdata types
 class CharCData(CData): ...
+class DispatcherFunc: ...
+class ResourceDestroyFunc: ...
+class EventLoopFdFunc: ...
+class EventLoopSignalFunc: ...
+class EventLoopTimerFunc: ...
+class EventLoopIdleFunc: ...
+class GlobalBindFunc: ...
+class NotifyFunc: ...
 
-# wayland cdata types
-class WlArgumentCData(CData):
+class WlArgument(CData):
     i: int
     u: int
     f: int
     s: CharCData
-    o: WlObjectCData
+    o: WlObject
     n: int
-    a: WlArrayCData
+    a: WlArray
     h: int
 
-class WlArrayCData(CData):
+class WlArray(CData):
     size: int
     alloc: int
     data: CData
 
-class WlClientCData(CData): ...
-class WlDisplayCData(CData): ...
-class WlEventLoopCData(CData): ...
-class WlEventSourceCData(CData): ...
-class WlGlobalCData(CData): ...
+class WlClient(CData):
+    pass
 
-class WlInterfaceCData(CData):
+class WlDisplay(CData):
+    pass
+
+class WlEventLoop(CData):
+    pass
+
+class WlEventSource(CData):
+    pass
+
+class WlGlobal(CData):
+    pass
+
+class WlInterface(CData):
     name: CharCData
     version: int
     method_count: int
-    methods: WlMessageCData
+    methods: WlMessage
     event_count: int
-    events: WlMessageCData
+    events: WlMessage
 
-class WlListCData(CData):
+class WlList(CData):
     @property
-    def prev(self) -> WlListCData: ...
+    def prev(self) -> WlList: ...
     @property
-    def next(self) -> WlListCData: ...
+    def next(self) -> WlList: ...
 
-class WlListenerCData(CData):
-    link: WlListCData
-    notify: NotifyFuncT
+class WlListener(CData):
+    link: WlList
+    notify: NotifyFunc
 
-class WlListenerContainerCData(CData):
+class WlListenerContainer(CData):
     handle: CData
-    destroy_listener: WlListenerCData
+    destroy_listener: WlListener
 
-class WlMessageCData(CData):
+class WlMessage(CData):
     name: CharCData
     signature: CharCData
-    types: WlInterfaceCData
+    types: WlInterface
 
-class WlObjectCData(CData): ...
-class WlProxyCData(CData): ...
-class WlQueueCData(CData): ...
-class WlResourceCData(CData): ...
+class WlObject(CData):
+    pass
 
-class WlSignalCData(CData):
-    listener_list: WlListCData
+class WlProxy(CData):
+    pass
+
+class WlQueue(CData):
+    pass
+
+class WlResource(CData):
+    pass
+
+class WlSignal(CData):
+    listener_list: WlList
 
 # special types
 _FuncType = Callable[..., Any]

@@ -114,7 +114,7 @@ def wl_container_of(
 
 
 def wl_list_for_each(
-    ctype: str, head: ffi.WlListCData, member: str, *, ffi: Any = ffi
+    ctype: str, head: ffi.WlList, member: str, *, ffi: Any = ffi
 ) -> Iterator[ffi.CData]:
     """
     #define wl_list_for_each(pos, head, member)				\
