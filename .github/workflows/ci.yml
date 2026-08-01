@@ -3,9 +3,6 @@ on:
   pull_request:
   push:
   workflow_dispatch:
-  schedule:
-    # Run at 17:29 every Saturday
-    - cron: '29 17 * * 6'
 
 jobs:
   build-wayland:
