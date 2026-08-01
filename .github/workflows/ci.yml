@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y --no-install-recommends \
-            meson \
             ninja-build
+          sudo pip install meson
       - name: Download and unpack Wayland source
         run: |
           wget --no-check-certificate $WAYLAND_URL

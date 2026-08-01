@@ -20,7 +20,6 @@ jobs:
           yum -y install \
             libffi-devel \
             libxml2-devel \
-            meson \
             ninja-build \
             wget
       - name: Download and unpack Wayland source
@@ -45,6 +44,9 @@ jobs:
         shell: bash
         env:
           PYTHON_VERSION: ${{ env.python-version }}
+      - name: Install meson
+        run: |
+          pip install meson
       - name: Build Wayland
         working-directory: wayland-${{ env.wayland-version }}
         run: |
