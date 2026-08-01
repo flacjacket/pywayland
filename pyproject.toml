@@ -46,6 +46,7 @@ test = [
     "pytest-cov",
     "coverage>=7.15.0",
     "coveralls>=4.1.0",
+    "setuptools>=77.0.0",
 ]
 docs = [
     "sphinx",
