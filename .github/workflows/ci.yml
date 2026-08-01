@@ -10,7 +10,7 @@ on:
 jobs:
   build-wayland:
     name: Build Wayland libraries
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +59,7 @@ jobs:
           if-no-files-found: error
   unit-test:
     name: Python ${{ matrix.python-version}} unit tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     strategy:
       fail-fast: false
@@ -103,7 +103,7 @@ jobs:
   coverage:
     name: Finalize Coverage
     needs: unit-test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@master
@@ -112,7 +112,7 @@ jobs:
           parallel-finished: true
   docs-test:
     name: docs check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     env:
       python-version: "3.14"
@@ -141,7 +141,7 @@ jobs:
           sphinx-build -W -b html doc doc/_build/html
   pre-commit-test:
     name: pre-commit test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     env:
       python-version: "3.14"
@@ -170,7 +170,7 @@ jobs:
         uses: pre-commit/action@v3.0.1
   packaging-test:
     name: packaging test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     env:
       python-version: "3.14"
