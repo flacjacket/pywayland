@@ -171,6 +171,9 @@ jobs:
         run: |
           import pywayland
           print(pywayland.__wayland_version__)
+
+          import pywayland.protocol.wayland
+          import pywayland.protocol.xdg_shell
   build-source:
     name: Build source package
     runs-on: ubuntu-26.04
