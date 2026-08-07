@@ -69,7 +69,6 @@ class Resource(Generic[T]):
         self._ptr: ffi.WlResource | None = lib.wl_resource_create(
             client_ptr, self.interface._ptr, version, id
         )
-        self.id = lib.wl_resource_get_id(self._ptr)
 
         self._handle: ffi.CData = ffi.new_handle(self)
         lib.wl_resource_set_dispatcher(
@@ -85,6 +84,12 @@ class Resource(Generic[T]):
         if self._ptr:
             lib.wl_resource_destroy(self._ptr)
             self._ptr = None
+
+    @ensure_valid
+    def get_id(self) -> int:
+        """Get the id of the Resource"""
+        assert self._ptr is not None
+        return lib.wl_resource_get_id(self._ptr)
 
     @ensure_valid
     def add_destroy_listener(self, listener: Listener) -> None:

@@ -29,7 +29,7 @@ def test_create_resource():
     assert res.version == 4
 
     # Fetching the client object by id gives the resource back again
-    assert client.get_object(res.id) == res
+    assert client.get_object(res.get_id()) == res
 
     client.user_data = 0xBEE
     assert client.user_data == 0xBEE
@@ -62,6 +62,7 @@ def test_destroy_resource():
 
     # Create resource
     res = WlDisplay.resource_class(client, version=4)
+    res_id = res.get_id()
     # Attach a destructor and a destroy notification
     res.dispatcher.destructor = _destroy_callback
     res.add_destroy_listener(listener)
@@ -71,7 +72,7 @@ def test_destroy_resource():
     assert destroyed
     assert notified
 
-    assert client.get_object(res.id) is None
+    assert client.get_object(res_id) is None
 
     # Create resource
     res = WlDisplay.resource_class(client, version=2)
@@ -96,11 +97,11 @@ def notest_create_resource_with_same_id():
 
     # Create resource
     res = WlDisplay.resource_class(client, version=2)
-    assert client.get_object(res.id) == res
+    assert client.get_object(res.get_id()) == res
 
     # This should replace the old one
-    res2 = WlDisplay.resource_class(client, version=1, id=res.id)
-    assert client.get_object(res.id) == res2
+    res2 = WlDisplay.resource_class(client, version=1, id=res.get_id())
+    assert client.get_object(res.get_id()) == res2
 
     res2.destroy()
     res.destroy()
