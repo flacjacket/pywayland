@@ -80,6 +80,12 @@ class Request(Method):
                 # Need a string (interface name) and int (interface version)
                 yield f"{NO_IFACE}: type[T]"
                 yield f"{NO_IFACE_VERSION}: int"
+            elif arg.type == ArgumentType.Object and arg.interface:
+                # Method args for a known interface return the proxy class of the interface
+                signature = f"{arg.name}: {arg.interface_class}Proxy"
+                if arg.allow_null:
+                    signature += " | None"
+                yield signature
             else:
                 yield arg.signature
 

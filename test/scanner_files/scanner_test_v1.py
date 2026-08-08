@@ -422,7 +422,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         Argument(ArgumentType.NewId, interface=WlEvents),
         Argument(ArgumentType.Object, interface=WlCore, nullable=True),
     )
-    def make_import(self, object: WlCore | None) -> WlEventsProxy:
+    def make_import(self, object: WlCoreProxy | None) -> WlEventsProxy:
         """Request that causes an import
 
         A request method that causes an imoprt of other interfaces, both as a

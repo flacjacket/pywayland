@@ -34,7 +34,6 @@ if TYPE_CHECKING:
         WlShellSurfaceProxy,
         WlShmPoolProxy,
         WlShmProxy,
-        WlShmResource,
         WlSurfaceProxy,
     )
     from pywayland.protocol.xdg_shell import (
@@ -76,7 +75,7 @@ def shell_surface_ping_handler(shell_surface: WlShellSurfaceProxy, serial: int) 
     print("pinged/ponged")
 
 
-def shm_format_handler(shm: WlShmResource, format_: int) -> None:
+def shm_format_handler(shm: WlShmProxy, format_: int) -> None:
     format_enum = WlShm.format(format_)
     print(f"Possible shmem format: {format_enum.name}")
 
@@ -128,7 +127,7 @@ def create_buffer(window: Window) -> WlBufferProxy:
 def create_window(window: Window) -> None:
     assert window.surface is not None
     window.buffer = create_buffer(window)
-    window.surface.attach(window.buffer, 0, 0)  # type: ignore [arg-type]
+    window.surface.attach(window.buffer, 0, 0)
     window.surface.commit()
 
 
@@ -200,7 +199,7 @@ def main() -> None:
 
     if window.wm_base:
         xdg_surface: XdgSurfaceProxy
-        xdg_surface = window.wm_base.get_xdg_surface(window.surface)  # type: ignore [arg-type]
+        xdg_surface = window.wm_base.get_xdg_surface(window.surface)
         xdg_surface.dispatcher["configure"] = xdg_surface_configure_handler
 
         toplevel: XdgToplevelProxy = xdg_surface.get_toplevel()
@@ -211,7 +210,7 @@ def main() -> None:
 
     elif window.shell:
         shell_surface: WlShellSurfaceProxy
-        shell_surface = window.shell.get_shell_surface(window.surface)  # type: ignore [arg-type]
+        shell_surface = window.shell.get_shell_surface(window.surface)
         shell_surface.set_toplevel()
         shell_surface.dispatcher["ping"] = shell_surface_ping_handler
 

@@ -18,7 +18,7 @@ import abc
 from collections.abc import Iterable
 from dataclasses import dataclass
 
-from .argument import Argument
+from .argument import Argument, ArgumentType
 from .description import Description
 from .element import Element
 from .printer import Printer
@@ -72,9 +72,13 @@ class Method(Element, abc.ABC):
 
             imports.append((import_path, import_class))
 
-            # import the proxy class for the interface if the return type is a proxy
-            if self.return_type == f"{import_class}Proxy":
-                imports.append((import_path, f"{import_class}Proxy"))
+            if self.method_type == "request":
+                # import the proxy class if the argument is a proxy
+                if arg.type == ArgumentType.Object:
+                    imports.append((import_path, f"{import_class}Proxy"))
+                # import the proxy class if the return type is a proxy
+                if self.return_type == f"{import_class}Proxy":
+                    imports.append((import_path, f"{import_class}Proxy"))
 
         return imports
 
