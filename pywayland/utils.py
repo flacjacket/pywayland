@@ -24,17 +24,20 @@ from . import ffi, lib
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from types import TracebackType
-    from typing import Any
+    from typing import Any, ParamSpec, TypeVar
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 
-def ensure_valid(func: Callable[..., Any]) -> Callable[..., Any]:
+def ensure_valid(func: Callable[P, R]) -> Callable[P, R]:
     @wraps(func)
-    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
+    def wrapper(self: Any, *args: P.args, **kwargs: P.kwargs) -> R:
         if self._ptr is None:
             raise ValueError(f"{self.__class__.__name__} object has been destroyed")
         return func(self, *args, **kwargs)
 
-    return wrapper
+    return wrapper  # type: ignore [return-value]
 
 
 class AnonymousFile:

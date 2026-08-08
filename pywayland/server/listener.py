@@ -22,7 +22,10 @@ from pywayland.utils import wl_container_of
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Any
+    from typing import Any, ParamSpec, TypeVar
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 logger = getLogger(__package__)
 
@@ -62,7 +65,7 @@ class Listener:
     :type function: callable
     """
 
-    def __init__(self, function: Callable[..., Any]) -> None:
+    def __init__(self, function: Callable[P, R]) -> None:
         self._ptr: ffi.WlListener | None
         self._handle: ffi.CData = ffi.new_handle(self)
 
@@ -100,7 +103,7 @@ class Signal:
         self,
         *,
         ptr: ffi.WlSignal | None = None,
-        data_wrapper: Callable[..., Any] | None = None,
+        data_wrapper: Callable[P, R] | None = None,
     ) -> None:
         if ptr is None:
             self._ptr: ffi.WlSignal = ffi.new("struct wl_signal *")

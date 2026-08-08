@@ -24,7 +24,10 @@ from .argument import Argument, ArgumentType
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from typing import Any
+    from typing import Any, ParamSpec, TypeVar
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
     from pywayland.protocol_core import Proxy
 
@@ -41,7 +44,7 @@ class Message:
     the type of method, whether it is a server-side or client-side method.
 
     :param func: The function that is represented by the message
-    :type func: Callable[..., Any]
+    :type func: Callable
     :param arguments: The arguments of the message
     :type arguments: tuple of :class:`~pywayland.protocol_core.Argument`
     :param version: The version of the message, or None
@@ -50,7 +53,7 @@ class Message:
 
     def __init__(
         self,
-        func: Callable[..., Any],
+        func: Callable[P, R],
         arguments: tuple[Argument, ...],
         version: int | None,
     ) -> None:

@@ -23,12 +23,15 @@ from .message import Message
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Any
+    from typing import Any, ParamSpec, TypeVar
 
     from .argument import Argument
     from .globals import Global
     from .proxy import Proxy
     from .resource import Resource
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 weakkeydict: WeakKeyDictionary[ffi.WlInterface, tuple[object, ...]] = (
     WeakKeyDictionary()
@@ -66,12 +69,12 @@ class Interface(metaclass=InterfaceMeta):
     proxy_class: type[Proxy[Any]]
     resource_class: type[Resource[Any]]
     global_class: type[Global[Any]]
-    registry: WeakValueDictionary[ffi.WlObject | ffi.WlProxy, Proxy[Any]]
+    registry: WeakValueDictionary[ffi.WlProxy, Proxy[Any]]
 
     @classmethod
     def event(
         cls, *arguments: Argument, version: int | None = None
-    ) -> Callable[..., Any]:
+    ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         """Decorator for interface events
 
         Adds the decorated method to the list of events of the interface
@@ -83,7 +86,7 @@ class Interface(metaclass=InterfaceMeta):
         :type version: int or None
         """
 
-        def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(func: Callable[P, R]) -> Callable[P, R]:
             cls.events.append(Message(func, arguments, version))
             return func
 
@@ -92,7 +95,7 @@ class Interface(metaclass=InterfaceMeta):
     @classmethod
     def request(
         cls, *arguments: Argument, version: int | None = None
-    ) -> Callable[..., Any]:
+    ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         """Decorator for interface requests
 
         Adds the decorated method to the list of requests of the interface
@@ -104,7 +107,7 @@ class Interface(metaclass=InterfaceMeta):
         :type version: int or None
         """
 
-        def wrapper(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(func: Callable[P, R]) -> Callable[P, R]:
             cls.requests.append(Message(func, arguments, version))
             return func
 
