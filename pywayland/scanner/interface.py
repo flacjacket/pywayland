@@ -76,12 +76,8 @@ class Interface(Element):
         return f"{self.class_name}Global"
 
     @property
-    def needs_t_type(self) -> bool:
-        return any(req.new_id and not req.new_id.interface for req in self.request)
-
-    @property
     def needs_any_type(self) -> bool:
-        return any(req.needs_any for req in self.request + self.event)
+        return any(req.return_type == "Any" for req in self.request)
 
     @property
     def needs_argument_type(self) -> bool:

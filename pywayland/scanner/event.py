@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 from collections.abc import Iterator
 from dataclasses import dataclass
 
-from .argument import Argument, ArgumentType
+from .argument import Argument
 from .description import Description
 from .method import Method
 from .printer import Printer
@@ -75,13 +75,3 @@ class Event(Method):
     @property
     def return_type(self) -> str:
         return "None"
-
-    @property
-    def needs_any(self) -> bool:
-        for arg in self.arg:
-            if (
-                arg.type in (ArgumentType.Object, ArgumentType.NewId)
-                and not arg.interface
-            ):
-                return True
-        return False

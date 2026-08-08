@@ -18,11 +18,9 @@ from __future__ import annotations
 
 import enum
 
-from typing import TypeVar
+from typing import Any
 
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
-
-T = TypeVar("T", bound=Interface)
 
 
 class WlCore(Interface):
@@ -449,7 +447,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.NewId),
     )
-    def new_id_no_interface(self, name: int, interface: type[T], version: int) -> Proxy[T]:
+    def new_id_no_interface(self, name: int, interface: type[Interface], version: int) -> Any:
         """Create a new id, but with no interface
 
         A method with an argument for a new_id, but with no corresponding

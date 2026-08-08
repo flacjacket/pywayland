@@ -78,7 +78,7 @@ class Request(Method):
                     continue
                 # A `new_id` with no interface, c.f. wl_registry_bind
                 # Need a string (interface name) and int (interface version)
-                yield f"{NO_IFACE}: type[T]"
+                yield f"{NO_IFACE}: type[Interface]"
                 yield f"{NO_IFACE_VERSION}: int"
             elif arg.type == ArgumentType.Object and arg.interface:
                 # Method args for a known interface return the proxy class of the interface
@@ -156,12 +156,7 @@ class Request(Method):
             if self.new_id.interface:
                 return f"{self.new_id.interface_class}Proxy"
             else:
-                return "Proxy[T]"
+                # If interface is unknown, the return type is a proxy of any type,
+                # which is not a valid type hint. So we return "Any" instead.
+                return "Any"
         return "None"
-
-    @property
-    def needs_any(self) -> bool:
-        for arg in self.arg:
-            if arg.type == ArgumentType.Object and not arg.interface:
-                return True
-        return False
