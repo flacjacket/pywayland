@@ -200,7 +200,7 @@ def touch_create(width: int, height: int) -> TouchDictT:
     touch["surface"] = touch["compositor"].create_surface()
 
     if "shell" in touch:
-        touch["shell_surface"] = touch["shell"].get_shell_surface(touch["surface"])
+        touch["shell_surface"] = touch["shell"].get_shell_surface(touch["surface"])  # type: ignore [arg-type]
 
     if "shell_surface" in touch:
         print("shell")
@@ -211,7 +211,7 @@ def touch_create(width: int, height: int) -> TouchDictT:
     touch["surface"].user_data = touch
     create_shm_buffer(touch, width, height)
 
-    touch["surface"].attach(touch["buffer"], 0, 0)
+    touch["surface"].attach(touch["buffer"], 0, 0)  # type: ignore [arg-type]
     touch["surface"].damage(0, 0, width, height)
     touch["surface"].commit()
 

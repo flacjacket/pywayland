@@ -110,6 +110,7 @@ warn_unreachable = true
 [[tool.mypy.overrides]]
 module = "pywayland.protocol.*"
 disallow_any_generics = false
+warn_return_any = false
 
 [[tool.mypy.overrides]]
 module = ["cffi"]

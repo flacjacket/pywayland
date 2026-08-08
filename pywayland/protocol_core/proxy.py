@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     from .interface import Interface
 
     T = TypeVar("T", bound=Interface)
-    InterfaceT = TypeVar("InterfaceT", bound=Interface)
 else:
     T = TypeVar("T")
 
@@ -121,8 +120,8 @@ class Proxy(Generic[T]):
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
     def _marshal_constructor(
-        self, opcode: int, interface: type[InterfaceT], *args: Any
-    ) -> Proxy[InterfaceT]:
+        self, opcode: int, interface: type[Interface], *args: Any
+    ) -> Any:
         """Marshal the given arguments into the Wayland wire format for a constructor"""
         assert self._ptr is not None
         # Create wl_argument array

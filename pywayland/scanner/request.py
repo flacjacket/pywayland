@@ -148,7 +148,7 @@ class Request(Method):
         """The return type for the request."""
         if self.new_id:
             if self.new_id.interface:
-                return f"Proxy[{self.new_id.interface_class}]"
+                return f"{self.new_id.interface_class}Proxy"
             else:
                 return "Proxy[T]"
         return "None"

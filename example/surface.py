@@ -108,7 +108,7 @@ def registry_global_remover(registry: WlRegistryProxy, id_: int) -> None:
     print(f"got a registry losing event for {id}")
 
 
-def create_buffer(window: Window) -> WlBufferProxy | None:
+def create_buffer(window: Window) -> WlBufferProxy:
     assert window.shm is not None
     stride = WIDTH * 4
     size = stride * HEIGHT
@@ -128,7 +128,7 @@ def create_buffer(window: Window) -> WlBufferProxy | None:
 def create_window(window: Window) -> None:
     assert window.surface is not None
     window.buffer = create_buffer(window)
-    window.surface.attach(window.buffer, 0, 0)
+    window.surface.attach(window.buffer, 0, 0)  # type: ignore [arg-type]
     window.surface.commit()
 
 
@@ -200,7 +200,7 @@ def main() -> None:
 
     if window.wm_base:
         xdg_surface: XdgSurfaceProxy
-        xdg_surface = window.wm_base.get_xdg_surface(window.surface)
+        xdg_surface = window.wm_base.get_xdg_surface(window.surface)  # type: ignore [arg-type]
         xdg_surface.dispatcher["configure"] = xdg_surface_configure_handler
 
         toplevel: XdgToplevelProxy = xdg_surface.get_toplevel()
@@ -211,7 +211,7 @@ def main() -> None:
 
     elif window.shell:
         shell_surface: WlShellSurfaceProxy
-        shell_surface = window.shell.get_shell_surface(window.surface)
+        shell_surface = window.shell.get_shell_surface(window.surface)  # type: ignore [arg-type]
         shell_surface.set_toplevel()
         shell_surface.dispatcher["ping"] = shell_surface_ping_handler
 

@@ -72,6 +72,10 @@ class Method(Element, abc.ABC):
 
             imports.append((import_path, import_class))
 
+            # import the proxy class for the interface if the return type is a proxy
+            if self.return_type == f"{import_class}Proxy":
+                imports.append((import_path, f"{import_class}Proxy"))
+
         return imports
 
     @property
