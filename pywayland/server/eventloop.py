@@ -23,7 +23,12 @@ from pywayland import ffi, lib
 from pywayland.utils import ensure_valid
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import TypeVar
+
     from pywayland.server import Display, Listener
+
+    T = TypeVar("T")
 
 CallbackInfo = namedtuple("CallbackInfo", ["callback", "data"])
 
@@ -149,11 +154,7 @@ class EventLoop:
 
     @ensure_valid
     def add_fd(
-        self,
-        fd: int,
-        callback: CallbackInfo,
-        mask: FdMask = FdMask.WL_EVENT_READABLE,
-        data: ffi.CData | None = None,
+        self, fd: int, callback: Callable[[int, int, T], int], mask: FdMask, data: T
     ) -> EventSource:
         """Add file descriptor callback
 
@@ -180,8 +181,8 @@ class EventLoop:
             :meth:`pywayland.server.eventloop.EventSource.check()`
         """
         assert self._ptr is not None
-        callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSource = ffi.new_handle(callback)
+        callback_info = CallbackInfo(callback=callback, data=data)
+        handle: ffi.WlEventSource = ffi.new_handle(callback_info)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_fd(
@@ -194,7 +195,7 @@ class EventLoop:
 
     @ensure_valid
     def add_signal(
-        self, signal_number: int, callback: CallbackInfo, data: ffi.CData | None = None
+        self, signal_number: int, callback: Callable[[int, T], int], data: T
     ) -> EventSource:
         """Add signal callback
 
@@ -214,8 +215,8 @@ class EventLoop:
         :returns: :class:`EventSource` for specified callback
         """
         assert self._ptr is not None
-        callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSource = ffi.new_handle(callback)
+        callback_info = CallbackInfo(callback=callback, data=data)
+        handle: ffi.WlEventSource = ffi.new_handle(callback_info)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_signal(
@@ -227,9 +228,7 @@ class EventLoop:
         return event_source
 
     @ensure_valid
-    def add_timer(
-        self, callback: CallbackInfo, data: ffi.CData | None = None
-    ) -> EventSource:
+    def add_timer(self, callback: Callable[[T], int], data: T) -> EventSource:
         """Add timer callback
 
         Triggers function call after a specified time.
@@ -249,8 +248,8 @@ class EventLoop:
             :meth:`pywayland.server.eventloop.EventSource.timer_update()`
         """
         assert self._ptr is not None
-        callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSource = ffi.new_handle(callback)
+        callback_info = CallbackInfo(callback=callback, data=data)
+        handle: ffi.WlEventSource = ffi.new_handle(callback_info)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_timer(
@@ -262,9 +261,7 @@ class EventLoop:
         return event_source
 
     @ensure_valid
-    def add_idle(
-        self, callback: CallbackInfo, data: ffi.CData | None = None
-    ) -> EventSource:
+    def add_idle(self, callback: Callable[[T], None], data: T) -> EventSource:
         """Add idle callback
 
         :param callback: Callback function
@@ -273,8 +270,8 @@ class EventLoop:
         :returns: :class:`EventSource` for specified callback
         """
         assert self._ptr is not None
-        callback = CallbackInfo(callback=callback, data=data)
-        handle: ffi.WlEventSource = ffi.new_handle(callback)
+        callback_info = CallbackInfo(callback=callback, data=data)
+        handle: ffi.WlEventSource = ffi.new_handle(callback_info)
         self._callback_handles.append(handle)
 
         event_source_cdata = lib.wl_event_loop_add_idle(
