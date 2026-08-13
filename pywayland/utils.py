@@ -24,17 +24,20 @@ from . import ffi, lib
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from types import TracebackType
-    from typing import Any
+    from typing import Any, ParamSpec, TypeVar
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 
-def ensure_valid(func: Callable[..., Any]) -> Callable[..., Any]:
+def ensure_valid(func: Callable[P, R]) -> Callable[P, R]:
     @wraps(func)
-    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
+    def wrapper(self: Any, *args: P.args, **kwargs: P.kwargs) -> R:
         if self._ptr is None:
             raise ValueError(f"{self.__class__.__name__} object has been destroyed")
         return func(self, *args, **kwargs)
 
-    return wrapper
+    return wrapper  # type: ignore [return-value]
 
 
 class AnonymousFile:
@@ -93,7 +96,7 @@ class AnonymousFile:
 
 def wl_container_of(
     ptr: ffi._CDataT, ctype: str, member: str, *, ffi: Any = ffi
-) -> ffi._CDataO:  # type: ignore [type-var, misc]
+) -> ffi._CDataO:  # type: ignore [type-var]
     """
     #define wl_container_of(ptr, sample, member)				\
             (__typeof__(sample))((char *)(ptr) -				\
@@ -114,7 +117,7 @@ def wl_container_of(
 
 
 def wl_list_for_each(
-    ctype: str, head: ffi.WlListCData, member: str, *, ffi: Any = ffi
+    ctype: str, head: ffi.WlList, member: str, *, ffi: Any = ffi
 ) -> Iterator[ffi.CData]:
     """
     #define wl_list_for_each(pos, head, member)				\

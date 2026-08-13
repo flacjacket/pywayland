@@ -4,7 +4,8 @@ requires = [
     "wheel",
     "cffi>=1.12.0; platform_python_implementation != 'PyPy'",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "build_backend"
+backend-path = ["."]
 
 [project]
 name = "pywayland"
@@ -40,21 +41,16 @@ source = "https://github.com/flacjacket/pywayland"
 issues = "https://github.com/flacjacket/pywayland/issues"
 
 [project.optional-dependencies]
-ci = ["setuptools>=77.0.0"]
 test = [
     "pytest",
     "pytest-cov",
-    "coverage>=6.5.0",
-    "coveralls>=3.3.1",
+    "coverage>=7.15.0",
+    "coveralls>=4.1.0",
+    "setuptools>=77.0.0",
 ]
 docs = [
     "sphinx",
     "sphinx_rtd_theme",
-]
-packaging = [
-    "build",
-    "check-manifest",
-    "twine",
 ]
 
 [project.scripts]
@@ -67,7 +63,7 @@ zip-safe = false
 include = ["pywayland*"]
 
 [tool.setuptools.package-data]
-pywayland = ["py.typed"]
+pywayland = ["py.typed", "_ffi*.so"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pywayland.version.__version__"}
@@ -89,7 +85,7 @@ ignore = [
     ".coveragerc",
     "doc/**",
     "example/**",
-    "pywayland/protocol/*.py",
+    "pywayland/protocol/**",
 ]
 
 [tool.mypy]
@@ -114,6 +110,7 @@ warn_unreachable = true
 [[tool.mypy.overrides]]
 module = "pywayland.protocol.*"
 disallow_any_generics = false
+warn_return_any = false
 
 [[tool.mypy.overrides]]
 module = ["cffi"]

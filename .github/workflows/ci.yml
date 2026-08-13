@@ -3,19 +3,16 @@ on:
   pull_request:
   push:
   workflow_dispatch:
-  schedule:
-    # Run at 17:29 every Saturday
-    - cron: '29 17 * * 6'
 
 jobs:
   build-wayland:
     name: Build Wayland libraries
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
-        wayland-version: ["1.24.0"]
-        wayland-protocols-version: ["1.45"]
+        wayland-version: ["1.26.0"]
+        wayland-protocols-version: ["1.49"]
     steps:
       - name: Setup environment
         run: |
@@ -23,7 +20,7 @@ jobs:
           echo "LD_LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
           echo "LIBRARY_PATH=${HOME}/wayland/usr/lib" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=${HOME}/wayland/usr/share/pkgconfig:${HOME}/wayland/usr/lib/pkgconfig" >> $GITHUB_ENV
-      - name: Install meson
+      - name: Install dependencies
         run: |
           sudo apt-get install -y --no-install-recommends \
             ninja-build
@@ -41,26 +38,25 @@ jobs:
         working-directory: wayland-${{ matrix.wayland-version }}
         run: |
           meson setup build --prefix=/usr -Ddocumentation=false
-          ninja -C build
           DESTDIR=~/wayland ninja -C build install
           sudo ninja -C build install
       - name: Build wayland-protocols
         working-directory: wayland-protocols-${{ matrix.wayland-protocols-version }}
         run: |
           meson setup build --prefix=/usr
-          ninja -C build
           DESTDIR=~/wayland ninja -C build install
+          sudo ninja -C build install
       - name: Create artifact
         run: tar czf ~/wayland.tar.gz -C ${HOME}/wayland/ .
       - name: Upload built libraries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
           path: ~/wayland.tar.gz
           if-no-files-found: error
   unit-test:
     name: Python ${{ matrix.python-version}} unit tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     strategy:
       fail-fast: false
@@ -72,18 +68,18 @@ jobs:
           - "3.13"
           - "3.14"
           - "pypy-3.11"
-        wayland-version: ["1.24.0"]
-        wayland-protocols-version: ["1.45"]
+        wayland-version: ["1.26.0"]
+        wayland-protocols-version: ["1.49"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download wayland libraries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wayland-${{ matrix.wayland-version }}_${{ matrix.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set environment variables
@@ -91,12 +87,9 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
-          python -m pywayland.scanner --with-protocols
+          pip install -e .[test]
       - name: Run unit tests
         run: |
-          pip install .[test]
           pytest --cov pywayland --cov-report term-missing
       - name: Push coverage
         run: coveralls --service=github
@@ -107,31 +100,31 @@ jobs:
   coverage:
     name: Finalize Coverage
     needs: unit-test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
   docs-test:
     name: docs check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download wayland libraries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -139,61 +132,59 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
-          python -m pywayland.scanner --with-protocols
+          pip install -e .[docs]
       - name: Build docs
         run: |
-          pip install .[docs]
           sphinx-build -W -b html doc doc/_build/html
   pre-commit-test:
     name: pre-commit test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download wayland libraries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
         run: |
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
-      - name: Install Python dependencies
+      - name: Generate protocol files
+        working-directory: pywayland
         run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
-          python -m pywayland.scanner --with-protocols
+          python -m scanner --with-protocols
       - name: Run pre-commit test
-        uses: pre-commit/action@v3.0.1
+        run: |
+          pip install pre-commit
+          pre-commit run --show-diff-on-failure --color=always --all-files
   packaging-test:
     name: packaging test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-wayland
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download wayland libraries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wayland-${{ env.wayland-version }}_${{ env.wayland-protocols-version }}
       - name: Unpack wayland artifact
         run: sudo tar xf wayland.tar.gz -C /
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.python-version }}
       - name: Set environment variables
@@ -201,13 +192,9 @@ jobs:
           echo "XDG_RUNTIME_DIR=/tmp" >> $GITHUB_ENV
       - name: Install Python dependencies
         run: |
-          pip install .[ci]
-          python pywayland/ffi_build.py
-          python -m pywayland.scanner --with-protocols
+          pip install build check-manifest twine
       - name: Run packaging test
         run: |
-          pip install .[packaging]
           check-manifest
-          python setup.py check -m -s
           python -m build --sdist
           twine check dist/*

@@ -18,11 +18,9 @@ from __future__ import annotations
 
 import enum
 
-from typing import TypeVar
+from typing import Any
 
 from pywayland.protocol_core import Argument, ArgumentType, Global, Interface, Proxy, Resource
-
-T = TypeVar("T", bound=Interface)
 
 
 class WlCore(Interface):
@@ -236,7 +234,7 @@ class WlCoreProxy(Proxy[WlCore]):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.Fixed),
     )
-    def make_request(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
+    def make_request(self, the_int: int, the_uint: int, the_fixed: float) -> WlCoreProxy:
         """A request
 
         The request asks the server for an event.
@@ -263,7 +261,7 @@ class WlCoreProxy(Proxy[WlCore]):
         Argument(ArgumentType.Fixed),
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def make_request2(self, the_int: int, the_uint: int, the_fixed: float) -> Proxy[WlCore]:
+    def make_request2(self, the_int: int, the_uint: int, the_fixed: float) -> WlCoreProxy:
         """A request
 
         The request asks the server for an event but move the args around.
@@ -296,7 +294,7 @@ class WlDestructorProxy(Proxy[WlDestructor]):
         Argument(ArgumentType.Int),
         Argument(ArgumentType.Uint),
     )
-    def create_interface(self, x: int, y: int, width: int, height: int, format: int) -> Proxy[WlDestructor]:
+    def create_interface(self, x: int, y: int, width: int, height: int, format: int) -> WlDestructorProxy:
         """Create another interface
 
         Create a :class:`WlDestructor` interface object
@@ -345,7 +343,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.FileDescriptor),
     )
-    def make_request(self, the_int: int, the_uint: int, the_fd: int) -> Proxy[WlCore]:
+    def make_request(self, the_int: int, the_uint: int, the_fd: int) -> WlCoreProxy:
         """A request
 
         The request asks the server for an event.
@@ -377,7 +375,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
     @WlRequests.request(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id(self) -> Proxy[WlCore]:
+    def create_id(self) -> WlCoreProxy:
         """Create an id
 
         With a description
@@ -391,7 +389,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
     @WlRequests.request(
         Argument(ArgumentType.NewId, interface=WlCore),
     )
-    def create_id2(self) -> Proxy[WlCore]:
+    def create_id2(self) -> WlCoreProxy:
         """Create an id without a description
 
         :returns:
@@ -422,7 +420,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         Argument(ArgumentType.NewId, interface=WlEvents),
         Argument(ArgumentType.Object, interface=WlCore, nullable=True),
     )
-    def make_import(self, object: WlCore | None) -> Proxy[WlEvents]:
+    def make_import(self, object: WlCoreProxy | None) -> WlEventsProxy:
         """Request that causes an import
 
         A request method that causes an imoprt of other interfaces, both as a
@@ -449,7 +447,7 @@ class WlRequestsProxy(Proxy[WlRequests]):
         Argument(ArgumentType.Uint),
         Argument(ArgumentType.NewId),
     )
-    def new_id_no_interface(self, name: int, interface: type[T], version: int) -> Proxy[T]:
+    def new_id_no_interface(self, name: int, interface: type[Interface], version: int) -> Any:
         """Create a new id, but with no interface
 
         A method with an argument for a new_id, but with no corresponding

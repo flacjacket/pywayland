@@ -52,10 +52,7 @@ class Resource(Generic[T]):
     interface: type[T]
 
     def __init__(
-        self,
-        client: Client | ffi.WlClientCData,
-        version: int | None = None,
-        id: int = 0,
+        self, client: Client | ffi.WlClient, version: int | None = None, id: int = 0
     ) -> None:
         if version is None:
             version = self.interface.version
@@ -69,10 +66,9 @@ class Resource(Generic[T]):
             client_ptr = client
         assert client_ptr is not None
 
-        self._ptr: ffi.WlResourceCData | None = lib.wl_resource_create(
+        self._ptr: ffi.WlResource | None = lib.wl_resource_create(
             client_ptr, self.interface._ptr, version, id
         )
-        self.id = lib.wl_resource_get_id(self._ptr)
 
         self._handle: ffi.CData = ffi.new_handle(self)
         lib.wl_resource_set_dispatcher(
@@ -88,6 +84,12 @@ class Resource(Generic[T]):
         if self._ptr:
             lib.wl_resource_destroy(self._ptr)
             self._ptr = None
+
+    @ensure_valid
+    def get_id(self) -> int:
+        """Get the id of the Resource"""
+        assert self._ptr is not None
+        return lib.wl_resource_get_id(self._ptr)
 
     @ensure_valid
     def add_destroy_listener(self, listener: Listener) -> None:
@@ -106,7 +108,7 @@ class Resource(Generic[T]):
         args_ptr = self.interface.events[opcode].arguments_to_c(*args)
 
         # Write the event array to this object
-        resource: ffi.WlResourceCData = ffi.cast("struct wl_resource *", self._ptr)
+        resource: ffi.WlResource = ffi.cast("struct wl_resource *", self._ptr)
         lib.wl_resource_post_event_array(resource, opcode, args_ptr)
 
     @ensure_valid

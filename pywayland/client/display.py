@@ -95,7 +95,7 @@ class Display(WlDisplayProxy):
 
         self._children: WeakSet[EventQueue | Proxy[Any]] = WeakSet()
         self._name_or_fd = name_or_fd
-        self._ptr: ffi.WlDisplayCData | None = None  # type: ignore [assignment]
+        self._ptr: ffi.WlDisplay | None = None  # type: ignore [assignment]
 
     def __enter__(self) -> Display:
         """Connect to the display in a context manager"""

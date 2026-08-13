@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
+
 from cffi import FFI
 
 ###############################################################################
 # wayland-version.h
 ###############################################################################
+
 CDEF = """
 #define WAYLAND_VERSION_MAJOR ...
 #define WAYLAND_VERSION_MINOR ...
@@ -26,7 +29,8 @@ CDEF = """
 ###############################################################################
 # wayland-util.h
 ###############################################################################
-# wl_fixed_t handling
+
+# wl_fixed_t methods
 CDEF += """
 typedef int32_t wl_fixed_t;
 static inline double wl_fixed_to_double(wl_fixed_t f);
@@ -34,13 +38,17 @@ static inline wl_fixed_t wl_fixed_from_double(double d);
 static inline wl_fixed_t wl_fixed_from_int(int i);
 """
 
-# Event/request dispatching structs
+# wl_message struct
 CDEF += """
 struct wl_message {
     const char *name;
     const char *signature;
     const struct wl_interface **types;
 };
+"""
+
+# wl_interface struct
+CDEF += """
 struct wl_interface {
     const char *name;
     int version;
@@ -49,6 +57,10 @@ struct wl_interface {
     int event_count;
     const struct wl_message *events;
 };
+"""
+
+# wl_argument union
+CDEF += """
 union wl_argument {
     int32_t i; /**< signed integer */
     uint32_t u; /**< unsigned integer */
@@ -61,7 +73,7 @@ union wl_argument {
 };
 """
 
-# wl_array methods
+# wl_array struct
 CDEF += """
 struct wl_array {
     size_t size;
@@ -80,12 +92,9 @@ struct wl_list {
 void wl_list_init (struct wl_list *list);
 void wl_list_insert (struct wl_list *list, struct wl_list *elm);
 void wl_list_remove(struct wl_list *elm);
-int wl_list_length (const struct wl_list *list);
-int wl_list_empty(const struct wl_list *list);
-void wl_list_insert_list (struct wl_list *list, struct wl_list *other);
 """
 
-# Dispatcher callback
+# dispatcher function callback
 CDEF += """
 typedef int (*wl_dispatcher_func_t)(const void *, void *, uint32_t,
                                     const struct wl_message *,
@@ -93,8 +102,9 @@ typedef int (*wl_dispatcher_func_t)(const void *, void *, uint32_t,
 """
 
 ###############################################################################
-# wayland-client.h
+# wayland-client-core.h
 ###############################################################################
+
 # wl_eventqueue methods
 CDEF += """
 void wl_event_queue_destroy(struct wl_event_queue *queue);
@@ -104,19 +114,14 @@ void wl_event_queue_destroy(struct wl_event_queue *queue);
 CDEF += """
 void wl_proxy_marshal_array(struct wl_proxy *p, uint32_t opcode,
                             union wl_argument *args);
-struct wl_proxy *wl_proxy_create(struct wl_proxy *factory,
-                                 const struct wl_interface *interface);
 struct wl_proxy *
 wl_proxy_marshal_array_constructor(struct wl_proxy *proxy,
                                    uint32_t opcode, union wl_argument *args,
                                    const struct wl_interface *interface);
-
 void wl_proxy_destroy(struct wl_proxy *proxy);
 int wl_proxy_add_dispatcher(struct wl_proxy *proxy,
                             wl_dispatcher_func_t dispatcher_func,
                             const void * dispatcher_data, void *data);
-void wl_proxy_set_user_data(struct wl_proxy *proxy, void *user_data);
-void *wl_proxy_get_user_data(struct wl_proxy *proxy);
 """
 
 # wl_display methods
@@ -126,27 +131,28 @@ struct wl_display* wl_display_connect_to_fd(int fd);
 void wl_display_disconnect(struct wl_display *display);
 int wl_display_get_fd(struct wl_display *display);
 int wl_display_dispatch(struct wl_display *display);
-int wl_display_dispatch_pending(struct wl_display *display);
 int wl_display_dispatch_queue(struct wl_display *display,
                               struct wl_event_queue *queue);
 int wl_display_dispatch_queue_pending(struct wl_display *display,
                                       struct wl_event_queue *queue);
-int wl_display_roundtrip(struct wl_display *display);
+int wl_display_dispatch_pending(struct wl_display *display);
+int wl_display_get_error(struct wl_display *display);
+int wl_display_flush(struct wl_display *display);
 int wl_display_roundtrip_queue(struct wl_display *display,
                                struct wl_event_queue *queue);
-int wl_display_get_error(struct wl_display *display);
-int wl_display_read_events(struct wl_display *display);
-int wl_display_prepare_read(struct wl_display *display);
+int wl_display_roundtrip(struct wl_display *display);
+struct wl_event_queue *wl_display_create_queue(struct wl_display *display);
 int wl_display_prepare_read_queue(struct wl_display *display,
                                   struct wl_event_queue *queue);
-int wl_display_flush(struct wl_display *display);
-struct wl_event_queue *wl_display_create_queue(struct wl_display *display);
+int wl_display_prepare_read(struct wl_display *display);
+int wl_display_read_events(struct wl_display *display);
 """
 
 ###############################################################################
-# wayland-server.h
+# wayland-server-core.h
 ###############################################################################
-# wl_eventloop enum
+
+# event kind enum
 CDEF += """
 enum {
     WL_EVENT_READABLE = ...,
@@ -165,6 +171,7 @@ struct wl_listener {
 };
 """
 
+# wl_signal methods
 CDEF += """
 struct wl_signal {
     struct wl_list listener_list;
@@ -175,15 +182,12 @@ void wl_signal_add(struct wl_signal *signal, struct wl_listener *listener);
 void wl_signal_emit(struct wl_signal *signal, void *data);
 """
 
-# wl_eventloop callbacks and methods
+# wl_event_loop methods
 CDEF += """
 typedef int (*wl_event_loop_fd_func_t)(int fd, uint32_t mask, void *data);
 typedef int (*wl_event_loop_timer_func_t)(void *data);
 typedef int (*wl_event_loop_signal_func_t)(int signal_number, void *data);
 typedef void (*wl_event_loop_idle_func_t)(void *data);
-
-void wl_event_loop_add_destroy_listener(struct wl_event_loop *loop,
-                                        struct wl_listener * listener);
 
 struct wl_event_loop *wl_event_loop_create(void);
 void wl_event_loop_destroy(struct wl_event_loop *loop);
@@ -191,7 +195,6 @@ struct wl_event_source *wl_event_loop_add_fd(struct wl_event_loop *loop,
                                              int fd, uint32_t mask,
                                              wl_event_loop_fd_func_t func,
                                              void *data);
-int wl_event_source_fd_update(struct wl_event_source *source, uint32_t mask);
 struct wl_event_source *wl_event_loop_add_timer(struct wl_event_loop *loop,
                                                 wl_event_loop_timer_func_t func,
                                                 void *data);
@@ -200,13 +203,13 @@ wl_event_loop_add_signal(struct wl_event_loop *loop,
                          int signal_number,
                          wl_event_loop_signal_func_t func,
                          void *data);
-
 int wl_event_loop_dispatch(struct wl_event_loop *loop, int timeout);
 void wl_event_loop_dispatch_idle(struct wl_event_loop *loop);
 struct wl_event_source *wl_event_loop_add_idle(struct wl_event_loop *loop,
                                                wl_event_loop_idle_func_t func,
                                                void *data);
-int wl_event_loop_get_fd(struct wl_event_loop *loop);
+void wl_event_loop_add_destroy_listener(struct wl_event_loop *loop,
+                                        struct wl_listener * listener);
 """
 
 # wl_event_source methods
@@ -226,12 +229,10 @@ int wl_display_add_socket(struct wl_display *display, const char *name);
 const char *wl_display_add_socket_auto(struct wl_display *display);
 void wl_display_terminate(struct wl_display *display);
 void wl_display_run(struct wl_display *display);
-
+void wl_display_flush_clients(struct wl_display *display);
+void wl_display_destroy_clients(struct wl_display *display);
 uint32_t wl_display_get_serial(struct wl_display *display);
 uint32_t wl_display_next_serial(struct wl_display *display);
-void wl_display_destroy_clients(struct wl_display *display);
-void wl_display_flush_clients(struct wl_display *display);
-
 int wl_display_init_shm(struct wl_display *display);
 uint32_t *wl_display_add_shm_format(struct wl_display *display, uint32_t format);
 """
@@ -249,20 +250,18 @@ void wl_global_destroy(struct wl_global *global);
 
 # wl_client methods
 CDEF += """
+typedef int pid_t;
+typedef unsigned int uid_t;
+typedef unsigned int gid_t;
 struct wl_client;
 struct wl_client *wl_client_create(struct wl_display *display, int fd);
 void wl_client_destroy(struct wl_client *client);
 void wl_client_flush(struct wl_client *client);
-
-typedef int pid_t;
-typedef unsigned int uid_t;
-typedef unsigned int gid_t;
 void wl_client_get_credentials(struct wl_client *client,
     pid_t *pid, uid_t *uid, gid_t *gid);
 
 void wl_client_add_destroy_listener(struct wl_client *client,
                                     struct wl_listener *listener);
-
 struct wl_resource *
 wl_client_get_object(struct wl_client *client, uint32_t id);
 """
@@ -273,10 +272,8 @@ typedef void (*wl_resource_destroy_func_t)(struct wl_resource *resource);
 
 void wl_resource_post_event_array(struct wl_resource *resource,
                                   uint32_t opcode, union wl_argument *args);
-
 void wl_resource_post_error(struct wl_resource *resource,
                             uint32_t code, const char *msg, ...);
-
 struct wl_resource *
 wl_resource_create(struct wl_client *client,
                    const struct wl_interface *interface,
@@ -287,18 +284,14 @@ wl_resource_set_dispatcher(struct wl_resource *resource,
                            const void *implementation,
                            void *data,
                            wl_resource_destroy_func_t destroy);
-
 void
 wl_resource_destroy(struct wl_resource *resource);
 uint32_t
 wl_resource_get_id(struct wl_resource *resource);
+struct wl_client *
+wl_resource_get_client(struct wl_resource *resource);
 void *
 wl_resource_get_user_data(struct wl_resource *resource);
-int
-wl_resource_get_version(struct wl_resource *resource);
-
-struct wl_client * wl_resource_get_client(struct wl_resource *resource);
-
 void
 wl_resource_add_destroy_listener(struct wl_resource *resource,
                                  struct wl_listener * listener);
@@ -448,5 +441,11 @@ ffi_builder.set_source(
 ffi_builder.cdef(CDEF)
 
 
+def ffi_compile(verbose: bool = False) -> None:
+    # Build into the project root so the generated module lands at
+    # pywayland/_ffi.* regardless of the current working directory.
+    ffi_builder.compile(tmpdir=Path(__file__).parent.parent.as_posix(), verbose=verbose)
+
+
 if __name__ == "__main__":
-    ffi_builder.compile()
+    ffi_compile()

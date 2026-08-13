@@ -56,6 +56,11 @@ if TYPE_CHECKING:
         wl_touch: WlTouchProxy
         seat: WlSeatProxy
 
+    class SeatDictT(TypedDict, total=False):
+        touch: TouchDictT
+        wl_touch: WlTouchProxy | None
+        seat: WlSeatProxy
+
 
 this_file = os.path.abspath(__file__)
 this_dir = os.path.split(this_file)[0]
@@ -93,14 +98,10 @@ def handle_touch_down(
     x: float,
     y: float,
 ) -> int:
-    # touch = wl_touch.user_data
-    # touch_paint(touch, x, y, id)
     return 0
 
 
 def handle_touch_up(wl_touch: WlTouch, serial: int, time: int, id: int) -> int:
-    # touch = wl_touch.user_data
-    # touch_paint(touch, x, y, id)
     return 0
 
 
@@ -108,23 +109,21 @@ def handle_touch_motion(
     wl_touch: WlTouch, time: int, id: int, x: float, y: float
 ) -> int:
     print(wl_touch, time, id, x, y)
-    # touch = wl_touch.user_data
-    # touch_paint(touch, x, y, id)
     return 0
 
 
 def handle_seat_capabilities(wl_seat: WlSeatProxy, capabilities: int) -> int:
     print("capabilities")
-    seat = wl_seat.user_data
+    seat: SeatDictT = wl_seat.user_data
     touch = seat["touch"]
 
     if (capabilities & WlSeat.capability.touch.value) and seat["wl_touch"] is None:
-        seat = {}
-        seat["wl_touch"] = wl_seat.get_touch()
-        seat["wl_touch"].user_data = touch
-        seat["wl_touch"].dispatcher["up"] = handle_touch_up
-        seat["wl_touch"].dispatcher["down"] = handle_touch_down
-        seat["wl_touch"].dispatcher["motion"] = handle_touch_motion
+        wl_touch = wl_seat.get_touch()
+        wl_touch.user_data = touch
+        wl_touch.dispatcher["up"] = handle_touch_up
+        wl_touch.dispatcher["down"] = handle_touch_down
+        wl_touch.dispatcher["motion"] = handle_touch_motion
+        seat["wl_touch"] = wl_touch
     elif not (capabilities & WlSeat.capability.touch.value) and seat["wl_touch"]:
         seat["wl_touch"].destroy()
         seat["wl_touch"] = None
@@ -133,7 +132,7 @@ def handle_seat_capabilities(wl_seat: WlSeatProxy, capabilities: int) -> int:
 
 def handle_shm_format(wl_shm: WlShmProxy, fmt: int) -> int:
     print("format")
-    touch = wl_shm.user_data
+    touch: TouchDictT = wl_shm.user_data
 
     if fmt == WlShm.format.argb8888.value:
         touch["has_argb"] = True
@@ -153,27 +152,23 @@ def handle_registry_global(
 ) -> int:
     print("global", id_num, iface_name)
 
-    touch = wl_registry.user_data
+    touch: TouchDictT = wl_registry.user_data
     if iface_name == "wl_compositor":
         touch["compositor"] = wl_registry.bind(id_num, WlCompositor, version)
     elif iface_name == "wl_seat":
-        seat = {}
+        seat: SeatDictT = {}
         seat["touch"] = touch
         seat["wl_touch"] = None
-
-        wl_seat = wl_registry.bind(id_num, WlSeat, version)
-        wl_seat.dispatcher["capabilities"] = handle_seat_capabilities
-        wl_seat.user_data = seat
-        seat["seat"] = wl_seat
+        seat["seat"] = wl_registry.bind(id_num, WlSeat, version)
+        seat["seat"].dispatcher["capabilities"] = handle_seat_capabilities
+        seat["seat"].user_data = seat
     elif iface_name == "wl_shell":
         touch["shell"] = wl_registry.bind(id_num, WlShell, version)
     elif iface_name == "wl_shm":
         touch["has_argb"] = False
-
-        shm = wl_registry.bind(id_num, WlShm, version)
-        shm.user_data = touch
-        shm.dispatcher["format"] = handle_shm_format
-        touch["shm"] = shm
+        touch["shm"] = wl_registry.bind(id_num, WlShm, version)
+        touch["shm"].user_data = touch
+        touch["shm"].dispatcher["format"] = handle_shm_format
     return 1
 
 

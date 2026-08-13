@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import enum
 from typing import TYPE_CHECKING
 
 from pywayland.client import Display
@@ -17,43 +18,43 @@ if TYPE_CHECKING:
 
 class App:
     def __init__(self) -> None:
-        self.color_manager = None
-        self.render_intents: list[int] = []
-        self.features: list[int] = []
-        self.transfer_functions: list[int] = []
-        self.primaries: list[int] = []
+        self.color_manager: WpColorManagerV1Proxy | None = None
+        self.render_intents: list[enum.IntEnum] = []
+        self.features: list[enum.IntEnum] = []
+        self.transfer_functions: list[enum.IntEnum] = []
+        self.primaries: list[enum.IntEnum] = []
 
 
 def color_manager_supported_intent_cb(
     color_manager: WpColorManagerV1Proxy, render_intent: int
 ) -> None:
-    app = color_manager.user_data
+    app: App = color_manager.user_data
     app.render_intents.append(WpColorManagerV1.render_intent(render_intent))
 
 
 def color_manager_supported_feature_cb(
     color_manager: WpColorManagerV1Proxy, feature: int
 ) -> None:
-    app = color_manager.user_data
+    app: App = color_manager.user_data
     app.features.append(WpColorManagerV1.feature(feature))
 
 
 def color_manager_supported_tf_named_cb(
     color_manager: WpColorManagerV1Proxy, transfer_function: int
 ) -> None:
-    app = color_manager.user_data
+    app: App = color_manager.user_data
     app.transfer_functions.append(WpColorManagerV1.transfer_function(transfer_function))
 
 
 def color_manager_supported_primaries_named_cb(
     color_manager: WpColorManagerV1Proxy, primaries: int
 ) -> None:
-    app = color_manager.user_data
+    app: App = color_manager.user_data
     app.primaries.append(WpColorManagerV1.primaries(primaries))
 
 
 def color_manager_done_cb(color_manager: WpColorManagerV1Proxy) -> None:
-    app = color_manager.user_data
+    app: App = color_manager.user_data
 
     print(f"Render intents ({len(app.render_intents)})")
     for render_intent in app.render_intents:
@@ -75,7 +76,7 @@ def color_manager_done_cb(color_manager: WpColorManagerV1Proxy) -> None:
 def registry_global_cb(
     registry: WlRegistryProxy, name: int, interface: str, version: int
 ) -> None:
-    app = registry.user_data
+    app: App = registry.user_data
     if interface == "wp_color_manager_v1":
         app.color_manager = registry.bind(name, WpColorManagerV1, version)
         app.color_manager.dispatcher["supported_intent"] = (

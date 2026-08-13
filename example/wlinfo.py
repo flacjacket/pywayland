@@ -23,7 +23,12 @@ from pywayland.protocol.wayland import WlOutput, WlSeat, WlShm
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from pywayland.protocol.wayland import WlRegistryProxy
+    from pywayland.protocol.wayland import (
+        WlOutputProxy,
+        WlRegistryProxy,
+        WlSeatProxy,
+        WlShmProxy,
+    )
 
     FieldList = list[tuple[str, int, int] | str]
 
@@ -90,7 +95,7 @@ def add_seat_info(
         return info.seat.append(f"    {s}")
 
     _add_interface_info(info.seat, interface=interface, version=version, name=id_num)
-    seat = registry.bind(id_num, WlSeat, version)
+    seat: WlSeatProxy = registry.bind(id_num, WlSeat, version)
     seat.dispatcher["name"] = handle_name
     seat.dispatcher["capabilities"] = handle_capabilities
 
@@ -146,7 +151,7 @@ def add_output_info(
         return info.output.append(f"    {s}")
 
     _add_interface_info(info.output, interface=interface, version=version, name=id_num)
-    output = registry.bind(id_num, WlOutput, version)
+    output: WlOutputProxy = registry.bind(id_num, WlOutput, version)
     output.dispatcher["name"] = handle_name
     output.dispatcher["description"] = handle_description
     output.dispatcher["geometry"] = handle_geometry
@@ -166,7 +171,7 @@ def add_shm_info(
 
     _add_interface_info(info.shm, interface=interface, version=version, name=id_num)
     append("formats:")
-    shm = registry.bind(id_num, WlShm, version)
+    shm: WlShmProxy = registry.bind(id_num, WlShm, version)
     shm.dispatcher["format"] = handle_format
 
 

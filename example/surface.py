@@ -34,7 +34,6 @@ if TYPE_CHECKING:
         WlShellSurfaceProxy,
         WlShmPoolProxy,
         WlShmProxy,
-        WlShmResource,
         WlSurfaceProxy,
     )
     from pywayland.protocol.xdg_shell import (
@@ -76,7 +75,7 @@ def shell_surface_ping_handler(shell_surface: WlShellSurfaceProxy, serial: int) 
     print("pinged/ponged")
 
 
-def shm_format_handler(shm: WlShmResource, format_: int) -> None:
+def shm_format_handler(shm: WlShmProxy, format_: int) -> None:
     format_enum = WlShm.format(format_)
     print(f"Possible shmem format: {format_enum.name}")
 
@@ -88,7 +87,7 @@ def wm_base_ping_handler(xdg_wm_base: XdgWmBaseProxy, serial: int) -> None:
 def registry_global_handler(
     registry: WlRegistryProxy, id_: int, interface: str, version: int
 ) -> None:
-    window = registry.user_data
+    window: Window = registry.user_data
     if interface == "wl_compositor":
         print("got compositor")
         window.compositor = registry.bind(id_, WlCompositor, version)
@@ -100,15 +99,16 @@ def registry_global_handler(
         window.shm = registry.bind(id_, WlShm, version)
         window.shm.dispatcher["format"] = shm_format_handler
     elif interface == "xdg_wm_base":
+        print("got xdg_wm_base")
         window.wm_base = registry.bind(id_, XdgWmBase, version)
         window.wm_base.dispatcher["ping"] = wm_base_ping_handler
 
 
 def registry_global_remover(registry: WlRegistryProxy, id_: int) -> None:
-    print(f"got a registry losing event for {id}")
+    print(f"got a registry losing event for {id_}")
 
 
-def create_buffer(window: Window) -> WlBufferProxy | None:
+def create_buffer(window: Window) -> WlBufferProxy:
     assert window.shm is not None
     stride = WIDTH * 4
     size = stride * HEIGHT
@@ -133,11 +133,12 @@ def create_window(window: Window) -> None:
 
 
 def redraw(callback: WlCallbackProxy, time: int, destroy_callback: bool = True) -> None:
-    window = callback.user_data
+    window: Window = callback.user_data
     if destroy_callback:
         callback._destroy()
 
     paint(window)
+    assert window.surface is not None
     window.surface.damage(0, 0, WIDTH, HEIGHT)
 
     callback = window.surface.frame()

@@ -8,12 +8,12 @@ on:
 jobs:
   build-wayland:
     name: Build Wayland libraries
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     env:
       python-version: "3.14"
-      wayland-version: "1.24.0"
-      wayland-protocols-version: "1.45"
+      wayland-version: "1.26.0"
+      wayland-protocols-version: "1.49"
     steps:
       - name: Install dependencies
         run: |
@@ -44,33 +44,32 @@ jobs:
         shell: bash
         env:
           PYTHON_VERSION: ${{ env.python-version }}
-      - name: Install python dependencies
+      - name: Install meson
         run: |
-          pip install meson ninja
+          pip install meson
       - name: Build Wayland
         working-directory: wayland-${{ env.wayland-version }}
         run: |
           meson setup build --prefix=/usr -Ddocumentation=false
-          ninja -C build
           DESTDIR=/wayland ninja -C build install
           ninja -C build install
       - name: Build Wayland protocols
         working-directory: wayland-protocols-${{ env.wayland-protocols-version }}
         run: |
           meson setup build --prefix=/usr
-          ninja -C build
           DESTDIR=/wayland ninja -C build install
+          ninja -C build install
       - name: Create artifact
         run: tar czf /wayland.tar.gz -C /wayland/ .
       - name: Upload built libraries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wayland
           path: /wayland.tar.gz
           if-no-files-found: error
   build-wheel-cpython:
     name: Build CPython wheels
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     strategy:
@@ -79,7 +78,7 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - name: Download wayland libraries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wayland
       - name: Unpack wayland artifact
@@ -91,23 +90,21 @@ jobs:
         shell: bash
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install Python dependencies
-        run: |
-          python --version
-          python -m pip install auditwheel build
+        run: pip install auditwheel build
       - name: Build wheels
         run: |
           python -m build --wheel
           auditwheel repair --plat manylinux_2_34_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.python-version }}
           path: output_wheels/*.whl
   build-wheel-pypy:
     name: Build PyPy wheels
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     strategy:
@@ -117,7 +114,7 @@ jobs:
         pypy-version: ["7.3"]
     steps:
       - name: Download wayland libraries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wayland
       - name: Unpack wayland artifact
@@ -132,23 +129,21 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
           PP_VERSION: ${{ matrix.pypy-version }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install Python dependencies
-        run: |
-          python --version
-          python -m pip install auditwheel build
+        run: pip install auditwheel build
       - name: Build wheels
         run: |
           python -m build --wheel
           auditwheel repair --plat manylinux_2_34_x86_64 -w output_wheels dist/pywayland-*.whl
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wheels-pypy-${{ matrix.python-version }}
           path: output_wheels/*.whl
   test-wheel:
     name: Test wheels
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [build-wheel-cpython, build-wheel-pypy]
     strategy:
       fail-fast: false
@@ -162,11 +157,11 @@ jobs:
           - "pypy-3.11"
     steps:
       - name: Download wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wheels-${{ matrix.python-version }}
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install wheel
@@ -176,16 +171,19 @@ jobs:
         run: |
           import pywayland
           print(pywayland.__wayland_version__)
+
+          import pywayland.protocol.wayland
+          import pywayland.protocol.xdg_shell
   build-source:
     name: Build source package
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container: quay.io/pypa/manylinux_2_34_x86_64
     needs: build-wayland
     env:
       python-version: "3.14"
     steps:
       - name: Download wayland libraries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wayland
       - name: Unpack wayland artifact
@@ -197,32 +195,30 @@ jobs:
         shell: bash
         env:
           PYTHON_VERSION: ${{ env.python-version }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install Python dependencies
-        run: |
-          python --version
-          python -m pip install build
+        run: pip install build
       - name: Build source
         run: |
           python -m build --sdist
       - name: Upload source
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: source
           path: dist/*.tar.gz
   upload-wheel:
     name: Upload wheels
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [test-wheel, build-source]
     steps:
       - name: Download wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: wheels-*
           path: dist/
           merge-multiple: true
       - name: Download source
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: source
           path: dist/

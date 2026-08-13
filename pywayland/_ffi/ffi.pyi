@@ -1,101 +1,117 @@
 from collections.abc import Callable
-from typing import Any, Self, TypeVar, overload
+from typing import Any, ParamSpec, Self, TypeVar, overload
 
 class CData:
     def __getitem__(self, idx: int) -> Self: ...
     def __setitem__(self, idx: int, elem: Self) -> None: ...
 
-class DispatcherFuncT: ...
-class ResourceDestroyFuncT: ...
-class EventLoopFdFuncT: ...
-class EventLoopSignalFuncT: ...
-class EventLoopTimerFuncT: ...
-class EventLoopIdleFuncT: ...
-class GlobalBindFuncT: ...
-class NotifyFuncT: ...
-
 # built-in cdata types
 class CharCData(CData): ...
 
-# wayland cdata types
-class WlArgumentCData(CData):
+# extern functions
+class DispatcherFunc: ...
+class ResourceDestroyFunc: ...
+class EventLoopFdFunc: ...
+class EventLoopSignalFunc: ...
+class EventLoopTimerFunc: ...
+class EventLoopIdleFunc: ...
+class GlobalBindFunc: ...
+class NotifyFunc: ...
+
+class WlArgument(CData):
     i: int
     u: int
     f: int
     s: CharCData
-    o: WlObjectCData
+    o: WlObject
     n: int
-    a: WlArrayCData
+    a: WlArray
     h: int
 
-class WlArrayCData(CData):
+class WlArray(CData):
     size: int
     alloc: int
     data: CData
 
-class WlClientCData(CData): ...
-class WlDisplayCData(CData): ...
-class WlEventLoopCData(CData): ...
-class WlEventSourceCData(CData): ...
-class WlGlobalCData(CData): ...
+class WlClient(CData):
+    pass
 
-class WlInterfaceCData(CData):
+class WlDisplay(CData):
+    pass
+
+class WlEventLoop(CData):
+    pass
+
+class WlEventSource(CData):
+    pass
+
+class WlGlobal(CData):
+    pass
+
+class WlInterface(CData):
     name: CharCData
     version: int
     method_count: int
-    methods: WlMessageCData
+    methods: WlMessage
     event_count: int
-    events: WlMessageCData
+    events: WlMessage
 
-class WlListCData(CData):
+class WlList(CData):
     @property
-    def prev(self) -> WlListCData: ...
+    def prev(self) -> WlList: ...
     @property
-    def next(self) -> WlListCData: ...
+    def next(self) -> WlList: ...
 
-class WlListenerCData(CData):
-    link: WlListCData
-    notify: NotifyFuncT
+class WlListener(CData):
+    link: WlList
+    notify: NotifyFunc
 
-class WlListenerContainerCData(CData):
+class WlListenerContainer(CData):
     handle: CData
-    destroy_listener: WlListenerCData
+    destroy_listener: WlListener
 
-class WlMessageCData(CData):
+class WlMessage(CData):
     name: CharCData
     signature: CharCData
-    types: WlInterfaceCData
+    types: WlInterface
 
-class WlObjectCData(CData): ...
-class WlProxyCData(CData): ...
-class WlQueueCData(CData): ...
-class WlResourceCData(CData): ...
+class WlObject(CData):
+    pass
 
-class WlSignalCData(CData):
-    listener_list: WlListCData
+class WlProxy(CData):
+    pass
+
+class WlQueue(CData):
+    pass
+
+class WlResource(CData):
+    pass
+
+class WlSignal(CData):
+    listener_list: WlList
 
 # special types
-_FuncType = Callable[..., Any]
-_F = TypeVar("_F", bound=_FuncType)
+P = ParamSpec("P")
+R = TypeVar("R")
 _CDataT = TypeVar("_CDataT", bound=CData)
 _CDataO = TypeVar("_CDataO", bound=CData)
 
 # Any type of CData
 NULL: Any
 
+def new(cdecl: str, init: Any = None) -> _CDataT: ...  # type: ignore [type-var]
 @overload
-def new(cdecl: str) -> _CDataT: ...  # type: ignore [type-var, misc]
-@overload
-def new(cdecl: str, init: Any) -> _CDataT: ...  # type: ignore [type-var, misc]
 def gc(
-    cdata: _CDataT, destructor: None | Callable[[_CDataT], None], size: int = 0
+    cdata: _CDataT, destructor: Callable[[_CDataT], Any], size: int = 0
 ) -> _CDataT: ...
+@overload
+def gc(cdata: _CDataT, destructor: None, size: int = 0) -> None: ...
 def buffer(cdata: _CDataT, size: int = -1) -> bytearray: ...
-def string(cdata: CharCData) -> bytes: ...
-def release(cdata: _CDataT) -> None: ...
-def def_extern() -> Callable[[_F], _F]: ...
-def new_handle(self: Any) -> _CDataT: ...  # type: ignore [type-var, misc]
-def from_handle(cdata: _CDataT) -> Any: ...
-def cast(new_type: str, cdata: _CDataT) -> _CDataO: ...  # type: ignore [type-var, misc]
-def addressof(cdata: _CDataT) -> _CDataT: ...
-def offsetof(cdecl: str, offset: Any) -> int: ...
+def string(cdata: CharCData, maxlen: int = -1) -> bytes: ...
+def release(x: _CDataT) -> None: ...
+def def_extern() -> Callable[[Callable[P, R]], Callable[P, R]]: ...
+def new_handle(x: Any) -> _CDataT: ...  # type: ignore [type-var]
+def from_handle(x: _CDataT) -> Any: ...
+def cast(cdecl: str, source: _CDataT) -> _CDataO: ...  # type: ignore [type-var]
+def addressof(cdata: _CDataT, *fields_or_indexes: str | int) -> _CDataT: ...
+def offsetof(cdecl: str, *fields_or_indexes: str | int) -> int: ...

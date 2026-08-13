@@ -93,16 +93,9 @@ class Protocol(Element):
             printer()
             printer("import enum")
 
-        typing_imports = []
         if any(iface.needs_any_type for iface in self.interface):
-            typing_imports.extend(["Any"])
-
-        if any(iface.needs_t_type for iface in self.interface):
-            typing_imports.extend(["TypeVar"])
-
-        if typing_imports:
             printer()
-            printer(f"from typing import {', '.join(sorted(typing_imports))}")
+            printer("from typing import Any")
 
         pywayland_imports = ["Interface", "Global", "Proxy", "Resource"]
         if any(iface.needs_argument_type for iface in self.interface):
@@ -120,10 +113,6 @@ class Protocol(Element):
             printer()
         for module, import_ in sorted(interface_imports):
             printer(f"from {module} import {import_}")
-
-        if "TypeVar" in typing_imports:
-            printer()
-            printer('T = TypeVar("T", bound=Interface)')
 
         with open(protocol_path, "wb") as f:
             printer.write(f)

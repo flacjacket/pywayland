@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from pywayland.protocol.wayland import WlShm
 
 
-def _full_display_gc(ptr: ffi.WlDisplayCData) -> None:
+def _full_display_gc(ptr: ffi.WlDisplay) -> None:
     """Destroy the Display cdata pointer, but only after destroying the clients"""
     lib.wl_display_destroy_clients(ptr)
     lib.wl_display_destroy(ptr)
@@ -37,13 +37,13 @@ def _full_display_gc(ptr: ffi.WlDisplayCData) -> None:
 class Display:
     """Create a Wayland Display object"""
 
-    def __init__(self, ptr: ffi.WlDisplayCData | None = None) -> None:
+    def __init__(self, ptr: ffi.WlDisplay | None = None) -> None:
         if ptr is None:
             ptr = lib.wl_display_create()
             if ptr == ffi.NULL:
                 raise MemoryError("Unable to create wl_display object")
 
-        self._ptr: ffi.WlDisplayCData | None = ffi.gc(ptr, _full_display_gc)
+        self._ptr: ffi.WlDisplay | None = ffi.gc(ptr, _full_display_gc)
 
     def __enter__(self) -> Display:
         """Use the Display in a context manager, which automatically destroys the Display"""

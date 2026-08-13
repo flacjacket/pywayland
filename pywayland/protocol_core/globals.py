@@ -29,13 +29,13 @@ if TYPE_CHECKING:
 else:
     T = TypeVar("T")
 
-weakkeydict: WeakKeyDictionary[ffi.WlGlobalCData, ServerDisplay] = WeakKeyDictionary()
+weakkeydict: WeakKeyDictionary[ffi.WlGlobal, ServerDisplay] = WeakKeyDictionary()
 
 
 # void (*wl_global_bind_func_t)(struct wl_client *client, void *data, uint32_t version, uint32_t id)
 @ffi.def_extern()
 def global_bind_func(
-    client_ptr: ffi.WlClientCData, data: ffi.CData, version: int, id: int
+    client_ptr: ffi.WlClient, data: ffi.CData, version: int, id: int
 ) -> None:
     # `data` is the handle to Global
     callback_info = ffi.from_handle(data)
@@ -76,7 +76,7 @@ class Global(Generic[T]):
         if display._ptr is None or display._ptr == ffi.NULL:
             raise ValueError("Display has been destroyed or couldn't initialize")
 
-        self._ptr: ffi.WlGlobalCData | None
+        self._ptr: ffi.WlGlobal | None
         if version is None:
             version = self.interface.version
 

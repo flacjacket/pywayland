@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     from .interface import Interface
 
     T = TypeVar("T", bound=Interface)
-    InterfaceT = TypeVar("InterfaceT", bound=Interface)
 else:
     T = TypeVar("T")
 
@@ -42,7 +41,7 @@ class Proxy(Generic[T]):
     :func:`Proxy.add_listener`.
 
     :param ptr: The pointer to the Wayland proxy object
-    :type ptr: ffi.WlProxyCData or None
+    :type ptr: ffi.WlProxy or None
     :param display: The display associated with this proxy
     :type display: :class:`~pywayland.client.Display` or Self or None
     """
@@ -50,9 +49,9 @@ class Proxy(Generic[T]):
     interface: type[T]
 
     def __init__(
-        self, ptr: ffi.WlProxyCData | None, display: ClientDisplay | Self | None = None
+        self, ptr: ffi.WlProxy | None, display: ClientDisplay | Self | None = None
     ) -> None:
-        self._ptr: ffi.WlProxyCData | None
+        self._ptr: ffi.WlProxy | None
         self._display: ClientDisplay | Self | None
         self.user_data: Any = None
         self.dispatcher = Dispatcher(self.interface.events)
@@ -117,19 +116,19 @@ class Proxy(Generic[T]):
         args_ptr = self.interface.requests[opcode].arguments_to_c(*args)
 
         # Write the event into the connection queue
-        proxy: ffi.WlProxyCData = ffi.cast("struct wl_proxy *", self._ptr)
+        proxy: ffi.WlProxy = ffi.cast("struct wl_proxy *", self._ptr)
         lib.wl_proxy_marshal_array(proxy, opcode, args_ptr)
 
     def _marshal_constructor(
-        self, opcode: int, interface: type[InterfaceT], *args: Any
-    ) -> Proxy[InterfaceT]:
+        self, opcode: int, interface: type[Interface], *args: Any
+    ) -> Any:
         """Marshal the given arguments into the Wayland wire format for a constructor"""
         assert self._ptr is not None
         # Create wl_argument array
         args_ptr = self.interface.requests[opcode].arguments_to_c(*args)
 
         # Write the event into the connection queue and build a new proxy from the given args
-        proxy: ffi.WlProxyCData = ffi.cast("struct wl_proxy *", self._ptr)
+        proxy: ffi.WlProxy = ffi.cast("struct wl_proxy *", self._ptr)
         proxy_ptr = lib.wl_proxy_marshal_array_constructor(
             proxy, opcode, args_ptr, interface._ptr
         )

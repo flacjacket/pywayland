@@ -119,12 +119,12 @@ class Argument(Element):
             if self.interface:
                 base_annotation = self.interface_class
             else:
-                base_annotation = "Any"
+                base_annotation = "object"
         elif self.type == ArgumentType.NewId:
             if self.interface:
                 base_annotation = self.interface_class
             else:
-                base_annotation = "Any"
+                base_annotation = "type[Interface]"
         elif self.type == ArgumentType.Array:
             base_annotation = "list"
         elif self.type == ArgumentType.FileDescriptor:

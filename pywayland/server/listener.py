@@ -22,15 +22,18 @@ from pywayland.utils import wl_container_of
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Any
+    from typing import Any, ParamSpec, TypeVar
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 logger = getLogger(__package__)
 
 
 # void (*wl_notify_func_t)(struct wl_listener *listener, void *data);
 @ffi.def_extern()
-def notify_func(listener_ptr: ffi.WlListenerCData, data: ffi.CData) -> None:
-    container: ffi.WlListenerContainerCData = wl_container_of(
+def notify_func(listener_ptr: ffi.WlListener, data: ffi.CData) -> None:
+    container: ffi.WlListenerContainer = wl_container_of(
         listener_ptr, "struct wl_listener_container *", "destroy_listener"
     )
     listener = ffi.from_handle(container.handle)
@@ -62,14 +65,14 @@ class Listener:
     :type function: callable
     """
 
-    def __init__(self, function: Callable[..., Any]) -> None:
-        self._ptr: ffi.WlListenerCData | None
+    def __init__(self, function: Callable[P, R]) -> None:
+        self._ptr: ffi.WlListener | None
         self._handle: ffi.CData = ffi.new_handle(self)
 
         # we need a way to get this Python object from the `struct
         # wl_listener*`, so we put the pointer in a container struct that
         # contains both the wl_listener and a pointer to our ffi handle
-        self.container: ffi.WlListenerContainerCData = ffi.new(
+        self.container: ffi.WlListenerContainer = ffi.new(
             "struct wl_listener_container *"
         )
         self.container.handle = self._handle
@@ -99,11 +102,11 @@ class Signal:
     def __init__(
         self,
         *,
-        ptr: ffi.WlSignalCData | None = None,
-        data_wrapper: Callable[..., Any] | None = None,
+        ptr: ffi.WlSignal | None = None,
+        data_wrapper: Callable[P, R] | None = None,
     ) -> None:
         if ptr is None:
-            self._ptr: ffi.WlSignalCData = ffi.new("struct wl_signal *")
+            self._ptr: ffi.WlSignal = ffi.new("struct wl_signal *")
             lib.wl_signal_init(self._ptr)
         else:
             self._ptr = ptr
